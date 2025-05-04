@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Heart, MapPin, Bed, Bath, Maximize, Car } from 'lucide-react'
