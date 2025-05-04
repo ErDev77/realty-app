@@ -9,7 +9,6 @@ import {
 	City,
 	PropertyFeature,
 } from '@/types/property'
-import { ChevronDown } from 'lucide-react'
 
 interface PropertyFilterProps {
 	onFilterChange: (filter: FilterType) => void
@@ -51,7 +50,10 @@ export default function PropertyFilter({
 		}
 	}, [filter.state_id])
 
-	const handleFilterChange = (key: keyof FilterType, value: any) => {
+	const handleFilterChange = (
+		key: keyof FilterType,
+		value: PropertyType | ListingType | string | number | number[] | undefined
+	) => {
 		const newFilter = { ...filter, [key]: value }
 
 		// Reset city if state changes

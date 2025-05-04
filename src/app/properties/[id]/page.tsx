@@ -19,13 +19,11 @@ import {
 	Trees,
 	Check,
 	X,
-	Phone,
-	Mail,
-	MessageCircle,
 	Share2,
 	Heart,
 	Loader2,
 } from 'lucide-react'
+import Link from 'next/link'
 
 
 export default function PropertyDetailPage() {
@@ -100,12 +98,12 @@ export default function PropertyDetailPage() {
 					<p className='text-red-600 text-lg'>
 						{error || 'Property not found'}
 					</p>
-					<a
+					<Link
 						href='/properties'
 						className='mt-4 inline-block text-blue-600 hover:underline'
 					>
 						Back to properties
-					</a>
+					</Link>
 				</div>
 			</div>
 		)

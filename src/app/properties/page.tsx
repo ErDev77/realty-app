@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import PropertyCard from '../_components/PropertyCard'
 import PropertyFilter from '../_components/PropertyFilter'
-import { Property, PropertyFilter as FilterType } from '@/types/property'
+import { Property, PropertyFilter as FilterType, PropertyType, ListingType } from '@/types/property'
 import { getProperties } from '@/services/propertyService'
 import { Loader2 } from 'lucide-react'
 
@@ -32,8 +32,9 @@ export default function PropertiesPage() {
 		const min_price = searchParams.get('min_price')
 		const max_price = searchParams.get('max_price')
 
-		if (property_type) initialFilter.property_type = property_type as any
-		if (listing_type) initialFilter.listing_type = listing_type as any
+		if (property_type)
+			initialFilter.property_type = property_type as PropertyType
+		if (listing_type) initialFilter.listing_type = listing_type as ListingType
 		if (state_id) initialFilter.state_id = parseInt(state_id)
 		if (city_id) initialFilter.city_id = parseInt(city_id)
 		if (min_price) initialFilter.min_price = parseFloat(min_price)
@@ -50,6 +51,7 @@ export default function PropertiesPage() {
 			const data = await getProperties({ ...filter, page: currentPage })
 			setProperties(data)
 
+			
 			// Calculate total pages (this would be better if your API returned total count)
 			// For now, we'll check if we received a full page of results
 			if (data.length === filter.limit) {

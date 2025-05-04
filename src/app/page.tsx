@@ -1179,7 +1179,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import PropertyCard from './_components/PropertyCard'
-import { Property, PropertyType, ListingType } from '@/types/property'
+import { Property } from '@/types/property'
 import { getFeaturedProperties, getRecentProperties } from '@/services/propertyService'
 import { Search, Home, Building2, Landmark, Trees, ArrowRight } from 'lucide-react'
 
