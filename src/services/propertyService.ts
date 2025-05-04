@@ -8,7 +8,7 @@ import {
 } from '../types/property'
 
 const API_BASE_URL =
-	process.env.NEXT_PUBLIC_API_URL || 'https://realty-app-admin.vercel.app/'
+	process.env.NEXT_PUBLIC_API_URL || 'https://realty-app-admin.vercel.app'
 
 export async function getProperties(
 	filter: PropertyFilter = {}
