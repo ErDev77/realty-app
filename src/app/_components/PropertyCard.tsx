@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, MapPin, Bed, Bath, Maximize, Car } from 'lucide-react'
+import { Heart, MapPin, Bed, Bath, Maximize, Car, Home } from 'lucide-react'
 import { Property } from '@/types/property'
 
 interface PropertyCardProps {
@@ -46,6 +46,13 @@ export default function PropertyCard({
 		return null
 	}
 
+	const formatPropertyType = (type: string) => {
+		return type
+			.split('_')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ')
+	}
+
 	return (
 		<div className='bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow'>
 			<div className='relative h-64'>
@@ -62,9 +69,13 @@ export default function PropertyCard({
 					</div>
 				)}
 
-				<div className='absolute top-4 left-4'>
+				<div className='absolute top-4 left-4 flex gap-2'>
 					<span className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium'>
 						{property.listing_type.replace('_', ' ').toUpperCase()}
+					</span>
+					<span className='bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center'>
+						<Home className='w-3 h-3 mr-1' />
+						{formatPropertyType(property.property_type)}
 					</span>
 				</div>
 
@@ -86,11 +97,15 @@ export default function PropertyCard({
 			</div>
 
 			<Link href={`/properties/${property.custom_id}`}>
-				{' '}
 				<div className='p-6'>
-					<h3 className='text-xl font-semibold mb-2 line-clamp-1'>
-						{property.title}
-					</h3>
+					<div className='flex justify-between items-start mb-2'>
+						<h3 className='text-xl font-semibold line-clamp-1'>
+							{property.title}
+						</h3>
+						<span className='text-sm bg-gray-100 px-2 py-1 rounded text-gray-600'>
+							ID: {property.custom_id}
+						</span>
+					</div>
 
 					<div className='flex items-center text-gray-600 mb-4'>
 						<MapPin className='w-4 h-4 mr-1' />
@@ -133,20 +148,6 @@ export default function PropertyCard({
 								<span>{getAreaInfo()}</span>
 							</div>
 						)}
-
-						{property.property_type !== 'land' &&
-							'attributes' in property &&
-							('garage_spaces' in property.attributes ||
-								'parking_spaces' in property.attributes) && (
-								<div className='flex items-center'>
-									<Car className='w-4 h-4 mr-1' />
-									<span>
-										{'garage_spaces' in property.attributes
-											? property.attributes.garage_spaces
-											: property.attributes.parking_spaces}
-									</span>
-								</div>
-							)}
 					</div>
 				</div>
 			</Link>

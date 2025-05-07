@@ -60,12 +60,6 @@ export interface HouseAttributes {
 	area_sqft: number
 	lot_size_sqft?: number
 	floors?: number
-	year_built?: number
-	garage_spaces: number
-	basement: boolean
-	heating_type?: string
-	cooling_type?: string
-	roof_type?: string
 }
 
 export interface ApartmentAttributes {
@@ -75,14 +69,6 @@ export interface ApartmentAttributes {
 	area_sqft: number
 	floor: number
 	total_floors: number
-	unit_number?: string
-	building_name?: string
-	year_built?: number
-	parking_spaces: number
-	balcony: boolean
-	elevator: boolean
-	security_system: boolean
-	pet_friendly: boolean
 }
 
 export interface CommercialAttributes {
@@ -90,24 +76,12 @@ export interface CommercialAttributes {
 	business_type?: string
 	area_sqft: number
 	floors?: number
-	year_built?: number
-	parking_spaces: number
-	loading_dock: boolean
-	zoning_type?: string
 	ceiling_height?: number
 }
 
 export interface LandAttributes {
 	property_id: number
 	area_acres: number
-	zoning_type?: string
-	topography?: string
-	road_access: boolean
-	utilities_available: boolean
-	is_fenced: boolean
-	soil_type?: string
-	water_rights: boolean
-	mineral_rights: boolean
 }
 
 export interface PropertyImage {

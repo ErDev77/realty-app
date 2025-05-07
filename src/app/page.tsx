@@ -1227,204 +1227,241 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="relative h-[600px] bg-gradient-to-r from-blue-600 to-blue-800">
-        <div className="absolute inset-0 bg-black opacity-40"></div>
-        <div className="relative h-full flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="text-center text-white">
-              <h1 className="text-4xl md:text-6xl font-bold mb-4">
-                Find Your Dream Property
-              </h1>
-              <p className="text-xl md:text-2xl mb-8">
-                Discover the perfect home from our extensive collection
-              </p>
+		<div className='min-h-screen'>
+			{/* Hero Section */}
+			<div className='relative h-[600px] bg-gradient-to-r from-blue-600 to-blue-800'>
+				<div className='absolute inset-0 bg-black opacity-40'></div>
+				<div className='relative h-full flex items-center'>
+					<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
+						<div className='text-center text-white'>
+							<h1 className='text-4xl md:text-6xl font-bold mb-4'>
+								Գտեք ձեր երազանքի անշարժ գույքը
+							</h1>
+							<p className='text-xl md:text-2xl mb-8'>
+								Բացահայտեք կատարյալ տունը մեր լայն հավաքածուից{' '}
+							</p>
 
-              {/* Search Form */}
-              <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-                <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <select
-                    value={searchForm.property_type}
-                    onChange={(e) => setSearchForm({ ...searchForm, property_type: e.target.value })}
-                    className="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Property Type</option>
-                    <option value="house">House</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="commercial">Commercial</option>
-                    <option value="land">Land</option>
-                  </select>
+							{/* Search Form */}
+							<div className='max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6'>
+								<form
+									onSubmit={handleSearch}
+									className='grid grid-cols-1 md:grid-cols-4 gap-4'
+								>
+									<select
+										value={searchForm.property_type}
+										onChange={e =>
+											setSearchForm({
+												...searchForm,
+												property_type: e.target.value,
+											})
+										}
+										className='border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+									>
+										<option value=''>Property Type</option>
+										<option value='house'>House</option>
+										<option value='apartment'>Apartment</option>
+										<option value='commercial'>Commercial</option>
+										<option value='land'>Land</option>
+									</select>
 
-                  <select
-                    value={searchForm.listing_type}
-                    onChange={(e) => setSearchForm({ ...searchForm, listing_type: e.target.value })}
-                    className="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Listing Type</option>
-                    <option value="sale">For Sale</option>
-                    <option value="rent">For Rent</option>
-                    <option value="daily_rent">Daily Rent</option>
-                  </select>
+									<select
+										value={searchForm.listing_type}
+										onChange={e =>
+											setSearchForm({
+												...searchForm,
+												listing_type: e.target.value,
+											})
+										}
+										className='border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+									>
+										<option value=''>Listing Type</option>
+										<option value='sale'>For Sale</option>
+										<option value='rent'>For Rent</option>
+										<option value='daily_rent'>Daily Rent</option>
+									</select>
 
-                  <input
-                    type="text"
-                    placeholder="Location"
-                    value={searchForm.location}
-                    onChange={(e) => setSearchForm({ ...searchForm, location: e.target.value })}
-                    className="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+									<input
+										type='text'
+										placeholder='Location'
+										value={searchForm.location}
+										onChange={e =>
+											setSearchForm({ ...searchForm, location: e.target.value })
+										}
+										className='border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+									/>
 
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white rounded-lg px-6 py-3 hover:bg-blue-700 flex items-center justify-center"
-                  >
-                    <Search className="w-5 h-5 mr-2" />
-                    Search
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+									<button
+										type='submit'
+										className='bg-blue-600 text-white rounded-lg px-6 py-3 hover:bg-blue-700 flex items-center justify-center'
+									>
+										<Search className='w-5 h-5 mr-2' />
+										Search
+									</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-      {/* Featured Properties */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Featured Properties</h2>
-            <p className="mt-4 text-xl text-gray-600">Handpicked properties for you</p>
-          </div>
+			{/* Featured Properties */}
+			<section className='py-16 bg-gray-50'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+					<div className='text-center mb-12'>
+						<h2 className='text-3xl font-bold text-gray-900'>
+							Featured Properties
+						</h2>
+						<p className='mt-4 text-xl text-gray-600'>
+							Handpicked properties for you
+						</p>
+					</div>
 
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
-          )}
+					{loading ? (
+						<div className='flex justify-center items-center h-64'>
+							<div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
+						</div>
+					) : (
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+							{featuredProperties.map(property => (
+								<PropertyCard key={property.id} property={property} />
+							))}
+						</div>
+					)}
 
-          <div className="text-center mt-12">
-            <Link
-              href="/properties?featured=true"
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-            >
-              View All Featured Properties
-              <ArrowRight className="ml-2 -mr-1 h-5 w-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
+					<div className='text-center mt-12'>
+						<Link
+							href='/properties?featured=true'
+							className='inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700'
+						>
+							View All Featured Properties
+							<ArrowRight className='ml-2 -mr-1 h-5 w-5' />
+						</Link>
+					</div>
+				</div>
+			</section>
 
-      {/* Property Types */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Browse by Property Type</h2>
-            <p className="mt-4 text-xl text-gray-600">Find the perfect property that suits your needs</p>
-          </div>
+			{/* Property Types */}
+			<section className='py-16'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+					<div className='text-center mb-12'>
+						<h2 className='text-3xl font-bold text-gray-900'>
+							Browse by Property Type
+						</h2>
+						<p className='mt-4 text-xl text-gray-600'>
+							Find the perfect property that suits your needs
+						</p>
+					</div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Link
-              href="/properties?property_type=house"
-              className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-center"
-            >
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                <Home className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Houses</h3>
-              <p className="mt-2 text-gray-600">Find your perfect family home</p>
-            </Link>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
+						<Link
+							href='/properties?property_type=house'
+							className='group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-center'
+						>
+							<div className='w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors'>
+								<Home className='w-8 h-8 text-blue-600' />
+							</div>
+							<h3 className='text-xl font-semibold text-gray-900'>Houses</h3>
+							<p className='mt-2 text-gray-600'>
+								Find your perfect family home
+							</p>
+						</Link>
 
-            <Link
-              href="/properties?property_type=apartment"
-              className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-center"
-            >
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
-                <Building2 className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Apartments</h3>
-              <p className="mt-2 text-gray-600">Modern living spaces</p>
-            </Link>
+						<Link
+							href='/properties?property_type=apartment'
+							className='group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-center'
+						>
+							<div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors'>
+								<Building2 className='w-8 h-8 text-green-600' />
+							</div>
+							<h3 className='text-xl font-semibold text-gray-900'>
+								Apartments
+							</h3>
+							<p className='mt-2 text-gray-600'>Modern living spaces</p>
+						</Link>
 
-            <Link
-              href="/properties?property_type=commercial"
-              className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-center"
-            >
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
-                <Landmark className="w-8 h-8 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Commercial</h3>
-              <p className="mt-2 text-gray-600">Business and office spaces</p>
-            </Link>
+						<Link
+							href='/properties?property_type=commercial'
+							className='group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-center'
+						>
+							<div className='w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors'>
+								<Landmark className='w-8 h-8 text-purple-600' />
+							</div>
+							<h3 className='text-xl font-semibold text-gray-900'>
+								Commercial
+							</h3>
+							<p className='mt-2 text-gray-600'>Business and office spaces</p>
+						</Link>
 
-            <Link
-              href="/properties?property_type=land"
-              className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-center"
-            >
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors">
-                <Trees className="w-8 h-8 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Land</h3>
-              <p className="mt-2 text-gray-600">Build your dream project</p>
-            </Link>
-          </div>
-        </div>
-      </section>
+						<Link
+							href='/properties?property_type=land'
+							className='group bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-center'
+						>
+							<div className='w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors'>
+								<Trees className='w-8 h-8 text-orange-600' />
+							</div>
+							<h3 className='text-xl font-semibold text-gray-900'>Land</h3>
+							<p className='mt-2 text-gray-600'>Build your dream project</p>
+						</Link>
+					</div>
+				</div>
+			</section>
 
-      {/* Recent Properties */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Recent Properties</h2>
-            <p className="mt-4 text-xl text-gray-600">Latest additions to our collection</p>
-          </div>
+			{/* Recent Properties */}
+			<section className='py-16 bg-gray-50'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+					<div className='text-center mb-12'>
+						<h2 className='text-3xl font-bold text-gray-900'>
+							Recent Properties
+						</h2>
+						<p className='mt-4 text-xl text-gray-600'>
+							Latest additions to our collection
+						</p>
+					</div>
 
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {recentProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
-          )}
+					{loading ? (
+						<div className='flex justify-center items-center h-64'>
+							<div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
+						</div>
+					) : (
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
+							{recentProperties.map(property => (
+								<PropertyCard key={property.id} property={property} />
+							))}
+						</div>
+					)}
 
-          <div className="text-center mt-12">
-            <Link
-              href="/properties"
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-            >
-              View All Properties
-              <ArrowRight className="ml-2 -mr-1 h-5 w-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
+					<div className='text-center mt-12'>
+						<Link
+							href='/properties'
+							className='inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700'
+						>
+							View All Properties
+							<ArrowRight className='ml-2 -mr-1 h-5 w-5' />
+						</Link>
+					</div>
+				</div>
+			</section>
 
-      {/* Call to Action */}
-      <section className="py-16 bg-blue-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white">Ready to Find Your Dream Property?</h2>
-          <p className="mt-4 text-xl text-blue-100">Browse through our extensive collection of properties</p>
-          <div className="mt-8">
-            <Link
-              href="/properties"
-              className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50"
-            >
-              Start Browsing
-              <ArrowRight className="ml-2 -mr-1 h-5 w-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>
-  )
+			{/* Call to Action */}
+			<section className='py-16 bg-blue-600'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
+					<h2 className='text-3xl font-bold text-white'>
+						Ready to Find Your Dream Property?
+					</h2>
+					<p className='mt-4 text-xl text-blue-100'>
+						Browse through our extensive collection of properties
+					</p>
+					<div className='mt-8'>
+						<Link
+							href='/properties'
+							className='inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50'
+						>
+							Start Browsing
+							<ArrowRight className='ml-2 -mr-1 h-5 w-5' />
+						</Link>
+					</div>
+				</div>
+			</section>
+		</div>
+	)
 }

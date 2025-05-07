@@ -2,7 +2,7 @@ import { Facebook, Home, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide
 
 const Footer = () => {
 	return (
-		<footer className='bg-gray-900 text-white py-16'>
+		<footer className='bg-[#2C3539] text-white py-16'>
 			<div className='container mx-auto px-4'>
 				<div className='grid grid-cols-1 md:grid-cols-4 gap-8 mb-12'>
 					<div>
