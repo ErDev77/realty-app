@@ -17,11 +17,11 @@ const Header = () => {
 							Chance Realty
 						</span> */}
 						<Image
-							src='/log1.png'
+							src='/logo44.png'
 							alt='Logo'
 							width={350}
 							height={200}
-							className='h-20 w-auto'
+							className='h-30 w-auto'
 						/>
 					</div>
 

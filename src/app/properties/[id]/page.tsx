@@ -34,6 +34,7 @@ import {
 	Copy,
 	Printer,
 	FileText,
+	Play,
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -282,13 +283,32 @@ return (
 						<div className='relative h-[50vh] md:h-[60vh]'>
 							{property.images && property.images.length > 0 ? (
 								<>
-									<Image
-										src={property.images[selectedImage].url}
-										alt={property.title}
-										fill
-										className='object-cover'
-										priority
-									/>
+									{property.images[selectedImage].type === 'image' ? (
+										<Image
+											src={property.images[selectedImage].url}
+											alt={property.title}
+											fill
+											className='object-cover'
+											priority
+										/>
+									) : property.images[selectedImage].type === 'video' ? (
+										<div className='w-full h-full bg-black flex items-center justify-center'>
+											<video
+												src={property.images[selectedImage].url}
+												controls
+												className='max-h-full max-w-full'
+												poster={property.images[selectedImage].thumbnail_url}
+											>
+												Your browser does not support the video tag.
+											</video>
+										</div>
+									) : (
+										<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
+											<span className='text-gray-500'>
+												Unsupported media type
+											</span>
+										</div>
+									)}
 									<div className='absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-30'></div>
 
 									{/* Navigation arrows */}
@@ -318,7 +338,7 @@ return (
 											onClick={() => setShowFullGallery(true)}
 											className='absolute bottom-4 left-4 bg-white text-gray-800 px-4 py-2 rounded-lg font-medium shadow-lg hover:bg-blue-50 transition-colors'
 										>
-											View all photos
+											View all media
 										</button>
 									)}
 								</>
@@ -331,9 +351,9 @@ return (
 
 						{property.images && property.images.length > 1 && (
 							<div className='hidden md:flex overflow-x-auto py-4 px-4 gap-2 bg-white'>
-								{property.images.map((image, index) => (
+								{property.images.map((media, index) => (
 									<button
-										key={image.id}
+										key={media.id}
 										onClick={() => setSelectedImage(index)}
 										className={`relative w-24 h-16 flex-shrink-0 rounded-md overflow-hidden transition-all ${
 											selectedImage === index
@@ -341,12 +361,30 @@ return (
 												: 'opacity-70 hover:opacity-100'
 										}`}
 									>
-										<Image
-											src={image.url}
-											alt={`${property.title} - ${index + 1}`}
-											fill
-											className='object-cover'
-										/>
+										{media.type === 'image' ? (
+											<Image
+												src={media.url}
+												alt={`${property.title} - ${index + 1}`}
+												fill
+												className='object-cover'
+											/>
+										) : media.type === 'video' ? (
+											<div className='w-full h-full bg-gray-800 flex items-center justify-center'>
+												<Play className='w-8 h-8 text-white' />
+												{media.thumbnail_url && (
+													<Image
+														src={media.thumbnail_url}
+														alt={`Video thumbnail ${index + 1}`}
+														fill
+														className='object-cover opacity-50'
+													/>
+												)}
+											</div>
+										) : (
+											<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
+												<span className='text-xs text-gray-500'>File</span>
+											</div>
+										)}
 									</button>
 								))}
 							</div>
@@ -736,7 +774,7 @@ return (
 			<div className='fixed inset-0 bg-black z-50 overflow-y-auto'>
 				<div className='flex items-center justify-between p-4 bg-black bg-opacity-75 sticky top-0 z-10'>
 					<h3 className='text-xl font-medium text-white'>
-						All Photos ({property.images.length})
+						All Media ({property.images.length})
 					</h3>
 					<button
 						onClick={() => setShowFullGallery(false)}
@@ -748,20 +786,44 @@ return (
 				</div>
 
 				<div className='max-w-5xl mx-auto p-4 space-y-4'>
-					{property.images.map((image, index) => (
+					{property.images.map((media, index) => (
 						<div
-							key={image.id}
+							key={media.id}
 							className='bg-gray-900 rounded-lg overflow-hidden'
 						>
 							<div className='relative h-[70vh]'>
-								<Image
-									src={image.url}
-									alt={`${property.title} - ${index + 1}`}
-									fill
-									className='object-contain'
-									priority={index === 0}
-								/>
+								{media.type === 'image' ? (
+									<Image
+										src={media.url}
+										alt={`${property.title} - ${index + 1}`}
+										fill
+										className='object-contain'
+										priority={index === 0}
+									/>
+								) : media.type === 'video' ? (
+									<div className='w-full h-full flex items-center justify-center'>
+										<video
+											src={media.url}
+											controls
+											className='max-h-full max-w-full'
+											poster={media.thumbnail_url}
+										>
+											Your browser does not support the video tag.
+										</video>
+									</div>
+								) : (
+									<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
+										<span className='text-gray-500'>
+											Unsupported media type
+										</span>
+									</div>
+								)}
 							</div>
+							{media.caption && (
+								<div className='p-3 bg-black bg-opacity-75 text-white'>
+									<p>{media.caption}</p>
+								</div>
+							)}
 						</div>
 					))}
 				</div>

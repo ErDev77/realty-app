@@ -1,7 +1,16 @@
 'use client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, MapPin, Bed, Bath, Maximize, Car, Home } from 'lucide-react'
+import {
+	Heart,
+	MapPin,
+	Bed,
+	Bath,
+	Maximize,
+	Car,
+	Home,
+	Play,
+} from 'lucide-react'
 import { Property } from '@/types/property'
 
 interface PropertyCardProps {
@@ -15,8 +24,14 @@ export default function PropertyCard({
 	onFavoriteClick,
 	isFavorited = false,
 }: PropertyCardProps) {
+	// Find primary image or first image with type 'image'
 	const primaryImage =
-		property.images?.find(img => img.is_primary) || property.images?.[0]
+		property.images?.find(img => img.is_primary && img.type === 'image') ||
+		property.images?.find(img => img.type === 'image') ||
+		property.images?.[0]
+
+	// Check if we have any videos
+	const hasVideos = property.images?.some(media => media.type === 'video')
 
 	const formatPrice = (price: number, listingType: string) => {
 		const formatted = new Intl.NumberFormat('en-US', {
@@ -57,12 +72,20 @@ export default function PropertyCard({
 		<div className='bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow'>
 			<div className='relative h-64'>
 				{primaryImage ? (
-					<Image
-						src={primaryImage.url}
-						alt={property.title}
-						fill
-						className='object-cover'
-					/>
+					<>
+						<Image
+							src={primaryImage.url}
+							alt={property.title}
+							fill
+							className='object-cover'
+						/>
+						{hasVideos && (
+							<div className='absolute top-4 right-4 bg-black bg-opacity-60 text-white px-2 py-1 rounded-md flex items-center'>
+								<Play className='w-4 h-4 mr-1' />
+								<span className='text-xs'>Video</span>
+							</div>
+						)}
+					</>
 				) : (
 					<div className='w-full h-full bg-gray-200 flex items-center justify-center'>
 						<span className='text-gray-400'>No image available</span>
@@ -154,5 +177,3 @@ export default function PropertyCard({
 		</div>
 	)
 }
-
-// src/components/PropertyFilter.tsx

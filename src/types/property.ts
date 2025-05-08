@@ -1,9 +1,9 @@
-// src/types/property.ts
-
+// src/types/property.ts (updated PropertyImage to PropertyMedia)
 
 export type ListingType = 'sale' | 'rent' | 'daily_rent'
 export type PropertyType = 'house' | 'apartment' | 'commercial' | 'land'
 export type PropertyStatus = 'available' | 'sold' | 'rented' | 'pending'
+export type MediaType = 'image' | 'video'
 
 export interface State {
 	id: number
@@ -50,7 +50,7 @@ export interface BaseProperty {
 	state?: State
 	city?: City
 	features?: PropertyFeature[]
-	images?: PropertyImage[]
+	images?: PropertyMedia[]
 }
 
 export interface HouseAttributes {
@@ -84,14 +84,21 @@ export interface LandAttributes {
 	area_acres: number
 }
 
-export interface PropertyImage {
+// Renamed from PropertyImage to PropertyMedia to handle both images and videos
+export interface PropertyMedia {
 	id: number
 	property_id: number
+	file_id: string
 	url: string
+	thumbnail_url?: string
+	thumbnailUrl?: string // For compatibility with camelCase
+	type: MediaType
 	caption?: string
-	image_type: string
+	image_type?: string // For backwards compatibility
 	display_order: number
+	displayOrder?: number // For compatibility with camelCase
 	is_primary: boolean
+	isPrimary?: boolean // For compatibility with camelCase
 }
 
 export interface PropertyDocument {

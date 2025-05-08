@@ -7,8 +7,7 @@ import {
 	PropertyFeature,
 } from '../types/property'
 
-const API_BASE_URL =
-	process.env.NEXT_PUBLIC_API_URL || 'localhost:3001'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'localhost:3001'
 
 export async function getProperties(
 	filter: PropertyFilter = {}
@@ -45,7 +44,37 @@ export async function getProperties(
 			throw new Error('Failed to fetch properties')
 		}
 
-		return await response.json()
+		const data = await response.json()
+
+		// Transform property images to match the updated format
+		return data.map((property: any) => {
+			// If property already has the new media format, just return it
+			if (
+				property.images &&
+				property.images.length > 0 &&
+				'type' in property.images[0]
+			) {
+				return property
+			}
+
+			// Otherwise transform the old image format to the new media format
+			if (property.images) {
+				property.images = property.images.map((image: any, index: number) => ({
+					...image,
+					type: 'image',
+					// If thumbnailUrl is not present, use the main url
+					thumbnail_url: image.thumbnail_url || image.url,
+					// Keep compatibility with camelCase and snake_case
+					thumbnailUrl: image.thumbnail_url || image.url,
+					is_primary: image.is_primary || false,
+					isPrimary: image.is_primary || false,
+					display_order: image.display_order || index,
+					displayOrder: image.display_order || index,
+				}))
+			}
+
+			return property
+		})
 	} catch (error) {
 		console.error('Error fetching properties:', error)
 		throw error
@@ -64,16 +93,40 @@ export async function getPropertyByCustomId(
 			throw new Error('Failed to fetch property')
 		}
 
-		return await response.json()
+		const property = await response.json()
+
+		// Transform property images to match the updated format
+		if (property.images) {
+			// If property already has the new media format, just return it
+			if (property.images.length > 0 && 'type' in property.images[0]) {
+				return property
+			}
+
+			// Otherwise transform the old image format to the new media format
+			property.images = property.images.map((image: any, index: number) => ({
+				...image,
+				type: 'image',
+				// If thumbnailUrl is not present, use the main url
+				thumbnail_url: image.thumbnail_url || image.url,
+				thumbnailUrl: image.thumbnail_url || image.url,
+				is_primary: image.is_primary || false,
+				isPrimary: image.is_primary || false,
+				display_order: image.display_order || index,
+				displayOrder: image.display_order || index,
+			}))
+		}
+
+		return property
 	} catch (error) {
 		console.error('Error fetching property:', error)
 		throw error
 	}
 }
+
 export async function getPropertyById(id: number): Promise<Property | null> {
-	  console.warn(
-			'getPropertyById is deprecated. Use getPropertyByCustomId instead.'
-		)
+	console.warn(
+		'getPropertyById is deprecated. Use getPropertyByCustomId instead.'
+	)
 
 	try {
 		const response = await fetch(`${API_BASE_URL}/api/properties/${id}`)
@@ -84,12 +137,34 @@ export async function getPropertyById(id: number): Promise<Property | null> {
 			throw new Error('Failed to fetch property')
 		}
 
-		return await response.json()
+		const property = await response.json()
+
+		// Transform property images to match the updated format
+		if (property.images) {
+			// If property already has the new media format, just return it
+			if (property.images.length > 0 && 'type' in property.images[0]) {
+				return property
+			}
+
+			// Otherwise transform the old image format to the new media format
+			property.images = property.images.map((image: any, index: number) => ({
+				...image,
+				type: 'image',
+				// If thumbnailUrl is not present, use the main url
+				thumbnail_url: image.thumbnail_url || image.url,
+				thumbnailUrl: image.thumbnail_url || image.url,
+				is_primary: image.is_primary || false,
+				isPrimary: image.is_primary || false,
+				display_order: image.display_order || index,
+				displayOrder: image.display_order || index,
+			}))
+		}
+
+		return property
 	} catch (error) {
 		console.error('Error fetching property:', error)
 		throw error
 	}
-	  return null
 }
 
 export async function getStates(): Promise<State[]> {
@@ -172,7 +247,36 @@ export async function getFeaturedProperties(): Promise<Property[]> {
 			throw new Error('Failed to fetch featured properties')
 		}
 
-		return await response.json()
+		const data = await response.json()
+
+		// Transform property images to match the updated format
+		return data.map((property: any) => {
+			// If property already has the new media format, just return it
+			if (
+				property.images &&
+				property.images.length > 0 &&
+				'type' in property.images[0]
+			) {
+				return property
+			}
+
+			// Otherwise transform the old image format to the new media format
+			if (property.images) {
+				property.images = property.images.map((image: any, index: number) => ({
+					...image,
+					type: 'image',
+					// If thumbnailUrl is not present, use the main url
+					thumbnail_url: image.thumbnail_url || image.url,
+					thumbnailUrl: image.thumbnail_url || image.url,
+					is_primary: image.is_primary || false,
+					isPrimary: image.is_primary || false,
+					display_order: image.display_order || index,
+					displayOrder: image.display_order || index,
+				}))
+			}
+
+			return property
+		})
 	} catch (error) {
 		console.error('Error fetching featured properties:', error)
 		throw error
@@ -190,7 +294,36 @@ export async function getRecentProperties(
 			throw new Error('Failed to fetch recent properties')
 		}
 
-		return await response.json()
+		const data = await response.json()
+
+		// Transform property images to match the updated format
+		return data.map((property: any) => {
+			// If property already has the new media format, just return it
+			if (
+				property.images &&
+				property.images.length > 0 &&
+				'type' in property.images[0]
+			) {
+				return property
+			}
+
+			// Otherwise transform the old image format to the new media format
+			if (property.images) {
+				property.images = property.images.map((image: any, index: number) => ({
+					...image,
+					type: 'image',
+					// If thumbnailUrl is not present, use the main url
+					thumbnail_url: image.thumbnail_url || image.url,
+					thumbnailUrl: image.thumbnail_url || image.url,
+					is_primary: image.is_primary || false,
+					isPrimary: image.is_primary || false,
+					display_order: image.display_order || index,
+					displayOrder: image.display_order || index,
+				}))
+			}
+
+			return property
+		})
 	} catch (error) {
 		console.error('Error fetching recent properties:', error)
 		throw error
