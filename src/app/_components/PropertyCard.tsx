@@ -1,4 +1,5 @@
 'use client'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -7,11 +8,15 @@ import {
 	Bed,
 	Bath,
 	Maximize,
-	Car,
 	Home,
 	Play,
+	Building2,
+	ArrowUp,
+	Warehouse,
 } from 'lucide-react'
 import { Property } from '@/types/property'
+
+const API_BASE_URL = 'https://realty-app-admin.vercel.app'
 
 interface PropertyCardProps {
 	property: Property
@@ -24,15 +29,67 @@ export default function PropertyCard({
 	onFavoriteClick,
 	isFavorited = false,
 }: PropertyCardProps) {
-	// Find primary image or first image with type 'image'
-	const primaryImage =
-		property.images?.find(img => img.is_primary && img.type === 'image') ||
-		property.images?.find(img => img.type === 'image') ||
-		property.images?.[0]
+	// State for image slider
+	const [currentImageIndex, setCurrentImageIndex] = useState(0)
+	const [isHovering, setIsHovering] = useState(false)
+	const sliderIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+	// Function to get full image URL
+	const getImageUrl = (path?: string) => {
+		// If path is null or undefined, return a placeholder
+		if (!path) return '/api/placeholder/400/300'
+
+		// If it's already a full URL, return it as is
+		if (path.startsWith('http')) return path
+
+		// Otherwise, prepend the API base URL
+		return `${API_BASE_URL}${path}`
+	}
+
+	// Set up auto-slider effect
+	useEffect(() => {
+		// Clear any existing interval when component unmounts or dependencies change
+		return () => {
+			if (sliderIntervalRef.current) {
+				clearInterval(sliderIntervalRef.current)
+			}
+		}
+	}, [])
+
+	// Start/stop the slider based on hover state
+	useEffect(() => {
+		if (!property.images || property.images.length <= 1) return
+
+		if (isHovering) {
+			// Start the slider when hovering
+			sliderIntervalRef.current = setInterval(() => {
+				setCurrentImageIndex(
+					prev => (prev + 1) % (property.images?.length || 1)
+				)
+			}, 2000) // Change image every 2 seconds
+		} else {
+			// Stop the slider when not hovering
+			if (sliderIntervalRef.current) {
+				clearInterval(sliderIntervalRef.current)
+				sliderIntervalRef.current = null
+			}
+		}
+
+		// Clean up on unmount or when dependencies change
+		return () => {
+			if (sliderIntervalRef.current) {
+				clearInterval(sliderIntervalRef.current)
+			}
+		}
+	}, [isHovering, property.images])
+
+	// Check if we have any images
+	const hasImages = property.images && property.images.length > 0
 
 	// Check if we have any videos
 	const hasVideos = property.images?.some(media => media.type === 'video')
 
+	// Function to format price based on listing type
 	const formatPrice = (price: number, listingType: string) => {
 		const formatted = new Intl.NumberFormat('en-US', {
 			style: 'currency',
@@ -50,6 +107,7 @@ export default function PropertyCard({
 		}
 	}
 
+	// Function to get area information based on property type
 	const getAreaInfo = () => {
 		if ('attributes' in property) {
 			if (property.property_type === 'land') {
@@ -61,6 +119,7 @@ export default function PropertyCard({
 		return null
 	}
 
+	// Function to format property type
 	const formatPropertyType = (type: string) => {
 		return type
 			.split('_')
@@ -68,17 +127,178 @@ export default function PropertyCard({
 			.join(' ')
 	}
 
+	// Get current image URL safely
+	const getCurrentImageUrl = () => {
+		if (property.images && property.images.length > 0) {
+			return getImageUrl(property.images[currentImageIndex]?.url)
+		}
+		return getImageUrl()
+	}
+
+	// Get property attributes based on property type
+	const renderPropertyAttributes = () => {
+		switch (property.property_type) {
+			case 'house':
+				if ('attributes' in property) {
+					return (
+						<div className='flex items-center space-x-4 text-gray-600'>
+							{property.attributes.bedrooms && (
+								<div className='flex items-center'>
+									<Bed className='w-4 h-4 mr-1' />
+									<span>{property.attributes.bedrooms}</span>
+								</div>
+							)}
+
+							{property.attributes.bathrooms && (
+								<div className='flex items-center'>
+									<Bath className='w-4 h-4 mr-1' />
+									<span>{property.attributes.bathrooms}</span>
+								</div>
+							)}
+
+							{property.attributes.area_sqft && (
+								<div className='flex items-center'>
+									<Maximize className='w-4 h-4 mr-1' />
+									<span>{property.attributes.area_sqft} sq ft</span>
+								</div>
+							)}
+
+							{property.attributes.floors && (
+								<div className='flex items-center'>
+									<Building2 className='w-4 h-4 mr-1' />
+									<span>{property.attributes.floors} fl</span>
+								</div>
+							)}
+						</div>
+					)
+				}
+				break
+
+			case 'apartment':
+				if ('attributes' in property) {
+					return (
+						<div className='flex items-center space-x-4 text-gray-600'>
+							{property.attributes.bedrooms && (
+								<div className='flex items-center'>
+									<Bed className='w-4 h-4 mr-1' />
+									<span>{property.attributes.bedrooms}</span>
+								</div>
+							)}
+
+							{property.attributes.bathrooms && (
+								<div className='flex items-center'>
+									<Bath className='w-4 h-4 mr-1' />
+									<span>{property.attributes.bathrooms}</span>
+								</div>
+							)}
+
+							{property.attributes.area_sqft && (
+								<div className='flex items-center'>
+									<Maximize className='w-4 h-4 mr-1' />
+									<span>{property.attributes.area_sqft} sq ft</span>
+								</div>
+							)}
+
+							{(property.attributes.floor ||
+								property.attributes.total_floors) && (
+								<div className='flex items-center'>
+									<Building2 className='w-4 h-4 mr-1' />
+									<span>
+										{property.attributes.floor}/
+										{property.attributes.total_floors}
+									</span>
+								</div>
+							)}
+						</div>
+					)
+				}
+				break
+
+			case 'commercial':
+				if ('attributes' in property) {
+					return (
+						<div className='flex items-center space-x-4 text-gray-600'>
+							{property.attributes.area_sqft && (
+								<div className='flex items-center'>
+									<Maximize className='w-4 h-4 mr-1' />
+									<span>{property.attributes.area_sqft} sq ft</span>
+								</div>
+							)}
+
+							{property.attributes.business_type && (
+								<div className='flex items-center'>
+									<Warehouse className='w-4 h-4 mr-1' />
+									<span>{property.attributes.business_type}</span>
+								</div>
+							)}
+
+							{property.attributes.floors && (
+								<div className='flex items-center'>
+									<Building2 className='w-4 h-4 mr-1' />
+									<span>{property.attributes.floors} fl</span>
+								</div>
+							)}
+
+							{property.attributes.ceiling_height && (
+								<div className='flex items-center'>
+									<ArrowUp className='w-4 h-4 mr-1' />
+									<span>{property.attributes.ceiling_height}′</span>
+								</div>
+							)}
+						</div>
+					)
+				}
+				break
+
+			case 'land':
+				if ('attributes' in property) {
+					return (
+						<div className='flex items-center space-x-4 text-gray-600'>
+							{property.attributes.area_acres && (
+								<div className='flex items-center'>
+									<Maximize className='w-4 h-4 mr-1' />
+									<span>{property.attributes.area_acres} acres</span>
+								</div>
+							)}
+						</div>
+					)
+				}
+				break
+		}
+
+		return null
+	}
+
 	return (
-		<div className='bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow'>
+		<div
+			className='bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow'
+			onMouseEnter={() => setIsHovering(true)}
+			onMouseLeave={() => setIsHovering(false)}
+		>
 			<div className='relative h-64'>
-				{primaryImage ? (
+				{hasImages ? (
 					<>
 						<Image
-							src={primaryImage.url}
+							src={getCurrentImageUrl()}
 							alt={property.title}
 							fill
-							className='object-cover'
+							className='object-cover transition-opacity duration-500'
 						/>
+
+						{/* Image slider indicator - only show if more than one image */}
+						{property.images && property.images.length > 1 && (
+							<div className='absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1'>
+								{property.images.map((_, i) => (
+									<div
+										key={i}
+										className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+											i === currentImageIndex ? 'bg-white' : 'bg-white/50'
+										}`}
+									/>
+								))}
+							</div>
+						)}
+
 						{hasVideos && (
 							<div className='absolute top-4 right-4 bg-black bg-opacity-60 text-white px-2 py-1 rounded-md flex items-center'>
 								<Play className='w-4 h-4 mr-1' />
@@ -106,6 +326,7 @@ export default function PropertyCard({
 					<button
 						onClick={e => {
 							e.preventDefault()
+							e.stopPropagation()
 							onFavoriteClick(property.id)
 						}}
 						className='absolute top-4 right-4 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow'
@@ -144,34 +365,8 @@ export default function PropertyCard({
 						</div>
 					</div>
 
-					<div className='flex items-center space-x-4 text-gray-600'>
-						{property.property_type === 'house' ||
-						property.property_type === 'apartment' ? (
-							<>
-								{'attributes' in property &&
-									'bedrooms' in property.attributes && (
-										<div className='flex items-center'>
-											<Bed className='w-4 h-4 mr-1' />
-											<span>{property.attributes.bedrooms}</span>
-										</div>
-									)}
-								{'attributes' in property &&
-									'bathrooms' in property.attributes && (
-										<div className='flex items-center'>
-											<Bath className='w-4 h-4 mr-1' />
-											<span>{property.attributes.bathrooms}</span>
-										</div>
-									)}
-							</>
-						) : null}
-
-						{getAreaInfo() && (
-							<div className='flex items-center'>
-								<Maximize className='w-4 h-4 mr-1' />
-								<span>{getAreaInfo()}</span>
-							</div>
-						)}
-					</div>
+					{/* Render all property attributes based on property type */}
+					{renderPropertyAttributes()}
 				</div>
 			</Link>
 		</div>

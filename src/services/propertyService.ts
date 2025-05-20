@@ -7,7 +7,7 @@ import {
 	PropertyFeature,
 } from '../types/property'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'localhost:3001'
+const API_BASE_URL = 'http://localhost:3001'
 
 export async function getProperties(
 	filter: PropertyFilter = {}
@@ -36,6 +36,13 @@ export async function getProperties(
 		if (filter.sort_order) params.append('sort_order', filter.sort_order)
 		if (filter.page) params.append('page', filter.page.toString())
 		if (filter.limit) params.append('limit', filter.limit.toString())
+		
+		params.append('page', String(filter.page || 1))
+		params.append('limit', String(filter.limit || 12))
+
+		console.log(
+			`Fetching from: ${API_BASE_URL}/api/properties?${params.toString()}`
+		)
 
 		const response = await fetch(
 			`${API_BASE_URL}/api/properties?${params.toString()}`
@@ -238,94 +245,59 @@ export async function submitInquiry(inquiryData: {
 	}
 }
 
+// src/services/propertyService.ts
 export async function getFeaturedProperties(): Promise<Property[]> {
-	try {
-		const response = await fetch(
-			`${API_BASE_URL}/api/properties?featured=true&limit=6`
-		)
-		if (!response.ok) {
-			throw new Error('Failed to fetch featured properties')
-		}
+  try {
+    console.log('Fetching featured properties...');
+    const response = await fetch(
+      `${API_BASE_URL}/api/properties?featured=true&limit=6`
+    );
+    
+    console.log(`Featured properties response status: ${response.status}`);
+    
+    if (!response.ok) {
+      console.error(
+        'Failed to fetch featured properties:',
+        response.status,
+        response.statusText
+      );
+      return [];
+    }
 
-		const data = await response.json()
-
-		// Transform property images to match the updated format
-		return data.map((property: any) => {
-			// If property already has the new media format, just return it
-			if (
-				property.images &&
-				property.images.length > 0 &&
-				'type' in property.images[0]
-			) {
-				return property
-			}
-
-			// Otherwise transform the old image format to the new media format
-			if (property.images) {
-				property.images = property.images.map((image: any, index: number) => ({
-					...image,
-					type: 'image',
-					// If thumbnailUrl is not present, use the main url
-					thumbnail_url: image.thumbnail_url || image.url,
-					thumbnailUrl: image.thumbnail_url || image.url,
-					is_primary: image.is_primary || false,
-					isPrimary: image.is_primary || false,
-					display_order: image.display_order || index,
-					displayOrder: image.display_order || index,
-				}))
-			}
-
-			return property
-		})
-	} catch (error) {
-		console.error('Error fetching featured properties:', error)
-		throw error
-	}
+    const data = await response.json();
+    console.log(`Received ${data.length} featured properties`);
+    return data;
+  } catch (error) {
+    console.error('Error fetching featured properties:', error);
+    return [];
+  }
 }
 
 export async function getRecentProperties(
-	limit: number = 8
+  limit: number = 8
 ): Promise<Property[]> {
-	try {
-		const response = await fetch(
-			`${API_BASE_URL}/api/properties?sort_by=created_at&sort_order=desc&limit=${limit}`
-		)
-		if (!response.ok) {
-			throw new Error('Failed to fetch recent properties')
-		}
+  try {
+    console.log(`Fetching recent properties with limit ${limit}...`);
+    const response = await fetch(
+      `${API_BASE_URL}/api/properties?sort_by=created_at&sort_order=desc&limit=${limit}`
+    );
+    
+    console.log(`Recent properties response status: ${response.status}`);
+    
+    if (!response.ok) {
+      console.error(
+        'Failed to fetch recent properties:',
+        response.status,
+        response.statusText
+      );
+      return [];
+    }
 
-		const data = await response.json()
-
-		// Transform property images to match the updated format
-		return data.map((property: any) => {
-			// If property already has the new media format, just return it
-			if (
-				property.images &&
-				property.images.length > 0 &&
-				'type' in property.images[0]
-			) {
-				return property
-			}
-
-			// Otherwise transform the old image format to the new media format
-			if (property.images) {
-				property.images = property.images.map((image: any, index: number) => ({
-					...image,
-					type: 'image',
-					// If thumbnailUrl is not present, use the main url
-					thumbnail_url: image.thumbnail_url || image.url,
-					thumbnailUrl: image.thumbnail_url || image.url,
-					is_primary: image.is_primary || false,
-					isPrimary: image.is_primary || false,
-					display_order: image.display_order || index,
-					displayOrder: image.display_order || index,
-				}))
-			}
-
-			return property
-		})
-	} catch (error) {
-		console.error('Error fetching recent properties:', error)
-		throw error
-	}
+    const data = await response.json();
+    console.log(`Received ${data.length} recent properties`);
+    return data;
+  } catch (error) {
+    console.error('Error fetching recent properties:', error);
+    return [];
+  }
 }

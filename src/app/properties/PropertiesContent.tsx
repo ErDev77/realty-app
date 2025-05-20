@@ -53,19 +53,26 @@ export default function PropertiesContent() {
 		setError(null)
 
 		try {
+			      console.log('Fetching properties with filter:', filter)
+
 			const data = await getProperties({ ...filter, page: currentPage })
 			setProperties(data)
+      console.log('Properties received:', data)
 
 			// Calculate total pages (this would be better if your API returned total count)
 			// For now, we'll check if we received a full page of results
-			if (data.length === filter.limit) {
-				setTotalPages(currentPage + 1)
-			} else {
-				setTotalPages(currentPage)
-			}
+			 if (data && data.length > 0) {
+					setProperties(data)
+					// Calculate total pages based on the response
+					setTotalPages(Math.ceil(data.length / (filter.limit || 12)))
+				} else {
+					setProperties([])
+					setTotalPages(1)
+					setError('No properties found.')
+				}
 		} catch (err) {
+			console.error('Error in fetchProperties:', err)
 			setError('Failed to load properties. Please try again.')
-			console.error('Error fetching properties:', err)
 		} finally {
 			setLoading(false)
 		}

@@ -14,7 +14,6 @@ import {
 	Bed,
 	Bath,
 	Maximize,
-	Car,
 	Calendar,
 	Home,
 	Building2,
@@ -35,9 +34,13 @@ import {
 	Printer,
 	FileText,
 	Play,
+	ArrowUp,
 } from 'lucide-react'
 
 import Link from 'next/link'
+
+const API_BASE_URL = 'http://localhost:3001'
+
 
 export default function PropertyDetailPage() {
 	const params = useParams()
@@ -58,6 +61,14 @@ export default function PropertyDetailPage() {
 	const [submitting, setSubmitting] = useState(false)
 	const [submitSuccess, setSubmitSuccess] = useState(false)
 	const [showShareOptions, setShowShareOptions] = useState(false)
+
+	const getImageUrl = (path: string) => {
+		// If it's already a full URL, return it as is
+		if (path?.startsWith('http')) return path
+
+		// Otherwise, prepend the API base URL
+		return `${API_BASE_URL}${path}`
+	}
 
 	useEffect(() => {
 		const fetchProperty = async () => {
@@ -214,6 +225,230 @@ export default function PropertyDetailPage() {
 		return statusColors[status] || statusColors.default
 	}
 
+
+	const getPropertyAttributes = () => {
+		if (!property) return null
+
+		switch (property.property_type) {
+			case 'house':
+				return (
+					<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
+						{'attributes' in property && property.attributes && (
+							<>
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Bed className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Bedrooms</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.bedrooms}
+										</p>
+									</div>
+								</div>
+
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Bath className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Bathrooms</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.bathrooms}
+										</p>
+									</div>
+								</div>
+
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Maximize className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Area</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.area_sqft.toLocaleString()} sq ft
+										</p>
+									</div>
+								</div>
+
+								{property.attributes.lot_size_sqft && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<MapPin className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Lot Size</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.lot_size_sqft.toLocaleString()} sq
+												ft
+											</p>
+										</div>
+									</div>
+								)}
+
+								{property.attributes.floors && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Building2 className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Floors</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.floors}
+											</p>
+										</div>
+									</div>
+								)}
+							</>
+						)}
+					</div>
+				)
+
+			case 'apartment':
+				return (
+					<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
+						{'attributes' in property && property.attributes && (
+							<>
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Bed className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Bedrooms</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.bedrooms}
+										</p>
+									</div>
+								</div>
+
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Bath className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Bathrooms</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.bathrooms}
+										</p>
+									</div>
+								</div>
+
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Maximize className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Area</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.area_sqft.toLocaleString()} sq ft
+										</p>
+									</div>
+								</div>
+
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Building2 className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Floor</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.floor} /{' '}
+											{property.attributes.total_floors}
+										</p>
+									</div>
+								</div>
+							</>
+						)}
+					</div>
+				)
+
+			case 'commercial':
+				return (
+					<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
+						{'attributes' in property && property.attributes && (
+							<>
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Maximize className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Area</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.area_sqft.toLocaleString()} sq ft
+										</p>
+									</div>
+								</div>
+
+								{property.attributes.business_type && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Landmark className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Business Type</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.business_type}
+											</p>
+										</div>
+									</div>
+								)}
+
+								{property.attributes.floors && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Building2 className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Floors</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.floors}
+											</p>
+										</div>
+									</div>
+								)}
+
+								{property.attributes.ceiling_height && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<ArrowUp className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Ceiling Height</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.ceiling_height.toLocaleString()} ft
+											</p>
+										</div>
+									</div>
+								)}
+							</>
+						)}
+					</div>
+				)
+
+			case 'land':
+				return (
+					<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
+						{'attributes' in property && property.attributes && (
+							<div className='flex items-center'>
+								<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+									<Maximize className='w-6 h-6 text-blue-600' />
+								</div>
+								<div>
+									<p className='text-xs text-gray-500'>Area</p>
+									<p className='font-medium text-gray-700'>
+										{property.attributes.area_acres.toLocaleString()} acres
+									</p>
+								</div>
+							</div>
+						)}
+					</div>
+				)
+
+			default:
+				return null
+		}
+	}
+
 return (
 	<div className='min-h-screen bg-gray-50'>
 		{/* Navigation */}
@@ -285,7 +520,7 @@ return (
 								<>
 									{property.images[selectedImage].type === 'image' ? (
 										<Image
-											src={property.images[selectedImage].url}
+											src={getImageUrl(property.images[selectedImage].url)}
 											alt={property.title}
 											fill
 											className='object-cover'
@@ -294,10 +529,16 @@ return (
 									) : property.images[selectedImage].type === 'video' ? (
 										<div className='w-full h-full bg-black flex items-center justify-center'>
 											<video
-												src={property.images[selectedImage].url}
+												src={getImageUrl(property.images[selectedImage].url)}
 												controls
 												className='max-h-full max-w-full'
-												poster={property.images[selectedImage].thumbnail_url}
+												poster={
+													property.images[selectedImage].thumbnail_url
+														? getImageUrl(
+																property.images[selectedImage].thumbnail_url
+														  )
+														: undefined
+												}
 											>
 												Your browser does not support the video tag.
 											</video>
@@ -363,7 +604,7 @@ return (
 									>
 										{media.type === 'image' ? (
 											<Image
-												src={media.url}
+												src={getImageUrl(media.url)}
 												alt={`${property.title} - ${index + 1}`}
 												fill
 												className='object-cover'
@@ -373,7 +614,7 @@ return (
 												<Play className='w-8 h-8 text-white' />
 												{media.thumbnail_url && (
 													<Image
-														src={media.thumbnail_url}
+														src={getImageUrl(media.thumbnail_url)}
 														alt={`Video thumbnail ${index + 1}`}
 														fill
 														className='object-cover opacity-50'
@@ -519,71 +760,7 @@ return (
 							</div>
 						</div>
 
-						{/* Key Features */}
-						<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
-							{property.attributes &&
-								(property.property_type === 'house' ||
-									property.property_type === 'apartment') && (
-									<>
-										{'bedrooms' in property.attributes && (
-											<div className='flex items-center'>
-												<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-													<Bed className='w-6 h-6 text-blue-600' />
-												</div>
-												<div>
-													<p className='text-xs text-gray-500'>Bedrooms</p>
-													<p className='font-medium text-gray-700'>
-														{property.attributes.bedrooms}
-													</p>
-												</div>
-											</div>
-										)}
-										{'bathrooms' in property.attributes && (
-											<div className='flex items-center'>
-												<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-													<Bath className='w-6 h-6 text-blue-600' />
-												</div>
-												<div>
-													<p className='text-xs text-gray-500'>Bathrooms</p>
-													<p className='font-medium text-gray-700'>
-														{property.attributes.bathrooms}
-													</p>
-												</div>
-											</div>
-										)}
-									</>
-								)}
-
-							{property.attributes && 'area_sqft' in property.attributes && (
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Maximize className='w-6 h-6 text-blue-600' />
-									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Area</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.area_sqft.toLocaleString()} sq ft
-										</p>
-									</div>
-								</div>
-							)}
-
-							{property.attributes &&
-								property.property_type === 'land' &&
-								'area_acres' in property.attributes && (
-									<div className='flex items-center'>
-										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-											<Maximize className='w-6 h-6 text-blue-600' />
-										</div>
-										<div>
-											<p className='text-xs text-gray-500'>Area</p>
-											<p className='font-medium text-gray-700'>
-												{property.attributes.area_acres.toLocaleString()} acres
-											</p>
-										</div>
-									</div>
-								)}
-						</div>
+						{getPropertyAttributes()}
 
 						{/* Contact Buttons */}
 						<div className='space-y-3'>

@@ -1184,49 +1184,57 @@ import { getFeaturedProperties, getRecentProperties } from '@/services/propertyS
 import { Search, Home, Building2, Landmark, Trees, ArrowRight } from 'lucide-react'
 
 export default function HomePage() {
-  const [featuredProperties, setFeaturedProperties] = useState<Property[]>([])
-  const [recentProperties, setRecentProperties] = useState<Property[]>([])
-  const [loading, setLoading] = useState(true)
+	const [featuredProperties, setFeaturedProperties] = useState<Property[]>([])
+	const [recentProperties, setRecentProperties] = useState<Property[]>([])
+	const [loading, setLoading] = useState(true)
 
-  // Search form state
-  const [searchForm, setSearchForm] = useState({
-    property_type: '',
-    listing_type: '',
-    location: ''
-  })
+	// Search form state
+	const [searchForm, setSearchForm] = useState({
+		property_type: '',
+		listing_type: '',
+		location: '',
+	})
 
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const [featured, recent] = await Promise.all([
-          getFeaturedProperties(),
-          getRecentProperties(8)
-        ])
-        setFeaturedProperties(featured)
-        setRecentProperties(recent)
-      } catch (error) {
-        console.error('Error fetching properties:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+	// In the HomePage component, update the useEffect
+	useEffect(() => {
+		const fetchProperties = async () => {
+			try {
+				const [featured, recent] = await Promise.all([
+					getFeaturedProperties(),
+					getRecentProperties(8),
+				])
 
-    fetchProperties()
-  }, [])
+				// Set properties even if empty array is returned
+				setFeaturedProperties(featured || [])
+				setRecentProperties(recent || [])
+			} catch (error) {
+				console.error('Error fetching properties:', error)
+				// Set empty arrays as fallback
+				setFeaturedProperties([])
+				setRecentProperties([])
+			} finally {
+				setLoading(false)
+			}
+		}
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Build query parameters
-    const params = new URLSearchParams()
-    if (searchForm.property_type) params.append('property_type', searchForm.property_type)
-    if (searchForm.listing_type) params.append('listing_type', searchForm.listing_type)
-    if (searchForm.location) params.append('location', searchForm.location)
-    
-    // Navigate to properties page with search params
-    window.location.href = `/properties?${params.toString()}`
-  }
+		fetchProperties()
+	}, [])
 
-  return (
+	const handleSearch = (e: React.FormEvent) => {
+		e.preventDefault()
+		// Build query parameters
+		const params = new URLSearchParams()
+		if (searchForm.property_type)
+			params.append('property_type', searchForm.property_type)
+		if (searchForm.listing_type)
+			params.append('listing_type', searchForm.listing_type)
+		if (searchForm.location) params.append('location', searchForm.location)
+
+		// Navigate to properties page with search params
+		window.location.href = `/properties?${params.toString()}`
+	}
+
+	return (
 		<div className='min-h-screen'>
 			{/* Hero Section */}
 			<div className='relative h-[600px] bg-gradient-to-r from-blue-600 to-blue-800'>
