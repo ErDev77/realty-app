@@ -1,8 +1,6 @@
-// src/types/property.ts (updated PropertyImage to PropertyMedia)
-
 export type ListingType = 'sale' | 'rent' | 'daily_rent'
 export type PropertyType = 'house' | 'apartment' | 'commercial' | 'land'
-export type PropertyStatus = 'available' | 'sold' | 'rented' | 'pending'
+export type PropertyStatus = 'available' | 'sold' | 'rented' | 'pending' | 'inactive'
 export type MediaType = 'image' | 'video'
 
 export interface State {
@@ -133,6 +131,7 @@ export interface PropertyFilter {
 	min_area?: number
 	max_area?: number
 	features?: number[]
+	status?: string  // Added status filter
 	sort_by?: 'price' | 'created_at' | 'views'
 	sort_order?: 'asc' | 'desc'
 	page?: number

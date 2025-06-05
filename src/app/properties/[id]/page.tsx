@@ -7,7 +7,6 @@ import Image from 'next/image'
 import { Property } from '@/types/property'
 import {
 	getPropertyByCustomId,
-	submitInquiry,
 } from '@/services/propertyService'
 import {
 	MapPin,
@@ -88,40 +87,6 @@ export default function PropertyDetailPage() {
 
 		fetchProperty()
 	}, [params.id])
-
-	const handleInquirySubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		if (!property) return
-
-		setSubmitting(true)
-		try {
-			await submitInquiry({
-				propertyId: property.id,
-				...inquiryForm,
-			})
-
-			// Show success message
-			setSubmitSuccess(true)
-
-			// Reset form and close modal after delay
-			setTimeout(() => {
-				setInquiryForm({
-					name: '',
-					email: '',
-					phone: '',
-					message:
-						"I'm interested in this property and would like to know more details.",
-				})
-				setShowInquiryForm(false)
-				setSubmitSuccess(false)
-			}, 2000)
-		} catch (err) {
-			console.error('Error submitting inquiry:', err)
-			alert('Failed to submit inquiry. Please try again.')
-		} finally {
-			setSubmitting(false)
-		}
-	}
 
 	const nextImage = () => {
 		if (!property?.images) return
@@ -814,137 +779,6 @@ return (
 				</div>
 			</div>
 		</div>
-
-		{/* Inquiry Form Modal */}
-		{showInquiryForm && (
-			<div className='fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4'>
-				<div className='bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative'>
-					<button
-						onClick={() => setShowInquiryForm(false)}
-						className='absolute top-4 right-4 text-gray-400 hover:text-gray-600'
-						aria-label='Close'
-					>
-						<X className='w-6 h-6' />
-					</button>
-
-					<h3 className='text-xl font-semibold mb-6 text-gray-900'>
-						Contact about this property
-					</h3>
-
-					{submitSuccess ? (
-						<div className='text-center py-8'>
-							<div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-								<Check className='w-8 h-8 text-green-600' />
-							</div>
-							<p className='text-green-600 text-lg font-medium mb-2'>
-								Message sent successfully!
-							</p>
-							<p className='text-gray-500'>
-								We'll get back to you as soon as possible.
-							</p>
-						</div>
-					) : (
-						<form onSubmit={handleInquirySubmit} className='space-y-4'>
-							<div>
-								<label
-									htmlFor='name'
-									className='block text-sm font-medium text-gray-700 mb-1'
-								>
-									Your Name
-								</label>
-								<input
-									type='text'
-									id='name'
-									required
-									value={inquiryForm.name}
-									onChange={e =>
-										setInquiryForm({ ...inquiryForm, name: e.target.value })
-									}
-									className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-									placeholder='John Doe'
-								/>
-							</div>
-
-							<div>
-								<label
-									htmlFor='email'
-									className='block text-sm font-medium text-gray-700 mb-1'
-								>
-									Email Address
-								</label>
-								<input
-									type='email'
-									id='email'
-									required
-									value={inquiryForm.email}
-									onChange={e =>
-										setInquiryForm({ ...inquiryForm, email: e.target.value })
-									}
-									className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-									placeholder='example@email.com'
-								/>
-							</div>
-
-							<div>
-								<label
-									htmlFor='phone'
-									className='block text-sm font-medium text-gray-700 mb-1'
-								>
-									Phone Number
-								</label>
-								<input
-									type='tel'
-									id='phone'
-									value={inquiryForm.phone}
-									onChange={e =>
-										setInquiryForm({ ...inquiryForm, phone: e.target.value })
-									}
-									className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-									placeholder='(123) 456-7890'
-								/>
-							</div>
-
-							<div>
-								<label
-									htmlFor='message'
-									className='block text-sm font-medium text-gray-700 mb-1'
-								>
-									Message
-								</label>
-								<textarea
-									id='message'
-									required
-									value={inquiryForm.message}
-									onChange={e =>
-										setInquiryForm({
-											...inquiryForm,
-											message: e.target.value,
-										})
-									}
-									rows={4}
-									className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500'
-								/>
-							</div>
-
-							<button
-								type='submit'
-								disabled={submitting}
-								className='w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors'
-							>
-								{submitting ? (
-									<>
-										<Loader2 className='w-5 h-5 mr-2 animate-spin' />
-										Sending...
-									</>
-								) : (
-									'Send Message'
-								)}
-							</button>
-						</form>
-					)}
-				</div>
-			</div>
-		)}
 
 		{/* Full Gallery Modal */}
 		{showFullGallery && property.images && (

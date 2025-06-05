@@ -20,7 +20,6 @@ import {
 	SlidersHorizontal,
 	Search,
 	MapPin,
-	TrendingUp,
 	Home,
 	RefreshCw,
 	ChevronDown,

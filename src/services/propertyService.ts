@@ -1,17 +1,8 @@
-// src/services/propertyService.ts (for the public real estate website)
-import {
-	Property,
-	PropertyFilter,
-	State,
-	City,
-	PropertyFeature,
-} from '../types/property'
+import { PropertyFilter } from '../types/property'
 
 const API_BASE_URL = 'http://localhost:3000'
 
-export async function getProperties(
-	filter: PropertyFilter = {}
-): Promise<Property[]> {
+export async function getProperties(filter: PropertyFilter = {}) {
 	try {
 		const params = new URLSearchParams()
 
@@ -28,276 +19,175 @@ export async function getProperties(
 		if (filter.bedrooms) params.append('bedrooms', filter.bedrooms.toString())
 		if (filter.bathrooms)
 			params.append('bathrooms', filter.bathrooms.toString())
-		if (filter.min_area) params.append('min_area', filter.min_area.toString())
-		if (filter.max_area) params.append('max_area', filter.max_area.toString())
-		if (filter.features?.length)
-			params.append('features', filter.features.join(','))
 		if (filter.sort_by) params.append('sort_by', filter.sort_by)
 		if (filter.sort_order) params.append('sort_order', filter.sort_order)
 		if (filter.page) params.append('page', filter.page.toString())
 		if (filter.limit) params.append('limit', filter.limit.toString())
-		
-		params.append('page', String(filter.page || 1))
-		params.append('limit', String(filter.limit || 12))
+
+		// Set default pagination
+		if (!filter.page) params.append('page', '1')
+		if (!filter.limit) params.append('limit', '20')
 
 		console.log(
-			`Fetching from: ${API_BASE_URL}/api/properties?${params.toString()}`
+			`Fetching from: ${API_BASE_URL}/api/public/properties?${params.toString()}`
 		)
 
+		// ✅ Use PUBLIC endpoint
 		const response = await fetch(
 			`${API_BASE_URL}/api/properties?${params.toString()}`
 		)
+
 		if (!response.ok) {
-			throw new Error('Failed to fetch properties')
+			throw new Error(
+				`Failed to fetch properties: ${response.status} ${response.statusText}`
+			)
 		}
 
 		const data = await response.json()
-
-		// Transform property images to match the updated format
-		return data.map((property: any) => {
-			// If property already has the new media format, just return it
-			if (
-				property.images &&
-				property.images.length > 0 &&
-				'type' in property.images[0]
-			) {
-				return property
-			}
-
-			// Otherwise transform the old image format to the new media format
-			if (property.images) {
-				property.images = property.images.map((image: any, index: number) => ({
-					...image,
-					type: 'image',
-					// If thumbnailUrl is not present, use the main url
-					thumbnail_url: image.thumbnail_url || image.url,
-					// Keep compatibility with camelCase and snake_case
-					thumbnailUrl: image.thumbnail_url || image.url,
-					is_primary: image.is_primary || false,
-					isPrimary: image.is_primary || false,
-					display_order: image.display_order || index,
-					displayOrder: image.display_order || index,
-				}))
-			}
-
-			return property
-		})
+		return data
 	} catch (error) {
 		console.error('Error fetching properties:', error)
 		throw error
 	}
 }
 
-export async function getPropertyByCustomId(
-	customId: string
-): Promise<Property | null> {
+export async function getPropertyByCustomId(customId: string) {
 	try {
-		const response = await fetch(`${API_BASE_URL}/api/properties/${customId}`)
+		// ✅ Use PUBLIC endpoint
+		const response = await fetch(
+			`${API_BASE_URL}/api/properties/${customId}`
+		)
+
 		if (!response.ok) {
 			if (response.status === 404) {
 				return null
 			}
-			throw new Error('Failed to fetch property')
+			throw new Error(
+				`Failed to fetch property: ${response.status} ${response.statusText}`
+			)
 		}
 
 		const property = await response.json()
-
-		// Transform property images to match the updated format
-		if (property.images) {
-			// If property already has the new media format, just return it
-			if (property.images.length > 0 && 'type' in property.images[0]) {
-				return property
-			}
-
-			// Otherwise transform the old image format to the new media format
-			property.images = property.images.map((image: any, index: number) => ({
-				...image,
-				type: 'image',
-				// If thumbnailUrl is not present, use the main url
-				thumbnail_url: image.thumbnail_url || image.url,
-				thumbnailUrl: image.thumbnail_url || image.url,
-				is_primary: image.is_primary || false,
-				isPrimary: image.is_primary || false,
-				display_order: image.display_order || index,
-				displayOrder: image.display_order || index,
-			}))
-		}
-
 		return property
 	} catch (error) {
-		console.error('Error fetching property:', error)
+		console.error('Error fetching property by custom ID:', error)
 		throw error
 	}
 }
 
-export async function getPropertyById(id: number): Promise<Property | null> {
-	console.warn(
-		'getPropertyById is deprecated. Use getPropertyByCustomId instead.'
-	)
-
+export async function getStates() {
 	try {
-		const response = await fetch(`${API_BASE_URL}/api/properties/${id}`)
+		// ✅ Use PUBLIC endpoint
+		const response = await fetch(`${API_BASE_URL}/api/public/properties/states`)
+
 		if (!response.ok) {
-			if (response.status === 404) {
-				return null
-			}
-			throw new Error('Failed to fetch property')
+			throw new Error(
+				`Failed to fetch states: ${response.status} ${response.statusText}`
+			)
 		}
 
-		const property = await response.json()
-
-		// Transform property images to match the updated format
-		if (property.images) {
-			// If property already has the new media format, just return it
-			if (property.images.length > 0 && 'type' in property.images[0]) {
-				return property
-			}
-
-			// Otherwise transform the old image format to the new media format
-			property.images = property.images.map((image: any, index: number) => ({
-				...image,
-				type: 'image',
-				// If thumbnailUrl is not present, use the main url
-				thumbnail_url: image.thumbnail_url || image.url,
-				thumbnailUrl: image.thumbnail_url || image.url,
-				is_primary: image.is_primary || false,
-				isPrimary: image.is_primary || false,
-				display_order: image.display_order || index,
-				displayOrder: image.display_order || index,
-			}))
-		}
-
-		return property
-	} catch (error) {
-		console.error('Error fetching property:', error)
-		throw error
-	}
-}
-
-export async function getStates(): Promise<State[]> {
-	try {
-		const response = await fetch(`${API_BASE_URL}/api/properties/states`)
-		if (!response.ok) {
-			throw new Error('Failed to fetch states')
-		}
-
-		return await response.json()
+		const states = await response.json()
+		return states
 	} catch (error) {
 		console.error('Error fetching states:', error)
 		throw error
 	}
 }
 
-export async function getCitiesByState(stateId: number): Promise<City[]> {
+export async function getCitiesByState(stateId: number) {
 	try {
+		// ✅ Use PUBLIC endpoint
 		const response = await fetch(
-			`${API_BASE_URL}/api/properties/cities/${stateId}`
+			`${API_BASE_URL}/api/public/properties/cities/${stateId}`
 		)
+
 		if (!response.ok) {
-			throw new Error('Failed to fetch cities')
+			throw new Error(
+				`Failed to fetch cities: ${response.status} ${response.statusText}`
+			)
 		}
 
-		return await response.json()
+		const cities = await response.json()
+		return cities
 	} catch (error) {
 		console.error('Error fetching cities:', error)
 		throw error
 	}
 }
 
-export async function getPropertyFeatures(): Promise<PropertyFeature[]> {
+export async function getPropertyFeatures() {
 	try {
-		const response = await fetch(`${API_BASE_URL}/api/properties/features`)
+		// ✅ Use PUBLIC endpoint
+		const response = await fetch(
+			`${API_BASE_URL}/api/public/properties/features`
+		)
+
 		if (!response.ok) {
-			throw new Error('Failed to fetch features')
+			throw new Error(
+				`Failed to fetch features: ${response.status} ${response.statusText}`
+			)
 		}
 
-		return await response.json()
+		const features = await response.json()
+		return features
 	} catch (error) {
-		console.error('Error fetching features:', error)
+		console.error('Error fetching property features:', error)
 		throw error
 	}
 }
 
-export async function submitInquiry(inquiryData: {
-	propertyId: number
-	name: string
-	email: string
-	phone?: string
-	message: string
-}): Promise<{ success: boolean; inquiryId?: number }> {
+export async function getFeaturedProperties() {
 	try {
-		const response = await fetch(`${API_BASE_URL}/api/properties/inquiries`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(inquiryData),
-		})
+		console.log('Fetching featured properties...')
+		// ✅ Use PUBLIC endpoint with featured filter
+		const response = await fetch(
+			`${API_BASE_URL}/api/public/properties?featured=true&limit=6`
+		)
+
+		console.log(`Featured properties response status: ${response.status}`)
 
 		if (!response.ok) {
-			throw new Error('Failed to submit inquiry')
+			console.error(
+				'Failed to fetch featured properties:',
+				response.status,
+				response.statusText
+			)
+			return []
 		}
 
-		return await response.json()
+		const data = await response.json()
+		console.log(`Received ${data.length} featured properties`)
+		return data
 	} catch (error) {
-		console.error('Error submitting inquiry:', error)
-		throw error
+		console.error('Error fetching featured properties:', error)
+		return []
 	}
 }
 
-// src/services/propertyService.ts
-export async function getFeaturedProperties(): Promise<Property[]> {
-  try {
-    console.log('Fetching featured properties...');
-    const response = await fetch(
-      `${API_BASE_URL}/api/properties?featured=true&limit=6`
-    );
-    
-    console.log(`Featured properties response status: ${response.status}`);
-    
-    if (!response.ok) {
-      console.error(
-        'Failed to fetch featured properties:',
-        response.status,
-        response.statusText
-      );
-      return [];
-    }
+export async function getRecentProperties(limit: number = 8) {
+	try {
+		console.log(`Fetching recent properties with limit ${limit}...`)
+		// ✅ Use PUBLIC endpoint
+		const response = await fetch(
+			`${API_BASE_URL}/api/public/properties?sort_by=created_at&sort_order=desc&limit=${limit}`
+		)
 
-    const data = await response.json();
-    console.log(`Received ${data.length} featured properties`);
-    return data;
-  } catch (error) {
-    console.error('Error fetching featured properties:', error);
-    return [];
-  }
-}
+		console.log(`Recent properties response status: ${response.status}`)
 
-export async function getRecentProperties(
-  limit: number = 8
-): Promise<Property[]> {
-  try {
-    console.log(`Fetching recent properties with limit ${limit}...`);
-    const response = await fetch(
-      `${API_BASE_URL}/api/properties?sort_by=created_at&sort_order=desc&limit=${limit}`
-    );
-    
-    console.log(`Recent properties response status: ${response.status}`);
-    
-    if (!response.ok) {
-      console.error(
-        'Failed to fetch recent properties:',
-        response.status,
-        response.statusText
-      );
-      return [];
-    }
+		if (!response.ok) {
+			console.error(
+				'Failed to fetch recent properties:',
+				response.status,
+				response.statusText
+			)
+			return []
+		}
 
-    const data = await response.json();
-    console.log(`Received ${data.length} recent properties`);
-    return data;
-  } catch (error) {
-    console.error('Error fetching recent properties:', error);
-    return [];
-  }
+		const data = await response.json()
+		console.log(`Received ${data.length} recent properties`)
+		return data
+	} catch (error) {
+		console.error('Error fetching recent properties:', error)
+		return []
+	}
 }
