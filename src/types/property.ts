@@ -8,7 +8,6 @@ export type MediaType = 'image' | 'video'
 export interface State {
 	id: number
 	name: string
-	code: string
 }
 
 export interface City {

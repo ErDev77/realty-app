@@ -76,9 +76,7 @@ export default function HomePage() {
 	const handleSimpleSearch = (e: React.FormEvent) => {
 		e.preventDefault()
 		if (customId.trim()) {
-			window.location.href = `/properties?custom_id=${encodeURIComponent(
-				customId.trim()
-			)}`
+			window.location.href = `/properties/${customId.trim()}`
 		}
 	}
 

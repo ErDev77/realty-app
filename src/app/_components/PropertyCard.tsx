@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 import { Property } from '@/types/property'
 
-const API_BASE_URL = 'https://realty-app-admin.vercel.app'
+const API_BASE_URL = 'http://localhost:3000'
 
 interface PropertyCardProps {
 	property: Property
@@ -148,19 +148,19 @@ export default function PropertyCard({
 						>
 							{property.attributes.bedrooms && (
 								<div className='flex items-center'>
-									<Bed className='w-4 h-4 mr-1' />
+									🛏️
 									<span>{property.attributes.bedrooms}</span>
 								</div>
 							)}
 							{property.attributes.bathrooms && (
 								<div className='flex items-center'>
-									<Bath className='w-4 h-4 mr-1' />
+									🚿
 									<span>{property.attributes.bathrooms}</span>
 								</div>
 							)}
 							{property.attributes.area_sqft && (
 								<div className='flex items-center'>
-									<Maximize className='w-4 h-4 mr-1' />
+									📐
 									<span>{property.attributes.area_sqft} sq ft</span>
 								</div>
 							)}
@@ -183,19 +183,19 @@ export default function PropertyCard({
 						>
 							{property.attributes.bedrooms && (
 								<div className='flex items-center'>
-									<Bed className='w-4 h-4 mr-1' />
+									🛏️
 									<span>{property.attributes.bedrooms}</span>
 								</div>
 							)}
 							{property.attributes.bathrooms && (
 								<div className='flex items-center'>
-									<Bath className='w-4 h-4 mr-1' />
+									🚿
 									<span>{property.attributes.bathrooms}</span>
 								</div>
 							)}
 							{property.attributes.area_sqft && (
 								<div className='flex items-center'>
-									<Maximize className='w-4 h-4 mr-1' />
+									📐
 									<span>{property.attributes.area_sqft} sq ft</span>
 								</div>
 							)}
@@ -479,10 +479,10 @@ export default function PropertyCard({
 						<span
 							className={`${
 								variant === 'compact' ? 'text-sm' : 'text-sm'
-							} truncate`}
+							} truncate text-black`}
 						>
 							{property.city?.name},{' '}
-							{property.state?.code || property.state?.name}
+							{property.state?.name}
 						</span>
 					</div>
 
