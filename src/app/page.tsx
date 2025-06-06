@@ -2,12 +2,18 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { Metadata } from 'next'
 import PropertyCard from './_components/PropertyCard'
 import { Property, PropertyType, ListingType } from '@/types/property'
 import {
 	getFeaturedProperties,
 	getRecentProperties,
 } from '@/services/propertyService'
+import {
+	generateOrganizationSchema,
+	generateWebsiteSchema,
+	generateBreadcrumbSchema,
+} from '@/utils/structuredData'
 import {
 	Search,
 	Home,
@@ -26,6 +32,32 @@ import {
 	X,
 	SlidersHorizontal,
 } from 'lucide-react'
+
+export const metadata: Metadata = {
+	title: 'Chance Realty - Find Your Dream Property in Armenia',
+	description:
+		'Discover premium real estate in Armenia. Houses, apartments, commercial properties, and land for sale or rent. Professional real estate services in Yerevan and surrounding areas.',
+	keywords: [
+		'real estate Armenia',
+		'property Armenia',
+		'houses for sale Yerevan',
+		'apartments for rent Armenia',
+		'commercial property Armenia',
+		'land for sale Armenia',
+		'Chance Realty',
+	],
+	openGraph: {
+		title: 'Chance Realty - Find Your Dream Property in Armenia',
+		description:
+			'Discover premium real estate in Armenia. Professional real estate services with verified listings.',
+		images: ['/images/og-home.jpg'],
+		url: 'https://chancerealty.am',
+	},
+	alternates: {
+		canonical: 'https://chancerealty.am',
+	},
+}
+
 
 export default function HomePage() {
 	const [featuredProperties, setFeaturedProperties] = useState<Property[]>([])
@@ -191,9 +223,24 @@ export default function HomePage() {
 		}
 	}
 
+	const organizationSchema = generateOrganizationSchema()
+	const websiteSchema = generateWebsiteSchema()
+
 	return (
 		<div className='min-h-screen'>
-			{/* Hero Section - Simple Search */}
+			{/* Structured Data */}
+			<script
+				type='application/ld+json'
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(organizationSchema),
+				}}
+			/>
+			<script
+				type='application/ld+json'
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(websiteSchema),
+				}}
+			/>
 			<div className='relative h-[600px] bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800'>
 				<div className='absolute inset-0 bg-black opacity-40'></div>
 				<div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent'></div>
