@@ -19,7 +19,6 @@ import {
 	MapPin,
 	Bed,
 	Bath,
-	Maximize,
 	Star,
 	Search,
 	X,
@@ -52,32 +51,56 @@ export default function PropertyFilter({
 		features: false,
 	})
 
-	useEffect(() => {
-		// Fetch states
-		fetch('/api/properties/states')
-			.then(res => res.json())
-			.then(data => setStates(data))
-			.catch(error => console.error('Error fetching states:', error))
+	// src/app/_components/PropertyFilter.tsx - FIXED PART
+	// Replace the useEffect hooks in your PropertyFilter component with these:
 
-		// Fetch features
-		fetch('/api/properties/features')
-			.then(res => res.json())
-			.then(data => setFeatures(data))
-			.catch(error => console.error('Error fetching features:', error))
+	useEffect(() => {
+		// ✅ FIXED: Fetch states using correct service
+		import('@/services/propertyService').then(({ getStates }) => {
+			getStates()
+				.then(data => {
+					console.log('✅ States loaded:', data)
+					setStates(data || [])
+				})
+				.catch(error => {
+					console.error('❌ Error fetching states:', error)
+					setStates([])
+				})
+		})
+
+		// ✅ FIXED: Fetch features using correct service
+		import('@/services/propertyService').then(({ getPropertyFeatures }) => {
+			getPropertyFeatures()
+				.then(data => {
+					console.log('✅ Features loaded:', data)
+					setFeatures(data || [])
+				})
+				.catch(error => {
+					console.error('❌ Error fetching features:', error)
+					setFeatures([])
+				})
+		})
 	}, [])
 
 	useEffect(() => {
 		if (filter.state_id) {
-			// Fetch cities for selected state
-			fetch(`/api/properties/cities/${filter.state_id}`)
-				.then(res => res.json())
-				.then(data => setCities(data))
-				.catch(error => console.error('Error fetching cities:', error))
+			// ✅ FIXED: Fetch cities using correct service
+			import('@/services/propertyService').then(({ getCitiesByState }) => {
+				getCitiesByState(filter.state_id!)
+					.then(data => {
+						console.log('✅ Cities loaded for state:', filter.state_id, data)
+						setCities(data || [])
+					})
+					.catch(error => {
+						console.error('❌ Error fetching cities:', error)
+						setCities([])
+					})
+			})
 		} else {
 			setCities([])
 		}
 	}, [filter.state_id])
-
+	
 	const handleFilterChange = (
 		key: keyof FilterType,
 		value: PropertyType | ListingType | string | number | number[] | undefined

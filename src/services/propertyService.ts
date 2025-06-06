@@ -78,7 +78,7 @@ export async function getPropertyByCustomId(customId: string) {
 export async function getStates() {
 	try {
 		// ✅ Use PUBLIC endpoint
-		const response = await fetch(`${API_BASE_URL}/api/public/properties/states`)
+		const response = await fetch(`${API_BASE_URL}/api/properties/states`)
 
 		if (!response.ok) {
 			throw new Error(
@@ -98,7 +98,7 @@ export async function getCitiesByState(stateId: number) {
 	try {
 		// ✅ Use PUBLIC endpoint
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties/cities/${stateId}`
+			`${API_BASE_URL}/api/properties/cities/${stateId}`
 		)
 
 		if (!response.ok) {
@@ -119,7 +119,7 @@ export async function getPropertyFeatures() {
 	try {
 		// ✅ Use PUBLIC endpoint
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties/features`
+			`${API_BASE_URL}/api/properties/features`
 		)
 
 		if (!response.ok) {
@@ -169,7 +169,7 @@ export async function getRecentProperties(limit: number = 8) {
 		console.log(`Fetching recent properties with limit ${limit}...`)
 		// ✅ Use PUBLIC endpoint
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties?sort_by=created_at&sort_order=desc&limit=${limit}`
+			`${API_BASE_URL}/api/properties?sort_by=created_at&sort_order=desc&limit=${limit}`
 		)
 
 		console.log(`Recent properties response status: ${response.status}`)
