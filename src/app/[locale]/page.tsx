@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import PropertyCard from './_components/PropertyCard'
+import PropertyCard from '../_components/PropertyCard'
 import { Property, PropertyType, ListingType } from '@/types/property'
 import {
 	getFeaturedProperties,
@@ -33,30 +33,30 @@ import {
 	SlidersHorizontal,
 } from 'lucide-react'
 
-export const metadata: Metadata = {
-	title: 'Chance Realty - Find Your Dream Property in Armenia',
-	description:
-		'Discover premium real estate in Armenia. Houses, apartments, commercial properties, and land for sale or rent. Professional real estate services in Yerevan and surrounding areas.',
-	keywords: [
-		'real estate Armenia',
-		'property Armenia',
-		'houses for sale Yerevan',
-		'apartments for rent Armenia',
-		'commercial property Armenia',
-		'land for sale Armenia',
-		'Chance Realty',
-	],
-	openGraph: {
-		title: 'Chance Realty - Find Your Dream Property in Armenia',
-		description:
-			'Discover premium real estate in Armenia. Professional real estate services with verified listings.',
-		images: ['/images/og-home.jpg'],
-		url: 'https://chancerealty.am',
-	},
-	alternates: {
-		canonical: 'https://chancerealty.am',
-	},
-}
+// export const metadata: Metadata = {
+// 	title: 'Chance Realty - Find Your Dream Property in Armenia',
+// 	description:
+// 		'Discover premium real estate in Armenia. Houses, apartments, commercial properties, and land for sale or rent. Professional real estate services in Yerevan and surrounding areas.',
+// 	keywords: [
+// 		'real estate Armenia',
+// 		'property Armenia',
+// 		'houses for sale Yerevan',
+// 		'apartments for rent Armenia',
+// 		'commercial property Armenia',
+// 		'land for sale Armenia',
+// 		'Chance Realty',
+// 	],
+// 	openGraph: {
+// 		title: 'Chance Realty - Find Your Dream Property in Armenia',
+// 		description:
+// 			'Discover premium real estate in Armenia. Professional real estate services with verified listings.',
+// 		images: ['/images/og-home.jpg'],
+// 		url: 'https://chancerealty.am',
+// 	},
+// 	alternates: {
+// 		canonical: 'https://chancerealty.am',
+// 	},
+// }
 
 
 export default function HomePage() {
