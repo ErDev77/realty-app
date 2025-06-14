@@ -1,5 +1,5 @@
 // src/app/[locale]/layout.tsx
-import type { Metadata } from 'next/server'
+import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import '../globals.css'
@@ -17,11 +17,10 @@ const geistMono = Geist_Mono({
 
 const locales = ['hy', 'en', 'ru']
 
-export async function generateMetadata({
-	params,
-}: {
-	params: { locale: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+	props: Promise<{ params: { locale: string } }>
+): Promise<Metadata> {
+	const { params } = await props
 	const { locale } = params
 
 	if (!locales.includes(locale)) {

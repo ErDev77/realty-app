@@ -2,6 +2,7 @@
 
 import Header from './_components/Header'
 import Footer from './_components/Footer'
+import { LanguageProvider } from '@/context/LanguageContext'
 
 export default function ClientLayout({
 	children,
@@ -10,9 +11,11 @@ export default function ClientLayout({
 }) {
 	return (
 		<>
-			<Header />
-			<main>{children}</main>
-			<Footer />
+			<LanguageProvider>
+				<Header />
+				<main>{children}</main>
+				<Footer />
+			</LanguageProvider>
 		</>
 	)
 }

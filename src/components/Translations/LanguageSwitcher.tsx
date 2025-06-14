@@ -4,7 +4,8 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Globe, ChevronDown } from 'lucide-react'
-import { Language } from '@/hooks/useTranslation'
+
+export type Language = 'hy' | 'en' | 'ru'
 
 const languages = [
 	{ code: 'hy' as Language, name: 'Հայերեն', flag: '🇦🇲', english: 'Armenian' },
@@ -18,18 +19,21 @@ export default function LanguageSwitcher() {
 	const [isOpen, setIsOpen] = useState(false)
 
 	// Get current language from URL
-	const currentLang = (pathname.split('/')[1] as Language) || 'hy'
+	const pathParts = pathname.split('/')
+	const currentLang = (
+		['hy', 'en', 'ru'].includes(pathParts[1]) ? pathParts[1] : 'hy'
+	) as Language
 	const currentLanguage =
 		languages.find(lang => lang.code === currentLang) || languages[0]
 
 	const switchLanguage = (newLang: Language) => {
 		const pathParts = pathname.split('/')
 
-		// Replace the language part of the URL
+		// Replace or add the language part of the URL
 		if (['hy', 'en', 'ru'].includes(pathParts[1])) {
 			pathParts[1] = newLang
 		} else {
-			pathParts.splice(1, 0, newLang) // Insert language if not present
+			pathParts.splice(1, 0, newLang)
 		}
 
 		const newPath = pathParts.join('/')
@@ -37,6 +41,7 @@ export default function LanguageSwitcher() {
 		// Set language preference in localStorage
 		localStorage.setItem('preferred-language', newLang)
 
+		// Navigate to the new path
 		router.push(newPath)
 		setIsOpen(false)
 	}

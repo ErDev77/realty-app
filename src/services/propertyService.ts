@@ -2,10 +2,31 @@ import { PropertyFilter } from '../types/property'
 
 const API_BASE_URL = 'http://localhost:3000'
 
+export function getCurrentLanguage(): 'hy' | 'en' | 'ru' {
+	if (typeof window !== 'undefined') {
+		// Check URL path
+		const pathParts = window.location.pathname.split('/')
+		const urlLang = pathParts[1]
+		if (['hy', 'en', 'ru'].includes(urlLang)) {
+			return urlLang as 'hy' | 'en' | 'ru'
+		}
+
+		// Check localStorage
+		const savedLang = localStorage.getItem('preferred-language')
+		if (savedLang && ['hy', 'en', 'ru'].includes(savedLang)) {
+			return savedLang as 'hy' | 'en' | 'ru'
+		}
+	}
+
+	return 'hy' // Default to Armenian
+}
+  
+
 export async function getProperties(filter: PropertyFilter = {}) {
 	try {
 		const params = new URLSearchParams()
-
+		const language = getCurrentLanguage()
+		params.append('lang', language)
 		// Add filter parameters to URL
 		if (filter.property_type)
 			params.append('property_type', filter.property_type)
@@ -44,7 +65,7 @@ export async function getProperties(filter: PropertyFilter = {}) {
 		}
 
 		const data = await response.json()
-		return data
+		return data.properties || data
 	} catch (error) {
 		console.error('Error fetching properties:', error)
 		throw error
@@ -53,13 +74,14 @@ export async function getProperties(filter: PropertyFilter = {}) {
 
 export async function getPropertyByCustomId(customId: string) {
 	try {
+		const language = getCurrentLanguage()
 		console.log(
 			`✅ Fetching property from PUBLIC endpoint: ${API_BASE_URL}/api/public/properties/${customId}`
 		)
 
 		// ✅ FIXED: Use PUBLIC endpoint that doesn't require authentication
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties/${customId}`
+			`${API_BASE_URL}/api/public/properties/${customId}?lang=${language}`
 		)
 
 		if (!response.ok) {
@@ -81,13 +103,11 @@ export async function getPropertyByCustomId(customId: string) {
 
 export async function getStates() {
 	try {
-		console.log(
-			`✅ Fetching states from PUBLIC endpoint: ${API_BASE_URL}/api/public/properties/states`
+		const language = getCurrentLanguage()
+
+		const response = await fetch(
+			`${API_BASE_URL}/api/public/properties/states?lang=${language}`
 		)
-
-		// ✅ FIXED: Use PUBLIC endpoint
-		const response = await fetch(`${API_BASE_URL}/api/public/properties/states`)
-
 		if (!response.ok) {
 			throw new Error(
 				`Failed to fetch states: ${response.status} ${response.statusText}`
@@ -104,13 +124,10 @@ export async function getStates() {
 
 export async function getCitiesByState(stateId: number) {
 	try {
-		console.log(
-			`✅ Fetching cities from PUBLIC endpoint: ${API_BASE_URL}/api/public/properties/cities/${stateId}`
-		)
+		const language = getCurrentLanguage()
 
-		// ✅ FIXED: Use PUBLIC endpoint
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties/cities/${stateId}`
+			`${API_BASE_URL}/api/public/properties/cities/${stateId}?lang=${language}`
 		)
 
 		if (!response.ok) {
@@ -129,13 +146,10 @@ export async function getCitiesByState(stateId: number) {
 
 export async function getPropertyFeatures() {
 	try {
-		console.log(
-			`✅ Fetching features from PUBLIC endpoint: ${API_BASE_URL}/api/public/properties/features`
-		)
+		const language = getCurrentLanguage()
 
-		// ✅ FIXED: Use PUBLIC endpoint
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties/features`
+			`${API_BASE_URL}/api/public/properties/features?lang=${language}`
 		)
 
 		if (!response.ok) {
@@ -154,11 +168,10 @@ export async function getPropertyFeatures() {
 
 export async function getFeaturedProperties() {
 	try {
-		console.log('✅ Fetching featured properties from PUBLIC endpoint...')
+		const language = getCurrentLanguage()
 
-		// ✅ FIXED: Use PUBLIC endpoint with featured filter
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties?featured=true&limit=6`
+			`${API_BASE_URL}/api/public/properties?featured=true&limit=6&lang=${language}`
 		)
 
 		console.log(`Featured properties response status: ${response.status}`)
@@ -183,13 +196,10 @@ export async function getFeaturedProperties() {
 
 export async function getRecentProperties(limit: number = 8) {
 	try {
-		console.log(
-			`✅ Fetching recent properties from PUBLIC endpoint with limit ${limit}...`
-		)
+		const language = getCurrentLanguage()
 
-		// ✅ FIXED: Use PUBLIC endpoint
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties?sort_by=created_at&sort_order=desc&limit=${limit}`
+			`${API_BASE_URL}/api/public/properties?sort_by=created_at&sort_order=desc&limit=${limit}&lang=${language}`
 		)
 
 		console.log(`Recent properties response status: ${response.status}`)
@@ -210,4 +220,37 @@ export async function getRecentProperties(limit: number = 8) {
 		console.error('Error fetching recent properties:', error)
 		return []
 	}
+}
+
+export function getTranslatedField(
+	obj: any,
+	fieldName: string,
+	language: 'hy' | 'en' | 'ru' = 'hy'
+): string {
+	if (!obj) return ''
+
+	// For Armenian, return the original field
+	if (language === 'hy') {
+		return obj[fieldName] || ''
+	}
+
+	// For other languages, check for translated fields
+	const translatedFieldName = `${fieldName}_${language}`
+	return obj[translatedFieldName] || obj[fieldName] || ''
+}
+
+// Export helper to check if translation exists
+export function hasTranslation(
+	obj: any,
+	fieldName: string,
+	language: 'hy' | 'en' | 'ru'
+): boolean {
+	if (!obj) return false
+
+	if (language === 'hy') {
+		return !!obj[fieldName]
+	}
+
+	const translatedFieldName = `${fieldName}_${language}`
+	return !!obj[translatedFieldName]
 }
