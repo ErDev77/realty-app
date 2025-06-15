@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import PropertyCard from '../_components/PropertyCard'
-import PropertyFilter from '../_components/PropertyFilter'
+import PropertyCard from '@/app/_components/PropertyCard'
+import PropertyFilter from '@/app/_components/PropertyFilter'
 import {
 	Property,
 	PropertyFilter as FilterType,
