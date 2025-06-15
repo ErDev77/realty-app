@@ -628,15 +628,24 @@ export default function HomePage() {
 						</div>
 					) : (
 						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12'>
-							{featuredProperties.map((property, index) => (
-								<div
-									key={property.id}
-									className='transform hover:-translate-y-2 transition-all duration-300'
-									style={{ animationDelay: `${index * 100}ms` }}
-								>
-									<PropertyCard property={property} />
-								</div>
-							))}
+							{/* 🔧 FIX: Add safety check */}
+							{Array.isArray(featuredProperties) &&
+								featuredProperties.map((property, index) => (
+									<div
+										key={property.id}
+										className='transform hover:-translate-y-2 transition-all duration-300'
+										style={{ animationDelay: `${index * 100}ms` }}
+									>
+										<PropertyCard property={property} />
+									</div>
+								))}
+							{/* Show message if no properties */}
+							{Array.isArray(featuredProperties) &&
+								featuredProperties.length === 0 && (
+									<div className='col-span-full text-center py-8 text-gray-500'>
+										No featured properties available
+									</div>
+								)}
 						</div>
 					)}
 
@@ -834,39 +843,28 @@ export default function HomePage() {
 					) : (
 						<>
 							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12'>
-								{recentProperties.map((property, index) => (
-									<div
-										key={property.id}
-										className='group relative transform hover:-translate-y-2 transition-all duration-300'
-										style={{ animationDelay: `${index * 100}ms` }}
-									>
-										{/* "New" badge */}
-										<div className='absolute -top-2 -right-2 z-20 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform duration-300'>
-											NEW
+								{/* 🔧 FIX: Add safety check */}
+								{Array.isArray(recentProperties) &&
+									recentProperties.map((property, index) => (
+										<div
+											key={property.id}
+											className='group relative transform hover:-translate-y-2 transition-all duration-300'
+											style={{ animationDelay: `${index * 100}ms` }}
+										>
+											{/* "New" badge */}
+											<div className='absolute -top-2 -right-2 z-20 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform duration-300'>
+												NEW
+											</div>
+											<PropertyCard property={property} />
 										</div>
-										<PropertyCard property={property} />
-									</div>
-								))}
-							</div>
-
-							{/* Quick filters for recent properties */}
-							<div className='flex justify-center mb-12'>
-								<div className='inline-flex items-center space-x-2 bg-white rounded-2xl p-2 shadow-lg border border-gray-100'>
-									{['All', 'Today', 'This Week', 'This Month'].map(
-										(filter, index) => (
-											<button
-												key={filter}
-												className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-													index === 0
-														? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
-														: 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-												}`}
-											>
-												{filter}
-											</button>
-										)
+									))}
+								{/* Show message if no properties */}
+								{Array.isArray(recentProperties) &&
+									recentProperties.length === 0 && (
+										<div className='col-span-full text-center py-8 text-gray-500'>
+											No recent properties available
+										</div>
 									)}
-								</div>
 							</div>
 						</>
 					)}

@@ -1,15 +1,22 @@
 'use client'
 
-import { Home, Heart, User, X, Menu, ChevronDown } from 'lucide-react'
+import LanguageSwitcher from '@/components/Translations/LanguageSwitcher'
+import { Heart, User, ChevronDown } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
 const Header = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isScrolled, setIsScrolled] = useState(false)
 	const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+	const pathname = usePathname()
 
+	 const pathParts = pathname.split('/')
+		const currentLang = (
+			['hy', 'en', 'ru'].includes(pathParts[1]) ? pathParts[1] : 'hy'
+		) as 'hy' | 'en' | 'ru'
 	// Handle scroll effect
 	useEffect(() => {
 		const handleScroll = () => {
@@ -32,49 +39,91 @@ const Header = () => {
 		return () => document.removeEventListener('click', handleClickOutside)
 	}, [isMenuOpen])
 
+	const navTranslations = {
+		hy: {
+			buy: 'Գնել',
+			rent: 'Վարձակալել',
+			contact: 'Կապ մեզ հետ',
+			about: 'Մեր մասին',
+			houses: 'Տներ',
+			apartments: 'Բնակարաններ',
+			commercial: 'Կոմերցիոն',
+			dailyRent: 'Օրավարձ',
+			login: 'Մուտք',
+		},
+		en: {
+			buy: 'Buy',
+			rent: 'Rent',
+			contact: 'Contact',
+			about: 'About',
+			houses: 'Houses',
+			apartments: 'Apartments',
+			commercial: 'Commercial',
+			dailyRent: 'Daily Rent',
+			login: 'Login',
+		},
+		ru: {
+			buy: 'Купить',
+			rent: 'Арендовать',
+			contact: 'Контакты',
+			about: 'О нас',
+			houses: 'Дома',
+			apartments: 'Квартиры',
+			commercial: 'Коммерческая',
+			dailyRent: 'Посуточная аренда',
+			login: 'Вход',
+		},
+	}
+
+	const t = navTranslations[currentLang]
+
 	const navItems = [
 		{
-			label: 'Գնել',
-			href: '/properties?listing_type=sale',
+			label: t.buy,
+			href: `/${currentLang}/properties?listing_type=sale`,
 			dropdown: [
 				{
-					label: 'Տներ',
-					href: '/properties?property_type=house&listing_type=sale',
+					label: t.houses,
+					href: `/${currentLang}/properties?property_type=house&listing_type=sale`,
 				},
 				{
-					label: 'Բնակարաններ',
-					href: '/properties?property_type=apartment&listing_type=sale',
+					label: t.apartments,
+					href: `/${currentLang}/properties?property_type=apartment&listing_type=sale`,
 				},
 				{
-					label: 'Կոմերցիոն',
-					href: '/properties?property_type=commercial&listing_type=sale',
+					label: t.commercial,
+					href: `/${currentLang}/properties?property_type=commercial&listing_type=sale`,
 				},
 			],
 		},
 		{
-			label: 'Վարձակալել',
-			href: '/properties?listing_type=rent',
+			label: t.rent,
+			href: `/${currentLang}/properties?listing_type=rent`,
 			dropdown: [
 				{
-					label: 'Տներ',
-					href: '/properties?property_type=house&listing_type=rent',
+					label: t.houses,
+					href: `/${currentLang}/properties?property_type=house&listing_type=rent`,
 				},
 				{
-					label: 'Բնակարաններ',
-					href: '/properties?property_type=apartment&listing_type=rent',
+					label: t.apartments,
+					href: `/${currentLang}/properties?property_type=apartment&listing_type=rent`,
 				},
-				{ label: 'Օրավարձ', href: '/properties?listing_type=daily_rent' },
+				{
+					label: t.dailyRent,
+					href: `/${currentLang}/properties?listing_type=daily_rent`,
+				},
 			],
 		},
 		{
-			label: 'Կապ մեզ հետ',
-			href: '/contact',
+			label: t.contact,
+			href: `/${currentLang}/contact`,
 		},
 		{
-			label: 'Մեր մասին',
-			href: '/about',
+			label: t.about,
+			href: `/${currentLang}/about`,
 		},
 	]
+	
 
 	return (
 		<header
@@ -87,7 +136,10 @@ const Header = () => {
 			<div className='container mx-auto px-4'>
 				<div className='flex items-center justify-between h-20'>
 					{/* Logo with dual image support */}
-					<Link href='/' className='flex items-center group relative'>
+					<Link
+						href={`/${currentLang}`}
+						className='flex items-center group relative'
+					>
 						<div className='relative overflow-hidden rounded-xl'>
 							{/* Default logo (when not scrolled) */}
 							<Image
@@ -191,6 +243,7 @@ const Header = () => {
 
 					{/* Desktop Actions */}
 					<div className='hidden lg:flex items-center space-x-2'>
+						<LanguageSwitcher />
 						<button
 							className={`p-3 rounded-xl transition-all duration-200 group ${
 								isScrolled
@@ -219,7 +272,7 @@ const Header = () => {
 									: 'bg-gradient-to-r from-[#C5A572] to-[#D4B86A] text-[#1B3B6F] hover:from-[#D4B86A] hover:to-[#E5C97B]'
 							}`}
 						>
-							Մուտք
+							{t.login}
 						</Link>
 					</div>
 
@@ -268,6 +321,9 @@ const Header = () => {
 			>
 				<div className='bg-white border-t border-gray-100 shadow-2xl'>
 					<div className='container mx-auto px-4 py-6 space-y-2'>
+						<div className='pb-4 mb-4 border-b border-gray-100'>
+							<LanguageSwitcher />
+						</div>
 						{navItems.map((item, index) => (
 							<div key={item.label} className='space-y-2'>
 								<Link
@@ -319,7 +375,7 @@ const Header = () => {
 								className='block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center px-6 py-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg'
 								onClick={() => setIsMenuOpen(false)}
 							>
-								Մուտք
+								{t.login}
 							</Link>
 						</div>
 					</div>

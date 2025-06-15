@@ -27,6 +27,7 @@ export async function getProperties(filter: PropertyFilter = {}) {
 		const params = new URLSearchParams()
 		const language = getCurrentLanguage()
 		params.append('lang', language)
+
 		// Add filter parameters to URL
 		if (filter.property_type)
 			params.append('property_type', filter.property_type)
@@ -53,7 +54,6 @@ export async function getProperties(filter: PropertyFilter = {}) {
 			`✅ Fetching from PUBLIC endpoint: ${API_BASE_URL}/api/public/properties?${params.toString()}`
 		)
 
-		// ✅ FIXED: Use PUBLIC endpoint that doesn't require authentication
 		const response = await fetch(
 			`${API_BASE_URL}/api/public/properties?${params.toString()}`
 		)
@@ -65,7 +65,21 @@ export async function getProperties(filter: PropertyFilter = {}) {
 		}
 
 		const data = await response.json()
-		return data.properties || data
+
+		// 🔧 FIX: Handle different API response formats
+		let properties = []
+		if (Array.isArray(data)) {
+			properties = data
+		} else if (data && Array.isArray(data.properties)) {
+			properties = data.properties
+		} else if (data && Array.isArray(data.data)) {
+			properties = data.data
+		} else {
+			console.warn('Unexpected API response format for properties:', data)
+			properties = []
+		}
+
+		return properties
 	} catch (error) {
 		console.error('Error fetching properties:', error)
 		throw error
@@ -186,8 +200,25 @@ export async function getFeaturedProperties() {
 		}
 
 		const data = await response.json()
-		console.log(`✅ Received ${data.length} featured properties`)
-		return data
+
+		// 🔧 FIX: Handle different API response formats
+		let properties = []
+		if (Array.isArray(data)) {
+			properties = data
+		} else if (data && Array.isArray(data.properties)) {
+			properties = data.properties
+		} else if (data && Array.isArray(data.data)) {
+			properties = data.data
+		} else {
+			console.warn(
+				'Unexpected API response format for featured properties:',
+				data
+			)
+			properties = []
+		}
+
+		console.log(`✅ Received ${properties.length} featured properties`)
+		return properties
 	} catch (error) {
 		console.error('Error fetching featured properties:', error)
 		return []
@@ -214,8 +245,25 @@ export async function getRecentProperties(limit: number = 8) {
 		}
 
 		const data = await response.json()
-		console.log(`✅ Received ${data.length} recent properties`)
-		return data
+
+		// 🔧 FIX: Handle different API response formats
+		let properties = []
+		if (Array.isArray(data)) {
+			properties = data
+		} else if (data && Array.isArray(data.properties)) {
+			properties = data.properties
+		} else if (data && Array.isArray(data.data)) {
+			properties = data.data
+		} else {
+			console.warn(
+				'Unexpected API response format for recent properties:',
+				data
+			)
+			properties = []
+		}
+
+		console.log(`✅ Received ${properties.length} recent properties`)
+		return properties
 	} catch (error) {
 		console.error('Error fetching recent properties:', error)
 		return []
