@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { Property } from '@/types/property'
 import { getPropertyByCustomId } from '@/services/propertyService'
+import { useCurrencyConversion } from '@/hooks/useCurrencyConversion'
 import {
 	MapPin,
 	Bed,
@@ -32,6 +33,9 @@ import {
 	FileText,
 	Play,
 	ArrowUp,
+	RefreshCw,
+	Globe,
+	TrendingUp,
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -41,6 +45,149 @@ interface PropertyDetailClientProps {
 }
 
 const API_BASE_URL = 'http://localhost:3001'
+
+function CurrencyDisplay({
+	amount,
+	originalCurrency,
+	listingType,
+}: {
+	amount: number
+	originalCurrency: string
+	listingType: string
+}) {
+	const { original, conversions, loading, error, refresh, isStale } =
+		useCurrencyConversion(amount, originalCurrency, {
+			autoFetch: true,
+			refreshInterval: 30 * 60 * 1000, // 30 minutes
+			targetCurrencies: ['RUB', 'AMD'],
+		})
+
+	const formatPriceWithSuffix = (formattedAmount: string, currency: string) => {
+		switch (listingType) {
+			case 'rent':
+				return currency === 'USD'
+					? `${formattedAmount}/month`
+					: currency === 'RUB'
+					? `${formattedAmount}/месяц`
+					: `${formattedAmount}/ամիս`
+			case 'daily_rent':
+				return currency === 'USD'
+					? `${formattedAmount}/day`
+					: currency === 'RUB'
+					? `${formattedAmount}/день`
+					: `${formattedAmount}/օր`
+			default:
+				return formattedAmount
+		}
+	}
+
+	const getCurrencyFlag = (currency: string) => {
+		const flags: Record<string, string> = {
+			USD: '🇺🇸',
+			RUB: '🇷🇺',
+			AMD: '🇦🇲',
+		}
+		return flags[currency] || '💰'
+	}
+
+	if (loading && !original.formattedAmount) {
+		return (
+			<div className='flex items-center space-x-2'>
+				<Loader2 className='w-5 h-5 animate-spin text-blue-600' />
+				<span className='text-gray-500'>Loading exchange rates...</span>
+			</div>
+		)
+	}
+
+	return (
+		<div className='space-y-4'>
+			{/* Primary Price */}
+			<div className='flex items-center justify-between'>
+				<div className='text-3xl font-bold text-blue-600 flex items-center'>
+					<span className='mr-2'>{getCurrencyFlag(original.currency)}</span>
+					{formatPriceWithSuffix(original.formattedAmount, original.currency)}
+				</div>
+
+				{/* Refresh Button */}
+				<button
+					onClick={refresh}
+					disabled={loading}
+					className={`p-2 rounded-full transition-colors ${
+						isStale
+							? 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+							: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+					}`}
+					title={
+						isStale
+							? 'Exchange rates may be outdated - click to refresh'
+							: 'Refresh exchange rates'
+					}
+				>
+					<RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+				</button>
+			</div>
+
+			{/* Converted Prices */}
+			{conversions.length > 0 && (
+				<div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100'>
+					<div className='flex items-center justify-between mb-3'>
+						<h4 className='text-sm font-semibold text-gray-700 flex items-center'>
+							<Globe className='w-4 h-4 mr-2' />
+							Other Currencies
+						</h4>
+						{error && (
+							<span className='text-xs text-red-500 flex items-center'>
+								<X className='w-3 h-3 mr-1' />
+								Failed to load rates
+							</span>
+						)}
+					</div>
+
+					<div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+						{conversions.map(conversion => (
+							<div
+								key={conversion.currency}
+								className='bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-300 transition-colors'
+							>
+								<div className='flex items-center justify-between'>
+									<div className='flex items-center'>
+										<span className='text-lg mr-2'>
+											{getCurrencyFlag(conversion.currency)}
+										</span>
+										<div>
+											<div className='font-semibold text-gray-900'>
+												{formatPriceWithSuffix(
+													conversion.formattedAmount,
+													conversion.currency
+												)}
+											</div>
+											{conversion.rate && (
+												<div className='text-xs text-gray-500'>
+													1 {original.currency} = {conversion.rate.toFixed(2)}{' '}
+													{conversion.currency}
+												</div>
+											)}
+										</div>
+									</div>
+									{listingType === 'sale' && (
+										<TrendingUp className='w-4 h-4 text-green-500' />
+									)}
+								</div>
+							</div>
+						))}
+					</div>
+
+					{/* Disclaimer */}
+					<div className='mt-3 text-xs text-gray-500 flex items-center'>
+						<Info className='w-3 h-3 mr-1' />
+						Exchange rates are approximate and updated every 30 minutes
+					</div>
+				</div>
+			)}
+		</div>
+	)
+}
+
 
 export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	const params = useParams()
