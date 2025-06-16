@@ -1,4 +1,4 @@
-// src/app/properties/[id]/page.tsx
+// src/app/[locale]/properties/[id]/PropertyDetailClient.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -36,6 +36,7 @@ import {
 	RefreshCw,
 	Globe,
 	TrendingUp,
+	DollarSign,
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -188,7 +189,6 @@ function CurrencyDisplay({
 	)
 }
 
-
 export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	const params = useParams()
 	const [property, setProperty] = useState<Property | null>(null)
@@ -288,23 +288,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 				</div>
 			</div>
 		)
-	}
-
-	const formatPrice = (price: number, listingType: string) => {
-		const formatted = new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: property.currency || 'USD',
-			maximumFractionDigits: 0,
-		}).format(price)
-
-		switch (listingType) {
-			case 'rent':
-				return `${formatted}/month`
-			case 'daily_rent':
-				return `${formatted}/day`
-			default:
-				return formatted
-		}
 	}
 
 	const propertyTypeIcons: Record<string, any> = {
@@ -761,11 +744,16 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									</span>
 								</div>
 
-								<div className='mt-4 text-2xl font-bold text-blue-600'>
-									{formatPrice(property.price, property.listing_type)}
+								<div className='mt-4'>
+									<CurrencyDisplay
+										amount={property.price}
+										originalCurrency={property.currency || 'USD'}
+										listingType={property.listing_type}
+									/>
 								</div>
 							</div>
 						</div>
+
 						{/* Property Description */}
 						<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6 mt-6'>
 							<h2 className='text-xl font-semibold mb-4 text-gray-900'>
@@ -779,7 +767,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 								) : (
 									<div className='flex items-center gap-2 text-sm text-muted-foreground italic'>
 										<FileText className='w-4 h-4 text-gray-600' />
-										<span className='text-gray-600'>Описание отсутствует</span>
+										<span className='text-gray-600'>
+											No description available
+										</span>
 									</div>
 								)}
 							</div>
@@ -839,14 +829,16 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							</div>
 						</div>
 
-						{/* Price Card */}
+						{/* Price Card with Currency Conversion */}
 						<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6'>
-							<div className='text-3xl font-bold text-blue-600 mb-2'>
-								{formatPrice(property.price, property.listing_type)}
-							</div>
+							<CurrencyDisplay
+								amount={property.price}
+								originalCurrency={property.currency || 'USD'}
+								listingType={property.listing_type}
+							/>
 
 							{/* Property Tags */}
-							<div className='flex flex-wrap items-center gap-2 mb-6'>
+							<div className='flex flex-wrap items-center gap-2 mt-6 mb-6'>
 								<div className='flex items-center px-3 py-2 bg-gray-100 rounded-lg'>
 									<PropertyIcon className='w-5 h-5 text-gray-700 mr-2' />
 									<span className='font-medium text-gray-700 capitalize'>
@@ -865,32 +857,78 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							{getPropertyAttributes()}
 
 							{/* Contact Buttons */}
+							<div className='space-y-3 mb-6'>
+								<button className='w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'>
+									<Mail className='w-5 h-5 mr-2' />
+									Contact Agent
+								</button>
+
+								<button className='w-full border-2 border-blue-600 text-blue-600 py-3 px-6 rounded-xl hover:bg-blue-50 transition-all duration-200 font-semibold flex items-center justify-center'>
+									<Calendar className='w-5 h-5 mr-2' />
+									Schedule Viewing
+								</button>
+
+								<button className='w-full bg-green-600 text-white py-3 px-6 rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold flex items-center justify-center'>
+									<DollarSign className='w-5 h-5 mr-2' />
+									Calculate Mortgage
+								</button>
+							</div>
+
+							{/* Property Stats */}
+							<div className='pt-4 mt-4 border-t border-gray-100'>
+								<div className='flex justify-between items-center py-2'>
+									<span className='text-gray-600 flex items-center'>
+										<Eye className='w-4 h-4 mr-2' /> Views
+									</span>
+									<span className='font-medium text-gray-700'>
+										{property.views}
+									</span>
+								</div>
+								<div className='flex justify-between items-center py-2'>
+									<span className='text-gray-600 flex items-center'>
+										<Calendar className='w-4 h-4 mr-2' /> Listed
+									</span>
+									<span className='font-medium text-gray-700'>
+										{new Date(property.created_at).toLocaleDateString('en-US', {
+											year: 'numeric',
+											month: 'short',
+											day: 'numeric',
+										})}
+									</span>
+								</div>
+							</div>
+						</div>
+
+						{/* Market Analysis Card */}
+						<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6'>
+							<h3 className='text-lg font-semibold mb-4 text-gray-900 flex items-center'>
+								<TrendingUp className='w-5 h-5 mr-2 text-green-600' />
+								Market Analysis
+							</h3>
 							<div className='space-y-3'>
-								{/* Property Stats */}
-								<div className='pt-4 mt-4 border-t border-gray-100'>
-									<div className='flex justify-between items-center py-2'>
-										<span className='text-gray-600 flex items-center'>
-											<Eye className='w-4 h-4 mr-2' /> Views
-										</span>
-										<span className='font-medium text-gray-700'>
-											{property.views}
-										</span>
-									</div>
-									<div className='flex justify-between items-center py-2'>
-										<span className='text-gray-600 flex items-center'>
-											<Calendar className='w-4 h-4 mr-2' /> Listed
-										</span>
-										<span className='font-medium text-gray-700'>
-											{new Date(property.created_at).toLocaleDateString(
-												'en-US',
-												{
-													year: 'numeric',
-													month: 'short',
-													day: 'numeric',
-												}
-											)}
-										</span>
-									</div>
+								<div className='flex justify-between items-center'>
+									<span className='text-gray-600'>Price per sq ft</span>
+									<span className='font-medium text-gray-700'>
+										{property.property_type !== 'land' &&
+										'attributes' in property &&
+										property.attributes.area_sqft
+											? `${Math.round(
+													property.price / property.attributes.area_sqft
+											  )}`
+											: 'N/A'}
+									</span>
+								</div>
+								<div className='flex justify-between items-center'>
+									<span className='text-gray-600'>Property Type</span>
+									<span className='font-medium text-gray-700 capitalize'>
+										{property.property_type.replace('_', ' ')}
+									</span>
+								</div>
+								<div className='flex justify-between items-center'>
+									<span className='text-gray-600'>Listing Type</span>
+									<span className='font-medium text-gray-700 capitalize'>
+										{property.listing_type.replace('_', ' ')}
+									</span>
 								</div>
 							</div>
 						</div>
@@ -901,13 +939,33 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 								<MapPin className='w-5 h-5 mr-2 text-blue-600' />
 								Location
 							</h3>
-							<div className='bg-gray-200 h-48 rounded-lg flex items-center justify-center text-gray-500'>
-								Map will be displayed here
+							<div className='bg-gray-200 h-48 rounded-lg flex items-center justify-center text-gray-500 mb-4'>
+								<div className='text-center'>
+									<MapPin className='w-12 h-12 mx-auto mb-2 text-gray-400' />
+									<p className='text-sm'>
+										Interactive map would be displayed here
+									</p>
+									<p className='text-xs text-gray-400'>
+										Google Maps, Mapbox, etc.
+									</p>
+								</div>
 							</div>
-							<p className='mt-3 text-gray-600 text-sm'>
-								{property.address}, {property.city?.name},{' '}
-								{property.state?.name}
-							</p>
+							<div className='space-y-2'>
+								<p className='text-gray-900 font-medium'>{property.address}</p>
+								<p className='text-gray-600'>
+									{property.city?.name}, {property.state?.name}
+								</p>
+								{property.postal_code && (
+									<p className='text-gray-500 text-sm'>
+										{property.postal_code}
+									</p>
+								)}
+							</div>
+
+							<button className='w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center'>
+								<Globe className='w-4 h-4 mr-2' />
+								View on Map
+							</button>
 						</div>
 					</div>
 				</div>
@@ -938,7 +996,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 								<div className='relative h-[70vh]'>
 									{media.type === 'image' ? (
 										<Image
-											src={media.url}
+											src={getImageUrl(media.url)}
 											alt={`${property.title} - ${index + 1}`}
 											fill
 											className='object-contain'
@@ -947,10 +1005,14 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									) : media.type === 'video' ? (
 										<div className='w-full h-full flex items-center justify-center'>
 											<video
-												src={media.url}
+												src={getImageUrl(media.url)}
 												controls
 												className='max-h-full max-w-full'
-												poster={media.thumbnail_url}
+												poster={
+													media.thumbnail_url
+														? getImageUrl(media.thumbnail_url)
+														: undefined
+												}
 											>
 												Your browser does not support the video tag.
 											</video>
