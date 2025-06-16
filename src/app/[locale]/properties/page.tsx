@@ -1,3 +1,4 @@
+// src/app/[locale]/properties/page.tsx - Fixed
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { Loader2 } from 'lucide-react'
@@ -5,34 +6,36 @@ import PropertiesContent from './PropertiesContent'
 import { generateLocationMetadata } from '@/utils/seo'
 
 interface PropertiesPageProps {
-	searchParams: { [key: string]: string | string[] | undefined }
+	params: Promise<{ locale: string }>
+	searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export async function generateMetadata({
+	params,
 	searchParams,
 }: PropertiesPageProps): Promise<Metadata> {
-	const propertyType = searchParams.property_type as string
-	const listingType = searchParams.listing_type as string
-	const stateId = searchParams.state_id as string
-	const cityId = searchParams.city_id as string
+	// ✅ FIX: Properly await both params and searchParams
+	const { locale } = await params
+	const searchParamsData = await searchParams
 
-	// You might want to fetch actual state/city names here
+	const propertyType = searchParamsData.property_type as string
+	const listingType = searchParamsData.listing_type as string
+	const stateId = searchParamsData.state_id as string
+	const cityId = searchParamsData.city_id as string
+
 	const { title, description, keywords } = generateLocationMetadata({
 		type: propertyType,
-		// You would fetch these from your API based on IDs
-		// state: stateName,
-		// city: cityName,
 	})
 
-	let canonicalUrl = 'https://chancerealty.am/properties'
-	const params = new URLSearchParams()
-	if (propertyType) params.append('property_type', propertyType)
-	if (listingType) params.append('listing_type', listingType)
-	if (stateId) params.append('state_id', stateId)
-	if (cityId) params.append('city_id', cityId)
+	let canonicalUrl = `https://chancerealty.am/${locale}/properties`
+	const params_url = new URLSearchParams()
+	if (propertyType) params_url.append('property_type', propertyType)
+	if (listingType) params_url.append('listing_type', listingType)
+	if (stateId) params_url.append('state_id', stateId)
+	if (cityId) params_url.append('city_id', cityId)
 
-	if (params.toString()) {
-		canonicalUrl += `?${params.toString()}`
+	if (params_url.toString()) {
+		canonicalUrl += `?${params_url.toString()}`
 	}
 
 	return {
@@ -59,7 +62,12 @@ function LoadingFallback() {
 	)
 }
 
-export default function PropertiesPage({ searchParams }: PropertiesPageProps) {
+export default async function PropertiesPage({
+	params,
+	searchParams,
+}: PropertiesPageProps) {
+	const { locale } = await params
+
 	const breadcrumbSchema = {
 		'@context': 'https://schema.org',
 		'@type': 'BreadcrumbList',
@@ -68,13 +76,13 @@ export default function PropertiesPage({ searchParams }: PropertiesPageProps) {
 				'@type': 'ListItem',
 				position: 1,
 				name: 'Home',
-				item: 'https://chancerealty.am',
+				item: `https://chancerealty.am/${locale}`,
 			},
 			{
 				'@type': 'ListItem',
 				position: 2,
 				name: 'Properties',
-				item: 'https://chancerealty.am/properties',
+				item: `https://chancerealty.am/${locale}/properties`,
 			},
 		],
 	}

@@ -1,29 +1,18 @@
-// src/app/[locale]/layout.tsx
+// src/app/[locale]/layout.tsx - Fixed: Remove HTML structure
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { notFound } from 'next/navigation'
-import '../globals.css'
-import ClientLayout from '../client-layout'
 
-const geistSans = Geist({
-	variable: '--font-geist-sans',
-	subsets: ['latin'],
-})
+const locales = ['hy', 'en', 'ru'] as const
+type Locale = (typeof locales)[number]
 
-const geistMono = Geist_Mono({
-	variable: '--font-geist-mono',
-	subsets: ['latin'],
-})
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+	const { locale } = await params
 
-const locales = ['hy', 'en', 'ru']
-
-export async function generateMetadata(
-	props: Promise<{ params: { locale: string } }>
-): Promise<Metadata> {
-	const { params } = await props
-	const { locale } = params
-
-	if (!locales.includes(locale)) {
+	if (!locales.includes(locale as Locale)) {
 		return {
 			title: 'Page Not Found',
 			description: 'The requested page could not be found.',
@@ -48,7 +37,7 @@ export async function generateMetadata(
 		},
 	}
 
-	const meta = translations[locale as keyof typeof translations]
+	const meta = translations[locale as Locale]
 
 	return {
 		title: meta.title,
@@ -69,40 +58,23 @@ export async function generateMetadata(
 	}
 }
 
-export default function LocaleLayout({
+export default async function LocaleLayout({
 	children,
 	params,
 }: {
 	children: React.ReactNode
-	params: { locale: string }
+	params: Promise<{ locale: string }>
 }) {
-	const { locale } = params
+	const { locale } = await params
 
 	// Validate locale
-	if (!locales.includes(locale)) {
+	if (!locales.includes(locale as Locale)) {
 		notFound()
 	}
 
-	return (
-		<html lang={locale}>
-			<head>
-				{/* Alternate language links */}
-				<link rel='alternate' hrefLang='hy' href='https://chancerealty.am/hy' />
-				<link rel='alternate' hrefLang='en' href='https://chancerealty.am/en' />
-				<link rel='alternate' hrefLang='ru' href='https://chancerealty.am/ru' />
-				<link
-					rel='alternate'
-					hrefLang='x-default'
-					href='https://chancerealty.am/hy'
-				/>
-			</head>
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-			>
-				<ClientLayout>{children}</ClientLayout>
-			</body>
-		</html>
-	)
+	// ✅ FIX: Return only children, no HTML structure
+	// The HTML structure should only be in the root layout
+	return <>{children}</>
 }
 
 // Generate static params for all locales

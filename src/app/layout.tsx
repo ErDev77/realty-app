@@ -1,3 +1,4 @@
+// src/app/layout.tsx - Updated to handle locale properly
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
@@ -10,11 +11,13 @@ import {
 const geistSans = Geist({
 	variable: '--font-geist-sans',
 	subsets: ['latin'],
+	display: 'swap',
 })
 
 const geistMono = Geist_Mono({
 	variable: '--font-geist-mono',
 	subsets: ['latin'],
+	display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -88,14 +91,29 @@ export const metadata: Metadata = {
 	alternates: {
 		canonical: 'https://chancerealty.am',
 		languages: {
-			'en-US': 'https://chancerealty.am',
+			'en-US': 'https://chancerealty.am/en',
 			'hy-AM': 'https://chancerealty.am/hy',
+			'ru-RU': 'https://chancerealty.am/ru',
 		},
 	},
 	other: {
 		'msapplication-TileColor': '#2563eb',
 		'theme-color': '#2563eb',
 	},
+}
+
+// Helper function to extract locale from pathname
+function getLocaleFromPathname(pathname?: string): string {
+	if (!pathname) return 'hy'
+
+	const segments = pathname.split('/')
+	const locale = segments[1]
+
+	if (['hy', 'en', 'ru'].includes(locale)) {
+		return locale
+	}
+
+	return 'hy' // default locale
 }
 
 export default function RootLayout({
@@ -106,8 +124,12 @@ export default function RootLayout({
 	const organizationSchema = generateOrganizationSchema()
 	const websiteSchema = generateWebsiteSchema()
 
+	// Note: In a server component, we can't access window.location
+	// The locale will be handled by middleware and the [locale] layout
+	const defaultLocale = 'hy'
+
 	return (
-		<html lang='en'>
+		<html lang={defaultLocale}>
 			<head>
 				{/* Structured Data */}
 				<script
@@ -140,6 +162,16 @@ export default function RootLayout({
 				<link rel='icon' href='/icon.svg' type='image/svg+xml' />
 				<link rel='apple-touch-icon' href='/apple-touch-icon.png' />
 				<link rel='manifest' href='/manifest.json' />
+
+				{/* Language alternates */}
+				<link rel='alternate' hrefLang='hy' href='https://chancerealty.am/hy' />
+				<link rel='alternate' hrefLang='en' href='https://chancerealty.am/en' />
+				<link rel='alternate' hrefLang='ru' href='https://chancerealty.am/ru' />
+				<link
+					rel='alternate'
+					hrefLang='x-default'
+					href='https://chancerealty.am/hy'
+				/>
 			</head>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}

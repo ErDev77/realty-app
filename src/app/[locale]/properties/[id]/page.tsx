@@ -1,3 +1,4 @@
+// src/app/[locale]/properties/[id]/page.tsx - Fixed
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPropertyByCustomId } from '@/services/propertyService'
@@ -6,14 +7,16 @@ import { generatePropertyMetadata } from '@/utils/seo'
 import PropertyDetailClient from './PropertyDetailClient'
 
 interface PropertyPageProps {
-	params: { id: string }
+	params: Promise<{ locale: string; id: string }>
 }
 
 export async function generateMetadata({
 	params,
 }: PropertyPageProps): Promise<Metadata> {
 	try {
-		const property = await getPropertyByCustomId(params.id)
+		// ✅ FIX: Properly await params
+		const { id, locale } = await params
+		const property = await getPropertyByCustomId(id)
 
 		if (!property) {
 			return {
@@ -38,7 +41,7 @@ export async function generateMetadata({
 				title,
 				description,
 				images: [image],
-				url: `https://chancerealty.am/properties/${property.custom_id}`,
+				url: `https://chancerealty.am/${locale}/properties/${property.custom_id}`,
 				type: 'article',
 			},
 			twitter: {
@@ -48,7 +51,7 @@ export async function generateMetadata({
 				images: [image],
 			},
 			alternates: {
-				canonical: `https://chancerealty.am/properties/${property.custom_id}`,
+				canonical: `https://chancerealty.am/${locale}/properties/${property.custom_id}`,
 			},
 		}
 	} catch (error) {
@@ -64,7 +67,9 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 	let property
 
 	try {
-		property = await getPropertyByCustomId(params.id)
+		// ✅ FIX: Properly await params
+		const { id, locale } = await params
+		property = await getPropertyByCustomId(id)
 	} catch (error) {
 		console.error('Error fetching property:', error)
 		notFound()
@@ -74,6 +79,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 		notFound()
 	}
 
+	const { locale } = await params
 	const propertySchema = generatePropertySchema(property)
 	const breadcrumbSchema = {
 		'@context': 'https://schema.org',
@@ -83,19 +89,19 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 				'@type': 'ListItem',
 				position: 1,
 				name: 'Home',
-				item: 'https://chancerealty.am',
+				item: `https://chancerealty.am/${locale}`,
 			},
 			{
 				'@type': 'ListItem',
 				position: 2,
 				name: 'Properties',
-				item: 'https://chancerealty.am/properties',
+				item: `https://chancerealty.am/${locale}/properties`,
 			},
 			{
 				'@type': 'ListItem',
 				position: 3,
 				name: property.title,
-				item: `https://chancerealty.am/properties/${property.custom_id}`,
+				item: `https://chancerealty.am/${locale}/properties/${property.custom_id}`,
 			},
 		],
 	}

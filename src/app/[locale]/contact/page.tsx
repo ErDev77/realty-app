@@ -1,38 +1,71 @@
+// src/app/[locale]/contact/page.tsx - Fixed
 import { Metadata } from 'next'
 import ContactClient from './ContactClient'
 
-export const metadata: Metadata = {
-	title: 'Contact Us - Get Expert Real Estate Advice | Chance Realty',
-	description:
-		'Contact Chance Realty for expert real estate advice in Armenia. Call +374 00 000 000, email info@chancerealty.am, or visit our Yerevan office. Free consultation available.',
-	keywords: [
-		'contact Chance Realty',
-		'real estate consultation Armenia',
-		'Yerevan real estate office',
-		'property advice Armenia',
-		'real estate experts contact',
-		'Armenian property consultants',
-	],
-	openGraph: {
-		title: 'Contact Chance Realty - Expert Real Estate Consultation',
-		description:
-			"Get in touch with Armenia's leading real estate experts. Free consultation, professional advice, and personalized service.",
-		images: ['/images/og-contact.jpg'],
-		url: 'https://chancerealty.am/contact',
-	},
-	alternates: {
-		canonical: 'https://chancerealty.am/contact',
-	},
+interface ContactPageProps {
+	params: Promise<{ locale: string }>
 }
 
-export default function ContactPage() {
+export async function generateMetadata({
+	params,
+}: ContactPageProps): Promise<Metadata> {
+	// ✅ FIX: Properly await params
+	const { locale } = await params
+
+	const translations = {
+		hy: {
+			title:
+				'Կապ մեզ հետ - Ստացեք փորձագետ անշարժ գույքի խորհուրդ | Chance Realty',
+			description:
+				'Կապվեք Chance Realty-ի հետ փորձագետ անշարժ գույքի խորհրդատվության համար Հայաստանում։',
+		},
+		en: {
+			title: 'Contact Us - Get Expert Real Estate Advice | Chance Realty',
+			description:
+				'Contact Chance Realty for expert real estate advice in Armenia.',
+		},
+		ru: {
+			title:
+				'Свяжитесь с нами - Получите экспертную консультацию | Chance Realty',
+			description:
+				'Свяжитесь с Chance Realty для получения экспертной консультации по недвижимости в Армении.',
+		},
+	}
+
+	const meta =
+		translations[locale as keyof typeof translations] || translations.en
+
+	return {
+		title: meta.title,
+		description: meta.description,
+		keywords: [
+			'contact Chance Realty',
+			'real estate consultation Armenia',
+			'Yerevan real estate office',
+			'property advice Armenia',
+		],
+		openGraph: {
+			title: meta.title,
+			description: meta.description,
+			images: ['/images/og-contact.jpg'],
+			url: `https://chancerealty.am/${locale}/contact`,
+		},
+		alternates: {
+			canonical: `https://chancerealty.am/${locale}/contact`,
+		},
+	}
+}
+
+export default async function ContactPage({ params }: ContactPageProps) {
+	const { locale } = await params
+
 	const contactSchema = {
 		'@context': 'https://schema.org',
 		'@type': 'ContactPage',
 		name: 'Contact Chance Realty',
 		description:
-			'Get in touch with Chance Realty for expert real estate advice and consultation in Armenia.',
-		url: 'https://chancerealty.am/contact',
+			'Get in touch with Chance Realty for expert real estate advice.',
+		url: `https://chancerealty.am/${locale}/contact`,
 		mainEntity: {
 			'@type': 'Organization',
 			name: 'Chance Realty',
@@ -41,7 +74,7 @@ export default function ContactPage() {
 				telephone: '+374-00-000-000',
 				contactType: 'customer service',
 				email: 'info@chancerealty.am',
-				availableLanguage: ['English', 'Armenian'],
+				availableLanguage: ['English', 'Armenian', 'Russian'],
 			},
 		},
 	}
@@ -54,13 +87,13 @@ export default function ContactPage() {
 				'@type': 'ListItem',
 				position: 1,
 				name: 'Home',
-				item: 'https://chancerealty.am',
+				item: `https://chancerealty.am/${locale}`,
 			},
 			{
 				'@type': 'ListItem',
 				position: 2,
 				name: 'Contact',
-				item: 'https://chancerealty.am/contact',
+				item: `https://chancerealty.am/${locale}/contact`,
 			},
 		],
 	}
