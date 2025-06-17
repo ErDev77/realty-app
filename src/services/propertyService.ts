@@ -1,6 +1,6 @@
 import { PropertyFilter } from '../types/property'
 
-const API_BASE_URL = 'http://localhost:3000'
+const API_BASE_URL = 'https://realty-app-admin.vercel.app'
 
 export function getCurrentLanguage(): 'hy' | 'en' | 'ru' {
 	if (typeof window !== 'undefined') {

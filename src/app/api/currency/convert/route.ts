@@ -1,15 +1,5 @@
-// src/app/api/currency/convert/route.ts
+// src/app/api/currency/convert/route.ts - FINAL OPTIMIZED VERSION
 import { NextResponse } from 'next/server'
-
-interface ExchangeRateResponse {
-	success: boolean
-	timestamp: number
-	base: string
-	date: string
-	rates: {
-		[key: string]: number
-	}
-}
 
 // In-memory cache for exchange rates
 const rateCache = new Map<string, { rate: number; timestamp: number }>()
@@ -38,6 +28,10 @@ export async function GET(request: Request) {
 				NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
 			)
 		}
+
+		console.log(
+			`💱 Converting ${amount} ${fromCurrency} to [${toCurrencies.join(', ')}]`
+		)
 
 		// Get exchange rates
 		const rates = await getExchangeRates(fromCurrency, toCurrencies)
@@ -68,7 +62,7 @@ export async function GET(request: Request) {
 
 		return corsResponse(response)
 	} catch (error) {
-		console.error('Currency conversion error:', error)
+		console.error('💥 Currency conversion error:', error)
 		const response = NextResponse.json(
 			{ error: 'Failed to convert currency' },
 			{ status: 500 }
@@ -86,6 +80,7 @@ async function getExchangeRates(
 
 	// Return cached rates if still valid
 	if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+		console.log('✅ Using cached rates')
 		const rates: Record<string, number> = {}
 		targetCurrencies.forEach(currency => {
 			const currencyCache = rateCache.get(`${baseCurrency}-${currency}`)
@@ -98,52 +93,143 @@ async function getExchangeRates(
 		}
 	}
 
-	try {
-		const symbols = targetCurrencies.join(',')
-		const response = await fetch(
-			`https://api.exchangerate.host/latest?base=${baseCurrency}&symbols=${symbols}`,
-			{
-				method: 'GET',
-				headers: {
-					Accept: 'application/json',
-				},
-			}
-		)
+	console.log('🌐 Fetching fresh rates from APIs...')
 
-		if (!response.ok) {
-			throw new Error(`Exchange rate API error: ${response.status}`)
+	try {
+		// Primary: Fawaz API (best accuracy and reliability)
+		let rates = await fetchFromFawazAPI(baseCurrency, targetCurrencies)
+
+		if (!rates || Object.keys(rates).length === 0) {
+			console.log('⚠️ Fawaz API failed, trying backup...')
+			rates = await fetchFromExchangeRateAPI(baseCurrency, targetCurrencies)
 		}
 
-		const data: ExchangeRateResponse = await response.json()
-
-		if (!data.success) {
-			throw new Error('Exchange rate API returned error')
+		if (!rates || Object.keys(rates).length === 0) {
+			throw new Error('All currency APIs failed')
 		}
 
 		// Cache the rates
 		const timestamp = Date.now()
-		Object.entries(data.rates).forEach(([currency, rate]) => {
+		Object.entries(rates).forEach(([currency, rate]) => {
 			rateCache.set(`${baseCurrency}-${currency}`, { rate, timestamp })
 		})
 
-		return data.rates
+		console.log('✅ Successfully fetched live rates:', rates)
+		return rates
 	} catch (error) {
-		console.error('Error fetching exchange rates:', error)
-		// Return fallback rates if API fails
-		return getFallbackRates(targetCurrencies)
+		console.error('💥 All APIs failed:', error)
+		console.log('⚠️ Using fallback rates')
+		return getCurrentFallbackRates(targetCurrencies)
 	}
 }
 
-function getFallbackRates(targetCurrencies: string[]): Record<string, number> {
+// Primary API: Fawaz's Currency API (GitHub CDN-hosted, most reliable)
+async function fetchFromFawazAPI(
+	baseCurrency: string,
+	targetCurrencies: string[]
+): Promise<Record<string, number>> {
+	try {
+		const baseCode = baseCurrency.toLowerCase()
+		const response = await fetch(
+			`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${baseCode}.json`,
+			{
+				headers: {
+					Accept: 'application/json',
+				},
+				// Add cache control for better performance
+				next: { revalidate: 1800 }, // 30 minutes
+			}
+		)
+
+		if (!response.ok) {
+			throw new Error(`Fawaz API error: ${response.status}`)
+		}
+
+		const data = await response.json()
+		const baseCurrencyRates = data[baseCode]
+
+		if (!baseCurrencyRates) {
+			throw new Error('No rates found in Fawaz API response')
+		}
+
+		// Filter only requested currencies
+		const filteredRates: Record<string, number> = {}
+		targetCurrencies.forEach(currency => {
+			const rate = baseCurrencyRates[currency.toLowerCase()]
+			if (rate) {
+				filteredRates[currency] = rate
+			}
+		})
+
+		console.log('✅ Fawaz API (PRIMARY) rates:', filteredRates)
+		return filteredRates
+	} catch (error) {
+		console.error('❌ Fawaz API failed:', error)
+		throw error
+	}
+}
+
+// Backup API: ExchangeRate-API
+async function fetchFromExchangeRateAPI(
+	baseCurrency: string,
+	targetCurrencies: string[]
+): Promise<Record<string, number>> {
+	try {
+		const response = await fetch(
+			`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`,
+			{
+				headers: {
+					Accept: 'application/json',
+				},
+				next: { revalidate: 1800 }, // 30 minutes
+			}
+		)
+
+		if (!response.ok) {
+			throw new Error(`ExchangeRate-API error: ${response.status}`)
+		}
+
+		const data = await response.json()
+
+		if (!data.rates) {
+			throw new Error('No rates found in ExchangeRate-API response')
+		}
+
+		// Filter only requested currencies
+		const filteredRates: Record<string, number> = {}
+		targetCurrencies.forEach(currency => {
+			if (data.rates[currency]) {
+				filteredRates[currency] = data.rates[currency]
+			}
+		})
+
+		console.log('✅ ExchangeRate-API (BACKUP) rates:', filteredRates)
+		return filteredRates
+	} catch (error) {
+		console.error('❌ ExchangeRate-API failed:', error)
+		throw error
+	}
+}
+
+// Updated fallback rates based on your test results
+function getCurrentFallbackRates(
+	targetCurrencies: string[]
+): Record<string, number> {
+	console.log('⚠️ FALLBACK: APIs are down, using emergency rates')
+
+	// Use average of both APIs from your test for maximum accuracy
 	const fallbackRates: Record<string, number> = {
-		RUB: 95.5, // Approximate USD to RUB
-		AMD: 387.5, // Approximate USD to AMD
+		RUB: 79.76, // Average of 79.82 (Fawaz) and 79.69 (ExchangeRate-API)
+		AMD: 383.33, // Average of 383.22 (Fawaz) and 383.44 (ExchangeRate-API)
+		EUR: 0.867, // Current USD to EUR
+		GBP: 0.738, // Current USD to GBP
 	}
 
 	const result: Record<string, number> = {}
 	targetCurrencies.forEach(currency => {
 		if (fallbackRates[currency]) {
 			result[currency] = fallbackRates[currency]
+			console.log(`📌 FALLBACK rate ${currency}: ${fallbackRates[currency]}`)
 		}
 	})
 
@@ -184,27 +270,3 @@ function formatCurrency(amount: number, currency: string): string {
 		return `${symbol}${amount.toLocaleString()}`
 	}
 }
-
-// GET rates endpoint for real-time rate checking
-export async function GET_RATES() {
-	try {
-		const rates = await getExchangeRates('USD', ['RUB', 'AMD'])
-
-		const response = NextResponse.json({
-			success: true,
-			base: 'USD',
-			rates,
-			timestamp: Date.now(),
-		})
-
-		return corsResponse(response)
-	} catch (error) {
-		console.error('Error fetching exchange rates:', error)
-		const response = NextResponse.json(
-			{ error: 'Failed to fetch exchange rates' },
-			{ status: 500 }
-		)
-		return corsResponse(response)
-	}
-}
-    

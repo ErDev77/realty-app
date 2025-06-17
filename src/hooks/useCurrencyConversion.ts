@@ -1,5 +1,5 @@
-// src/hooks/useCurrencyConversion.ts
-import { useState, useEffect, useCallback } from 'react'
+// src/hooks/useCurrencyConversion.ts - FIXED
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 
 interface ConversionResult {
 	amount: number
@@ -27,13 +27,24 @@ export function useCurrencyConversion(
 	fromCurrency = 'USD',
 	options: UseCurrencyConversionOptions = {}
 ) {
-	const {
-		autoFetch = true,
-		refreshInterval = 30 * 60 * 1000, // 30 minutes
-		targetCurrencies = ['RUB', 'AMD'],
-	} = options
+	// ✅ FIX: Memoize options to prevent dependency changes
+	const memoizedOptions = useMemo(
+		() => ({
+			autoFetch: true,
+			refreshInterval: 30 * 60 * 1000, // 30 minutes
+			targetCurrencies: ['RUB', 'AMD'],
+			...options,
+		}),
+		[
+			options.autoFetch,
+			options.refreshInterval,
+			JSON.stringify(options.targetCurrencies),
+		]
+	)
 
-	const [data, setData] = useState<CurrencyConversionData>({
+	const { autoFetch, refreshInterval, targetCurrencies } = memoizedOptions
+
+	const [data, setData] = useState<CurrencyConversionData>(() => ({
 		original: {
 			amount,
 			currency: fromCurrency,
@@ -47,8 +58,13 @@ export function useCurrencyConversion(
 		timestamp: Date.now(),
 		loading: false,
 		error: null,
-	})
+	}))
 
+	// ✅ FIX: Use ref to track if we're currently fetching to prevent multiple requests
+	const isFetchingRef = useRef(false)
+	const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+	// ✅ FIX: Memoize the convertCurrency function
 	const convertCurrency = useCallback(
 		async (convertAmount?: number, convertFromCurrency?: string) => {
 			const finalAmount = convertAmount ?? amount
@@ -62,6 +78,12 @@ export function useCurrencyConversion(
 				return
 			}
 
+			// Prevent multiple simultaneous requests
+			if (isFetchingRef.current) {
+				return
+			}
+
+			isFetchingRef.current = true
 			setData(prev => ({ ...prev, loading: true, error: null }))
 
 			try {
@@ -96,34 +118,58 @@ export function useCurrencyConversion(
 					error:
 						error instanceof Error ? error.message : 'Unknown error occurred',
 				}))
+			} finally {
+				isFetchingRef.current = false
 			}
 		},
-		[amount, fromCurrency, targetCurrencies]
+		[amount, fromCurrency, targetCurrencies] // ✅ FIX: Only depend on primitive values
 	)
 
-	// Auto-fetch on mount and when dependencies change
+	// ✅ FIX: Auto-fetch effect with proper dependency control
 	useEffect(() => {
-		if (autoFetch && amount > 0) {
+		if (autoFetch && amount > 0 && !isFetchingRef.current) {
 			convertCurrency()
 		}
-	}, [autoFetch, convertCurrency])
+	}, [autoFetch, amount, fromCurrency, convertCurrency])
 
-	// Auto-refresh at specified intervals
+	// ✅ FIX: Auto-refresh effect with cleanup
 	useEffect(() => {
 		if (!refreshInterval || refreshInterval <= 0) return
 
-		const interval = setInterval(() => {
-			if (amount > 0) {
+		// Clear existing interval
+		if (intervalRef.current) {
+			clearInterval(intervalRef.current)
+		}
+
+		intervalRef.current = setInterval(() => {
+			if (amount > 0 && !isFetchingRef.current) {
 				convertCurrency()
 			}
 		}, refreshInterval)
 
-		return () => clearInterval(interval)
+		return () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current)
+				intervalRef.current = null
+			}
+		}
 	}, [refreshInterval, convertCurrency])
+
+	// ✅ FIX: Cleanup on unmount
+	useEffect(() => {
+		return () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current)
+			}
+			isFetchingRef.current = false
+		}
+	}, [])
 
 	// Manual refresh function
 	const refresh = useCallback(() => {
-		convertCurrency()
+		if (!isFetchingRef.current) {
+			convertCurrency()
+		}
 	}, [convertCurrency])
 
 	// Format currency helper
@@ -141,18 +187,29 @@ export function useCurrencyConversion(
 		return symbols[currency] || currency
 	}, [])
 
-	return {
-		...data,
-		convertCurrency,
-		refresh,
-		formatCurrency: formatCurrencyValue,
-		getCurrencySymbol,
-		// Helper getters
-		usdAmount: data.original,
-		rubAmount: data.conversions.find(c => c.currency === 'RUB'),
-		amdAmount: data.conversions.find(c => c.currency === 'AMD'),
-		isStale: Date.now() - data.timestamp > refreshInterval,
-	}
+	// ✅ FIX: Memoize return object to prevent unnecessary re-renders
+	return useMemo(
+		() => ({
+			...data,
+			convertCurrency,
+			refresh,
+			formatCurrency: formatCurrencyValue,
+			getCurrencySymbol,
+			// Helper getters
+			usdAmount: data.original,
+			rubAmount: data.conversions.find(c => c.currency === 'RUB'),
+			amdAmount: data.conversions.find(c => c.currency === 'AMD'),
+			isStale: Date.now() - data.timestamp > refreshInterval,
+		}),
+		[
+			data,
+			convertCurrency,
+			refresh,
+			formatCurrencyValue,
+			getCurrencySymbol,
+			refreshInterval,
+		]
+	)
 }
 
 // Standalone currency formatting function

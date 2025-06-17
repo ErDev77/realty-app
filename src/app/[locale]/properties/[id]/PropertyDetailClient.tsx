@@ -978,10 +978,10 @@
 // }
 
 
-// src/app/[locale]/properties/[id]/PropertyDetailClient.tsx
+// src/app/[locale]/properties/[id]/PropertyDetailClient.tsx - FIXED
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { Property } from '@/types/property'
@@ -1036,14 +1036,18 @@ function CurrencyDisplay({
 	originalCurrency: string
 	listingType: string
 }) {
-	const { original, conversions, loading, error, refresh, isStale } =
-		useCurrencyConversion(amount, originalCurrency, {
-			autoFetch: true,
-			refreshInterval: 30 * 60 * 1000, // 30 minutes
-			targetCurrencies: ['RUB', 'AMD'],
-		})
+	// ✅ FIX: Memoize the options object to prevent infinite loops
+	const conversionOptions = useMemo(() => ({
+		autoFetch: true,
+		refreshInterval: 30 * 60 * 1000, // 30 minutes
+		targetCurrencies: ['RUB', 'AMD'],
+	}), []) // Empty dependency array since these values never change
 
-	const formatPriceWithSuffix = (formattedAmount: string, currency: string) => {
+	const { original, conversions, loading, error, refresh, isStale } =
+		useCurrencyConversion(amount, originalCurrency, conversionOptions)
+
+	// ✅ FIX: Memoize functions to prevent recreating them on every render
+	const formatPriceWithSuffix = useCallback((formattedAmount: string, currency: string) => {
 		switch (listingType) {
 			case 'rent':
 				return currency === 'USD'
@@ -1060,16 +1064,16 @@ function CurrencyDisplay({
 			default:
 				return formattedAmount
 		}
-	}
+	}, [listingType])
 
-	const getCurrencyFlag = (currency: string) => {
+	const getCurrencyFlag = useCallback((currency: string) => {
 		const flags: Record<string, string> = {
 			USD: '🇺🇸',
 			RUB: '🇷🇺',
 			AMD: '🇦🇲',
 		}
 		return flags[currency] || '💰'
-	}
+	}, [])
 
 	if (loading && !original.formattedAmount) {
 		return (
@@ -1179,13 +1183,14 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	const [saved, setSaved] = useState(false)
 	const [showShareOptions, setShowShareOptions] = useState(false)
 
-	const getImageUrl = (path: string) => {
+	// ✅ FIX: Memoize the getImageUrl function to prevent recreation
+	const getImageUrl = useCallback((path: string) => {
 		// If it's already a full URL, return it as is
 		if (path?.startsWith('http')) return path
 
 		// Otherwise, prepend the API base URL
 		return `${API_BASE_URL}${path}`
-	}
+	}, [])
 
 	useEffect(() => {
 		const fetchProperty = async () => {
@@ -1204,94 +1209,40 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		}
 
 		fetchProperty()
-	}, [params.id])
+	}, [params.id]) // ✅ FIX: Only depend on params.id
 
-	const nextImage = () => {
+	// ✅ FIX: Memoize navigation functions to prevent recreation
+	const nextImage = useCallback(() => {
 		if (!property?.images) return
 		setSelectedImage(prev => (prev + 1) % (property.images?.length ?? 1))
-	}
+	}, [property?.images])
 
-	const prevImage = () => {
+	const prevImage = useCallback(() => {
 		if (!property?.images) return
 		setSelectedImage(
 			prev =>
 				(prev - 1 + (property.images?.length ?? 0)) %
 				(property.images?.length ?? 1)
 		)
-	}
+	}, [property?.images])
 
-	const toggleSaved = () => {
-		setSaved(!saved)
-	}
+	const toggleSaved = useCallback(() => {
+		setSaved(prev => !prev)
+	}, [])
 
-	const copyLinkToClipboard = () => {
+	const copyLinkToClipboard = useCallback(() => {
 		navigator.clipboard.writeText(window.location.href)
 		alert('Link copied to clipboard!')
 		setShowShareOptions(false)
-	}
+	}, [])
 
-	const printPage = () => {
+	const printPage = useCallback(() => {
 		window.print()
 		setShowShareOptions(false)
-	}
+	}, [])
 
-	if (loading) {
-		return (
-			<div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50'>
-				<div className='text-center'>
-					<Loader2 className='w-12 h-12 animate-spin text-blue-600 mx-auto mb-4' />
-					<p className='text-blue-800 font-medium'>
-						Loading property details...
-					</p>
-				</div>
-			</div>
-		)
-	}
-
-	if (error || !property) {
-		return (
-			<div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-red-50 to-orange-50'>
-				<div className='text-center max-w-md mx-auto p-8 bg-white rounded-lg shadow-lg'>
-					<div className='w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-						<Info className='w-8 h-8 text-red-600' />
-					</div>
-					<p className='text-red-600 text-lg font-medium mb-4'>
-						{error || 'Property not found'}
-					</p>
-					<Link
-						href='/properties'
-						className='mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'
-					>
-						<ChevronLeft className='w-4 h-4 mr-2' />
-						Back to properties
-					</Link>
-				</div>
-			</div>
-		)
-	}
-
-	const propertyTypeIcons: Record<string, any> = {
-		house: Home,
-		apartment: Building2,
-		commercial: Landmark,
-		land: Trees,
-	}
-
-	const PropertyIcon = propertyTypeIcons[property.property_type] || Home
-
-	const statusColors: Record<string, string> = {
-		active: 'bg-green-100 text-green-800',
-		pending: 'bg-yellow-100 text-yellow-800',
-		sold: 'bg-red-100 text-red-800',
-		rented: 'bg-purple-100 text-purple-800',
-		default: 'bg-blue-100 text-blue-800',
-	}
-
-	const getStatusColor = (status: string) => {
-		return statusColors[status] || statusColors.default
-	}
-
-	const getPropertyAttributes = () => {
+	// ✅ FIX: Move getPropertyAttributes hook BEFORE any early returns
+	const getPropertyAttributes = useCallback(() => {
 		if (!property) return null
 
 		switch (property.property_type) {
@@ -1512,8 +1463,65 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 			default:
 				return null
 		}
+	}, [property])
+
+	if (loading) {
+		return (
+			<div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50'>
+				<div className='text-center'>
+					<Loader2 className='w-12 h-12 animate-spin text-blue-600 mx-auto mb-4' />
+					<p className='text-blue-800 font-medium'>
+						Loading property details...
+					</p>
+				</div>
+			</div>
+		)
 	}
 
+	if (error || !property) {
+		return (
+			<div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-red-50 to-orange-50'>
+				<div className='text-center max-w-md mx-auto p-8 bg-white rounded-lg shadow-lg'>
+					<div className='w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+						<Info className='w-8 h-8 text-red-600' />
+					</div>
+					<p className='text-red-600 text-lg font-medium mb-4'>
+						{error || 'Property not found'}
+					</p>
+					<Link
+						href='/properties'
+						className='mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'
+					>
+						<ChevronLeft className='w-4 h-4 mr-2' />
+						Back to properties
+					</Link>
+				</div>
+			</div>
+		)
+	}
+
+	const propertyTypeIcons: Record<string, any> = {
+		house: Home,
+		apartment: Building2,
+		commercial: Landmark,
+		land: Trees,
+	}
+
+	const PropertyIcon = propertyTypeIcons[property.property_type] || Home
+
+	const statusColors: Record<string, string> = {
+		active: 'bg-green-100 text-green-800',
+		pending: 'bg-yellow-100 text-yellow-800',
+		sold: 'bg-red-100 text-red-800',
+		rented: 'bg-purple-100 text-purple-800',
+		default: 'bg-blue-100 text-blue-800',
+	}
+
+	const getStatusColor = (status: string) => {
+		return statusColors[status] || statusColors.default
+	}
+
+	// Rest of your component remains the same...
 	return (
 		<div className='min-h-screen bg-gray-50'>
 			{/* Navigation */}
