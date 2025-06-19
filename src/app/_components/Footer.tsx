@@ -490,44 +490,6 @@ const Footer = () => {
 								</li>
 							))}
 						</ul>
-
-						{/* Newsletter Signup */}
-						<div className='bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl border border-gray-700'>
-							<h4 className='text-sm font-semibold mb-3 text-gray-200'>
-								{t.newsletter}
-							</h4>
-							<p className='text-xs text-gray-400 mb-4'>
-								{t.getLatestNews}
-							</p>
-
-							{subscribed ? (
-								<div className='text-center py-4'>
-									<div className='w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-										<span className='text-2xl'>✅</span>
-									</div>
-									<p className='text-green-400 text-sm font-medium'>
-										{t.subscriptionSuccess}
-									</p>
-								</div>
-							) : (
-								<form onSubmit={handleNewsletterSubmit} className='flex gap-2'>
-									<input
-										type='email'
-										placeholder={t.enterEmail}
-										value={email}
-										onChange={e => setEmail(e.target.value)}
-										required
-										className='flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm'
-									/>
-									<button
-										type='submit'
-										className='px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-									>
-										→
-									</button>
-								</form>
-							)}
-						</div>
 					</div>
 				</div>
 

@@ -244,36 +244,6 @@ const Header = () => {
 					{/* Desktop Actions */}
 					<div className='hidden lg:flex items-center space-x-2'>
 						<LanguageSwitcher />
-						<button
-							className={`p-3 rounded-xl transition-all duration-200 group ${
-								isScrolled
-									? 'text-gray-600 hover:text-red-600 hover:bg-red-50'
-									: 'text-white hover:text-red-400 hover:bg-white/10'
-							}`}
-						>
-							<Heart className='h-5 w-5 group-hover:scale-110 transition-transform duration-200' />
-						</button>
-
-						<button
-							className={`p-3 rounded-xl transition-all duration-200 group ${
-								isScrolled
-									? 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-									: 'text-white hover:text-blue-300 hover:bg-white/10'
-							}`}
-						>
-							<User className='h-5 w-5 group-hover:scale-110 transition-transform duration-200' />
-						</button>
-
-						<Link
-							href='/login'
-							className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg ${
-								isScrolled
-									? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
-									: 'bg-gradient-to-r from-[#C5A572] to-[#D4B86A] text-[#1B3B6F] hover:from-[#D4B86A] hover:to-[#E5C97B]'
-							}`}
-						>
-							{t.login}
-						</Link>
 					</div>
 
 					{/* Mobile Menu Button */}
@@ -357,27 +327,6 @@ const Header = () => {
 								)}
 							</div>
 						))}
-
-						{/* Mobile Actions */}
-						<div className='pt-4 border-t border-gray-100 space-y-3'>
-							<div className='flex items-center space-x-3'>
-								<button className='flex-1 flex items-center justify-center p-3 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors duration-200'>
-									<Heart className='h-5 w-5 mr-2' />
-									Favorites
-								</button>
-								<button className='flex-1 flex items-center justify-center p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors duration-200'>
-									<User className='h-5 w-5 mr-2' />
-									Profile
-								</button>
-							</div>
-							<Link
-								href='/login'
-								className='block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center px-6 py-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg'
-								onClick={() => setIsMenuOpen(false)}
-							>
-								{t.login}
-							</Link>
-						</div>
 					</div>
 				</div>
 			</div>

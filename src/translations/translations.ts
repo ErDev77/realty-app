@@ -529,7 +529,7 @@ export const translations = {
 		area: 'площадь',
 		floor: 'этаж',
 		floors: 'этажей',
-		sqft: 'кв. фт',
+		sqft: 'кв. м',
 		acres: 'акров',
 		month: '/месяц',
 		day: '/день',

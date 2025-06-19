@@ -1016,7 +1016,6 @@ import {
 	RefreshCw,
 	Globe,
 	TrendingUp,
-	DollarSign,
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -1089,7 +1088,6 @@ function CurrencyDisplay({
 			{/* Primary Price */}
 			<div className='flex items-center justify-between'>
 				<div className='text-3xl font-bold text-blue-600 flex items-center'>
-					<span className='mr-2'>{getCurrencyFlag(original.currency)}</span>
 					{formatPriceWithSuffix(original.formattedAmount, original.currency)}
 				</div>
 
@@ -1116,10 +1114,6 @@ function CurrencyDisplay({
 			{conversions.length > 0 && (
 				<div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100'>
 					<div className='flex items-center justify-between mb-3'>
-						<h4 className='text-sm font-semibold text-gray-700 flex items-center'>
-							<Globe className='w-4 h-4 mr-2' />
-							Other Currencies
-						</h4>
 						{error && (
 							<span className='text-xs text-red-500 flex items-center'>
 								<X className='w-3 h-3 mr-1' />
@@ -1160,12 +1154,6 @@ function CurrencyDisplay({
 								</div>
 							</div>
 						))}
-					</div>
-
-					{/* Disclaimer */}
-					<div className='mt-3 text-xs text-gray-500 flex items-center'>
-						<Info className='w-3 h-3 mr-1' />
-						Exchange rates are approximate and updated every 30 minutes
 					</div>
 				</div>
 			)}
@@ -1554,27 +1542,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												<Copy className='w-4 h-4 mr-2' />
 												Copy link
 											</button>
-											<button
-												onClick={printPage}
-												className='w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center'
-											>
-												<Printer className='w-4 h-4 mr-2' />
-												Print
-											</button>
 										</div>
 									</div>
 								)}
-							</button>
-							<button
-								onClick={toggleSaved}
-								className={`p-2 rounded-full ${
-									saved
-										? 'bg-red-50 text-red-600'
-										: 'hover:bg-gray-100 text-gray-600'
-								} transition-colors`}
-								aria-label='Save property'
-							>
-								<Heart className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
 							</button>
 						</div>
 					</div>
@@ -1749,7 +1719,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							</h2>
 							<div>
 								{property.description ? (
-									<p className='text-sm text-muted-foreground'>
+									<p className='text-sm text-gray-700 text-muted-foreground'>
 										{property.description}
 									</p>
 								) : (
@@ -1848,16 +1818,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									<Mail className='w-5 h-5 mr-2' />
 									Contact Agent
 								</button>
-
-								<button className='w-full border-2 border-blue-600 text-blue-600 py-3 px-6 rounded-xl hover:bg-blue-50 transition-all duration-200 font-semibold flex items-center justify-center'>
-									<Calendar className='w-5 h-5 mr-2' />
-									Schedule Viewing
-								</button>
-
-								<button className='w-full bg-green-600 text-white py-3 px-6 rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold flex items-center justify-center'>
-									<DollarSign className='w-5 h-5 mr-2' />
-									Calculate Mortgage
-								</button>
 							</div>
 
 							{/* Property Stats */}
@@ -1883,39 +1843,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												day: 'numeric',
 											}
 										)}
-									</span>
-								</div>
-							</div>
-						</div>
-
-						{/* Market Analysis Card */}
-						<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6'>
-							<h3 className='text-lg font-semibold mb-4 text-gray-900 flex items-center'>
-								<TrendingUp className='w-5 h-5 mr-2 text-green-600' />
-								Market Analysis
-							</h3>
-							<div className='space-y-3'>
-								<div className='flex justify-between items-center'>
-									<span className='text-gray-600'>Price per sq ft</span>
-									<span className='font-medium text-gray-700'>
-										{property.property_type !== 'land' && 
-										 'attributes' in property && 
-										 property.attributes.area_sqft ? 
-											`${Math.round(property.price / property.attributes.area_sqft)}` : 
-											'N/A'
-										}
-									</span>
-								</div>
-								<div className='flex justify-between items-center'>
-									<span className='text-gray-600'>Property Type</span>
-									<span className='font-medium text-gray-700 capitalize'>
-										{property.property_type.replace('_', ' ')}
-									</span>
-								</div>
-								<div className='flex justify-between items-center'>
-									<span className='text-gray-600'>Listing Type</span>
-									<span className='font-medium text-gray-700 capitalize'>
-										{property.listing_type.replace('_', ' ')}
 									</span>
 								</div>
 							</div>

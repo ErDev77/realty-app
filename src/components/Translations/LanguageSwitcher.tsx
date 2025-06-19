@@ -1,4 +1,3 @@
-// src/components/LanguageSwitcher.tsx
 'use client'
 
 import { useState } from 'react'
@@ -8,40 +7,35 @@ import { Globe, ChevronDown } from 'lucide-react'
 export type Language = 'hy' | 'en' | 'ru'
 
 const languages = [
-	{ code: 'hy' as Language, name: 'Հայերեն', flag: '🇦🇲', english: 'Armenian' },
-	{ code: 'en' as Language, name: 'English', flag: '🇺🇸', english: 'English' },
-	{ code: 'ru' as Language, name: 'Русский', flag: '🇷🇺', english: 'Russian' },
+	{ code: 'hy' as Language, flag: 'am' },
+	{ code: 'en' as Language, flag: 'us' },
+	{ code: 'ru' as Language, flag: 'ru' },
 ]
+
+const getFlagUrl = (code: string) => `https://flagcdn.com/w40/${code}.png`
 
 export default function LanguageSwitcher() {
 	const router = useRouter()
 	const pathname = usePathname()
 	const [isOpen, setIsOpen] = useState(false)
 
-	// Get current language from URL
 	const pathParts = pathname.split('/')
 	const currentLang = (
 		['hy', 'en', 'ru'].includes(pathParts[1]) ? pathParts[1] : 'hy'
 	) as Language
+
 	const currentLanguage =
 		languages.find(lang => lang.code === currentLang) || languages[0]
 
 	const switchLanguage = (newLang: Language) => {
 		const pathParts = pathname.split('/')
-
-		// Replace or add the language part of the URL
 		if (['hy', 'en', 'ru'].includes(pathParts[1])) {
 			pathParts[1] = newLang
 		} else {
 			pathParts.splice(1, 0, newLang)
 		}
-
 		const newPath = pathParts.join('/')
-
-		// Set language preference in localStorage
 		localStorage.setItem('preferred-language', newLang)
-
-		// Navigate to the new path
 		router.push(newPath)
 		setIsOpen(false)
 	}
@@ -50,14 +44,14 @@ export default function LanguageSwitcher() {
 		<div className='relative'>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className='flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700'
+				className='flex items-center space-x-2 px-3 py-2 rounded-4xl hover:bg-gray-100 transition-colors text-gray-700'
 				aria-label='Change language'
 			>
-				<Globe className='w-4 h-4' />
-				<span className='text-lg'>{currentLanguage.flag}</span>
-				<span className='hidden sm:inline font-medium'>
-					{currentLanguage.name}
-				</span>
+				<img
+					src={getFlagUrl(currentLanguage.flag)}
+					alt={currentLang}
+					className='w-6 h-4 rounded-sm object-cover'
+				/>
 				<ChevronDown
 					className={`w-3 h-3 transition-transform ${
 						isOpen ? 'rotate-180' : ''
@@ -67,33 +61,27 @@ export default function LanguageSwitcher() {
 
 			{isOpen && (
 				<>
-					{/* Backdrop */}
 					<div
 						className='fixed inset-0 z-40'
 						onClick={() => setIsOpen(false)}
 					/>
 
-					{/* Dropdown */}
-					<div className='absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50'>
+					<div className='absolute top-full right-0 mt-2 w-20 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50'>
 						{languages.map(language => (
 							<button
 								key={language.code}
 								onClick={() => switchLanguage(language.code)}
-								className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
-									language.code === currentLang
-										? 'bg-blue-50 text-blue-600'
-										: 'text-gray-700'
+								className={`w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 transition-colors ${
+									language.code === currentLang ? 'bg-blue-50' : ''
 								}`}
 							>
-								<span className='text-lg'>{language.flag}</span>
-								<div className='flex-1'>
-									<div className='font-medium'>{language.name}</div>
-									<div className='text-xs text-gray-500'>
-										{language.english}
-									</div>
-								</div>
+								<img
+									src={getFlagUrl(language.flag)}
+									alt={language.code}
+									className='w-6 h-4 rounded-sm object-cover'
+								/>
 								{language.code === currentLang && (
-									<span className='text-blue-600 font-bold'>✓</span>
+									<span className='text-blue-600 font-bold text-sm'>✓</span>
 								)}
 							</button>
 						))}

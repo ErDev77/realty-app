@@ -12,6 +12,7 @@ import {
 	ListingType,
 } from '@/types/property'
 import { getProperties } from '@/services/propertyService'
+
 import {
 	Loader2,
 	Filter,
@@ -27,8 +28,24 @@ import {
 	Eye,
 	Calendar,
 } from 'lucide-react'
+import Link from 'next/link'
+import { useLanguage } from '@/context/LanguageContext'
 
-export default function PropertiesContent() {
+type PropertyCardProps = {
+	property?: Property
+	onFavoriteClick?: (property: Property) => void
+	isFavorited?: boolean
+	variant?: 'default' | 'featured'
+}
+
+export default function PropertiesContent({
+	property,
+	onFavoriteClick,
+	isFavorited = false,
+	variant = 'default',
+}: PropertyCardProps) {
+	const { language } = useLanguage()
+
 	const searchParams = useSearchParams()
 	const [properties, setProperties] = useState<Property[]>([])
 	const [loading, setLoading] = useState(true)
@@ -56,7 +73,6 @@ export default function PropertiesContent() {
 		const city_id = searchParams.get('city_id')
 		const min_price = searchParams.get('min_price')
 		const max_price = searchParams.get('max_price')
-		const featured = searchParams.get('featured')
 
 		if (property_type)
 			initialFilter.property_type = property_type as PropertyType
@@ -216,8 +232,6 @@ export default function PropertiesContent() {
 									<span className='ml-2 w-2 h-2 bg-blue-500 rounded-full'></span>
 								)}
 							</button>
-
-							
 						</div>
 					</div>
 				</div>
@@ -242,7 +256,7 @@ export default function PropertiesContent() {
 						</div>
 
 						{/* Properties Grid/List */}
-						<div className='lg:col-span-3'>
+						<div className='lg:col-span-4'>
 							{loading ? (
 								<div className='flex flex-col items-center justify-center h-96 bg-white rounded-2xl shadow-lg border border-gray-100'>
 									<div className='relative'>
@@ -432,187 +446,203 @@ export default function PropertiesContent() {
 											))}
 										</div>
 									) : (
-										<div className='space-y-6'>
-											{properties.map((property, index) => (
-												<div
-													key={property.id}
-													className='animate-fade-in bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300'
-													style={{ animationDelay: `${index * 50}ms` }}
-												>
-													<div className='flex flex-col md:flex-row'>
-														<div className='md:w-1/3 h-48 md:h-auto relative'>
-															{property.images && property.images.length > 0 ? (
-																<img
-																	src={property.images[0].url}
-																	alt={property.title}
-																	className='w-full h-full object-cover'
-																/>
-															) : (
-																<div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-																	<Home className='w-12 h-12 text-gray-400' />
-																</div>
-															)}
-															{property.featured && (
-																<div className='absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold'>
-																	FEATURED
-																</div>
-															)}
-														</div>
-														<div className='md:w-2/3 p-6'>
-															<div className='flex justify-between items-start mb-2'>
-																<h3 className='text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors'>
-																	{property.title}
-																</h3>
-																<span className='text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600'>
-																	ID: {property.custom_id}
-																</span>
-															</div>
-															<div className='flex items-center text-gray-600 mb-3'>
-																<MapPin className='w-4 h-4 mr-2 text-blue-500' />
-																<span>
-																	{property.city?.name}, {property.state?.name}
-																</span>
-															</div>
-															<div className='text-2xl font-bold text-blue-600 mb-4'>
-																{formatPrice(
-																	property.price,
-																	property.listing_type
+										<Link
+											href={
+												property
+													? `/${language}/properties/${property.custom_id}`
+													: `/${language}/properties`
+											}
+										>
+											<div className='space-y-6'>
+												{properties.map((property, index) => (
+													<div
+														key={property.id}
+														className='animate-fade-in bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300'
+														style={{ animationDelay: `${index * 50}ms` }}
+													>
+														<div className='flex flex-col md:flex-row'>
+															<div className='md:w-1/3 h-48 md:h-auto relative'>
+																{property.images &&
+																property.images.length > 0 ? (
+																	<img
+																		src={property.images[0].url}
+																		alt={property.title}
+																		className='w-full h-full object-cover'
+																	/>
+																) : (
+																	<div className='w-full h-full bg-gray-200 flex items-center justify-center'>
+																		<Home className='w-12 h-12 text-gray-400' />
+																	</div>
+																)}
+																{property.featured && (
+																	<div className='absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold'>
+																		FEATURED
+																	</div>
 																)}
 															</div>
-															<div className='flex items-center justify-between'>
-																<div className='flex items-center space-x-4 text-gray-600 text-sm'>
-																	{/* Property attributes based on type */}
-																	{property.property_type === 'house' &&
-																		'attributes' in property && (
-																			<>
-																				{property.attributes.bedrooms && (
-																					<div className='flex items-center'>
-																						<span className='text-xs mr-1'>
-																							🛏️
-																						</span>
-																						<span>
-																							{property.attributes.bedrooms} bed
-																						</span>
-																					</div>
-																				)}
-																				{property.attributes.bathrooms && (
-																					<div className='flex items-center'>
-																						<span className='text-xs mr-1'>
-																							🚿
-																						</span>
-																						<span>
-																							{property.attributes.bathrooms}{' '}
-																							bath
-																						</span>
-																					</div>
-																				)}
-																				{property.attributes.area_sqft && (
-																					<div className='flex items-center'>
-																						<span className='text-xs mr-1'>
-																							📐
-																						</span>
-																						<span>
-																							{property.attributes.area_sqft}{' '}
-																							sqft
-																						</span>
-																					</div>
-																				)}
-																			</>
-																		)}
-																	{property.property_type === 'apartment' &&
-																		'attributes' in property && (
-																			<>
-																				{property.attributes.bedrooms && (
-																					<div className='flex items-center'>
-																						<span className='text-xs mr-1'>
-																							🛏️
-																						</span>
-																						<span>
-																							{property.attributes.bedrooms} bed
-																						</span>
-																					</div>
-																				)}
-																				{property.attributes.bathrooms && (
-																					<div className='flex items-center'>
-																						<span className='text-xs mr-1'>
-																							🚿
-																						</span>
-																						<span>
-																							{property.attributes.bathrooms}{' '}
-																							bath
-																						</span>
-																					</div>
-																				)}
-																				{property.attributes.area_sqft && (
-																					<div className='flex items-center'>
-																						<span className='text-xs mr-1'>
-																							📐
-																						</span>
-																						<span>
-																							{property.attributes.area_sqft}{' '}
-																							sqft
-																						</span>
-																					</div>
-																				)}
-																			</>
-																		)}
-																	{property.property_type === 'commercial' &&
-																		'attributes' in property && (
-																			<>
-																				{property.attributes.area_sqft && (
-																					<div className='flex items-center'>
-																						<span className='text-xs mr-1'>
-																							📐
-																						</span>
-																						<span>
-																							{property.attributes.area_sqft}{' '}
-																							sqft
-																						</span>
-																					</div>
-																				)}
-																				{property.attributes.business_type && (
-																					<div className='flex items-center'>
-																						<span className='text-xs mr-1'>
-																							🏢
-																						</span>
-																						<span>
-																							{
-																								property.attributes
-																									.business_type
-																							}
-																						</span>
-																					</div>
-																				)}
-																			</>
-																		)}
-																	{property.property_type === 'land' &&
-																		'attributes' in property && (
-																			<div className='flex items-center'>
-																				<span className='text-xs mr-1'>🌍</span>
-																				<span>
-																					{property.attributes.area_acres} acres
-																				</span>
-																			</div>
-																		)}
+															<div className='md:w-2/3 p-6'>
+																<div className='flex justify-between items-start mb-2'>
+																	<h3 className='text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors'>
+																		{property.title}
+																	</h3>
+																	<span className='text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600'>
+																		ID: {property.custom_id}
+																	</span>
 																</div>
-																<div className='flex items-center space-x-4 text-xs text-gray-500'>
-																	<div className='flex items-center'>
-																		<Eye className='w-3 h-3 mr-1' />
-																		{property.views}
+																<div className='flex items-center text-gray-600 mb-3'>
+																	<MapPin className='w-4 h-4 mr-2 text-blue-500' />
+																	<span>
+																		{property.city?.name},{' '}
+																		{property.state?.name}
+																	</span>
+																</div>
+																<div className='text-2xl font-bold text-blue-600 mb-4'>
+																	{formatPrice(
+																		property.price,
+																		property.listing_type
+																	)}
+																</div>
+																<div className='flex items-center justify-between'>
+																	<div className='flex items-center space-x-4 text-gray-600 text-sm'>
+																		{/* Property attributes based on type */}
+																		{property.property_type === 'house' &&
+																			'attributes' in property && (
+																				<>
+																					{property.attributes.bedrooms && (
+																						<div className='flex items-center'>
+																							<span className='text-xs mr-1'>
+																								🛏️
+																							</span>
+																							<span>
+																								{property.attributes.bedrooms}{' '}
+																								bed
+																							</span>
+																						</div>
+																					)}
+																					{property.attributes.bathrooms && (
+																						<div className='flex items-center'>
+																							<span className='text-xs mr-1'>
+																								🚿
+																							</span>
+																							<span>
+																								{property.attributes.bathrooms}{' '}
+																								bath
+																							</span>
+																						</div>
+																					)}
+																					{property.attributes.area_sqft && (
+																						<div className='flex items-center'>
+																							<span className='text-xs mr-1'>
+																								📐
+																							</span>
+																							<span>
+																								{property.attributes.area_sqft}{' '}
+																								sqft
+																							</span>
+																						</div>
+																					)}
+																				</>
+																			)}
+																		{property.property_type === 'apartment' &&
+																			'attributes' in property && (
+																				<>
+																					{property.attributes.bedrooms && (
+																						<div className='flex items-center'>
+																							<span className='text-xs mr-1'>
+																								🛏️
+																							</span>
+																							<span>
+																								{property.attributes.bedrooms}{' '}
+																								bed
+																							</span>
+																						</div>
+																					)}
+																					{property.attributes.bathrooms && (
+																						<div className='flex items-center'>
+																							<span className='text-xs mr-1'>
+																								🚿
+																							</span>
+																							<span>
+																								{property.attributes.bathrooms}{' '}
+																								bath
+																							</span>
+																						</div>
+																					)}
+																					{property.attributes.area_sqft && (
+																						<div className='flex items-center'>
+																							<span className='text-xs mr-1'>
+																								📐
+																							</span>
+																							<span>
+																								{property.attributes.area_sqft}{' '}
+																								sqft
+																							</span>
+																						</div>
+																					)}
+																				</>
+																			)}
+																		{property.property_type === 'commercial' &&
+																			'attributes' in property && (
+																				<>
+																					{property.attributes.area_sqft && (
+																						<div className='flex items-center'>
+																							<span className='text-xs mr-1'>
+																								📐
+																							</span>
+																							<span>
+																								{property.attributes.area_sqft}{' '}
+																								sqft
+																							</span>
+																						</div>
+																					)}
+																					{property.attributes
+																						.business_type && (
+																						<div className='flex items-center'>
+																							<span className='text-xs mr-1'>
+																								🏢
+																							</span>
+																							<span>
+																								{
+																									property.attributes
+																										.business_type
+																								}
+																							</span>
+																						</div>
+																					)}
+																				</>
+																			)}
+																		{property.property_type === 'land' &&
+																			'attributes' in property && (
+																				<div className='flex items-center'>
+																					<span className='text-xs mr-1'>
+																						🌍
+																					</span>
+																					<span>
+																						{property.attributes.area_acres}{' '}
+																						acres
+																					</span>
+																				</div>
+																			)}
 																	</div>
-																	<div className='flex items-center'>
-																		<Calendar className='w-3 h-3 mr-1' />
-																		{new Date(
-																			property.created_at
-																		).toLocaleDateString()}
+																	<div className='flex items-center space-x-4 text-xs text-gray-500'>
+																		<div className='flex items-center'>
+																			<Eye className='w-3 h-3 mr-1' />
+																			{property.views}
+																		</div>
+																		<div className='flex items-center'>
+																			<Calendar className='w-3 h-3 mr-1' />
+																			{new Date(
+																				property.created_at
+																			).toLocaleDateString()}
+																		</div>
 																	</div>
 																</div>
 															</div>
 														</div>
 													</div>
-												</div>
-											))}
-										</div>
+												))}
+											</div>
+										</Link>
 									)}
 
 									{/* Pagination */}

@@ -918,27 +918,35 @@ export default function PropertyCard({
       case 'apartment':
         if ('attributes' in property) {
           return (
-            <div className={`flex items-center space-x-4 text-gray-600 ${attributeClass}`}>
-              {property.attributes.bedrooms && (
-                <div className='flex items-center'>
-                  <Bed className='w-4 h-4 mr-1' />
-                  <span>{property.attributes.bedrooms} {t.bedrooms}</span>
-                </div>
-              )}
-              {property.attributes.bathrooms && (
-                <div className='flex items-center'>
-                  <Bath className='w-4 h-4 mr-1' />
-                  <span>{property.attributes.bathrooms} {t.bathrooms}</span>
-                </div>
-              )}
-              {property.attributes.area_sqft && (
-                <div className='flex items-center'>
-                  <Maximize className='w-4 h-4 mr-1' />
-                  <span>{property.attributes.area_sqft.toLocaleString()} {t.sqft}</span>
-                </div>
-              )}
-            </div>
-          )
+						<div
+							className={`flex items-center space-x-4 text-gray-600 ${attributeClass}`}
+						>
+							{property.attributes.bedrooms && (
+								<div className='flex items-center'>
+									🛏️
+									<span>
+										{property.attributes.bedrooms} {t.bedrooms}
+									</span>
+								</div>
+							)}
+							{property.attributes.bathrooms && (
+								<div className='flex items-center'>
+									🚿
+									<span>
+										{property.attributes.bathrooms} {t.bathrooms}
+									</span>
+								</div>
+							)}
+							{property.attributes.area_sqft && (
+								<div className='flex items-center'>
+									📐
+									<span>
+										{property.attributes.area_sqft.toLocaleString()} {t.sqft}
+									</span>
+								</div>
+							)}
+						</div>
+					)
         }
         break
 
@@ -947,7 +955,7 @@ export default function PropertyCard({
           return (
             <div className={`flex items-center space-x-4 text-gray-600 ${attributeClass}`}>
               <div className='flex items-center'>
-                <Maximize className='w-4 h-4 mr-1' />
+              📐
                 <span>{property.attributes.area_acres} {t.acres}</span>
               </div>
             </div>
@@ -959,6 +967,8 @@ export default function PropertyCard({
   }
 
   return (
+    <Link href={`/${language}/properties/${property.custom_id}`}>
+
     <div
       className={`group bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 transform hover:-translate-y-2`}
       onMouseEnter={() => setIsHovering(true)}
@@ -1035,7 +1045,6 @@ export default function PropertyCard({
       </div>
 
       {/* Content Section */}
-      <Link href={`/${language}/properties/${property.custom_id}`}>
         <div className='p-6'>
           {/* Title */}
           <h3 className='font-bold text-gray-900 line-clamp-2 mb-3 text-lg group-hover:text-blue-600 transition-colors'>
@@ -1071,7 +1080,7 @@ export default function PropertyCard({
             </div>
           </div>
         </div>
-      </Link>
     </div>
+      </Link>
   )
 }

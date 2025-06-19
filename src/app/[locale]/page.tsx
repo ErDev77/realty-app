@@ -1144,6 +1144,82 @@ export default function HomePage() {
 		},
 	]
 
+	const getPropertyTypeFields = () => {
+		switch (selectedPropertyType) {
+			case 'house':
+			case 'apartment':
+				return (
+					<>
+						{/* Bedrooms */}
+						<div className='relative group'>
+							<label className='block text-sm font-semibold text-gray-700 mb-3'>
+								Bedrooms
+							</label>
+							<div className='relative'>
+								<Bed className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+								<input
+									type='number'
+									placeholder='Any'
+									value={advancedSearch.bedrooms}
+									onChange={e =>
+										setAdvancedSearch({
+											...advancedSearch,
+											bedrooms: e.target.value,
+										})
+									}
+									className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+								/>
+							</div>
+						</div>
+
+						{/* Bathrooms */}
+						<div className='relative group'>
+							<label className='block text-sm font-semibold text-gray-700 mb-3'>
+								Bathrooms
+							</label>
+							<div className='relative'>
+								<Bath className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+								<input
+									type='number'
+									placeholder='Any'
+									value={advancedSearch.bathrooms}
+									onChange={e =>
+										setAdvancedSearch({
+											...advancedSearch,
+											bathrooms: e.target.value,
+										})
+									}
+									className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+								/>
+							</div>
+						</div>
+					</>
+				)
+
+			case 'commercial':
+			case 'land':
+				return null
+
+			default:
+				return null
+		}
+	}
+
+	const hasActiveFilters = () => {
+		 		return (
+		 			selectedPropertyType ||
+		 			advancedSearch.listing_type ||
+		 			advancedSearch.location ||
+		 			advancedSearch.min_price ||
+		 			advancedSearch.max_price ||
+		 			advancedSearch.bedrooms ||
+		 			advancedSearch.bathrooms ||
+		 			advancedSearch.min_area ||
+		 			advancedSearch.max_area
+		 		)
+		 	}
+	
+
 	return (
 		<div className='min-h-screen'>
 			{/* Hero Section */}
@@ -1188,7 +1264,9 @@ export default function HomePage() {
 									className='mt-6 text-blue-600 hover:text-blue-700 text-sm font-semibold flex items-center justify-center mx-auto group transition-colors'
 								>
 									<SlidersHorizontal className='w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-300' />
-									{showAdvancedSearch ? t.hideAdvancedSearch : t.showAdvancedSearch}
+									{showAdvancedSearch
+										? t.hideAdvancedSearch
+										: t.showAdvancedSearch}
 									{showAdvancedSearch ? (
 										<ChevronUp className='w-4 h-4 ml-2' />
 									) : (
@@ -1217,9 +1295,7 @@ export default function HomePage() {
 						<h2 className='text-3xl font-bold text-gray-900 mb-3'>
 							{t.advancedSearch}
 						</h2>
-						<p className='text-gray-600 text-lg'>
-							{t.refineSearch}
-						</p>
+						<p className='text-gray-600 text-lg'>{t.refineSearch}</p>
 					</div>
 
 					{/* Property Type Selection */}
@@ -1228,54 +1304,215 @@ export default function HomePage() {
 							<label className='text-lg font-semibold text-gray-800 mr-4'>
 								{t.selectPropertyType}
 							</label>
+							{hasActiveFilters() && (
+							<button
+								onClick={clearAdvancedSearch}
+								className='inline-flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium'
+							>
+								<X className='w-4 h-4 mr-1' />
+ 									Clear All
+ 								</button>
+ 							)}
 						</div>
 						<div className='grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto'>
-							{propertyTypes.map(({ type, icon: Icon, label, color, gradient }) => (
-								<button
-									key={type}
-									type='button'
-									onClick={() =>
-										setSelectedPropertyType(
-											selectedPropertyType === type ? '' : type
-										)
-									}
-									className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
-										selectedPropertyType === type
-											? `border-${color}-300 bg-gradient-to-br ${gradient} text-white shadow-xl scale-105`
-											: 'border-gray-200 hover:border-gray-300 hover:shadow-md bg-white'
-									}`}
-								>
-									<div
-										className={`w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 transition-all duration-300 ${
+							{propertyTypes.map(
+								({ type, icon: Icon, label, color, gradient }) => (
+									<button
+										key={type}
+										type='button'
+										onClick={() =>
+											setSelectedPropertyType(
+												selectedPropertyType === type ? '' : type
+											)
+										}
+										className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
 											selectedPropertyType === type
-												? 'bg-white/20 backdrop-blur-sm'
-												: `bg-${color}-100 group-hover:bg-${color}-200`
+												? `border-${color}-300 bg-gradient-to-br ${gradient} text-white shadow-xl scale-105`
+												: 'border-gray-200 hover:border-gray-300 hover:shadow-md bg-white'
 										}`}
 									>
-										<Icon
-											className={`w-7 h-7 transition-all duration-300 ${
+										<div
+											className={`w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 transition-all duration-300 ${
+												selectedPropertyType === type
+													? 'bg-white/20 backdrop-blur-sm'
+													: `bg-${color}-100 group-hover:bg-${color}-200`
+											}`}
+										>
+											<Icon
+												className={`w-7 h-7 transition-all duration-300 ${
+													selectedPropertyType === type
+														? 'text-white'
+														: `text-${color}-600`
+												}`}
+											/>
+										</div>
+										<span
+											className={`text-sm font-semibold block transition-colors ${
 												selectedPropertyType === type
 													? 'text-white'
-													: `text-${color}-600`
+													: 'text-gray-700'
 											}`}
-										/>
-									</div>
-									<span
-										className={`text-sm font-semibold block transition-colors ${
-											selectedPropertyType === type
-												? 'text-white'
-												: 'text-gray-700'
-										}`}
-									>
-										{label}
-									</span>
-								</button>
-							))}
+										>
+											{label}
+										</span>
+									</button>
+								)
+							)}
 						</div>
 					</div>
 
 					<form onSubmit={handleAdvancedSearch} className='max-w-7xl mx-auto'>
 						{/* Advanced search form content here */}
+						<div className='bg-white rounded-3xl shadow-xl border border-gray-100 p-8 mb-8'>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'>
+								{/* Listing Type */}
+								<div className='relative group'>
+									<label className='block text-sm font-semibold text-gray-700 mb-3'>
+										Listing Type
+									</label>
+									<div className='relative'>
+										<DollarSign className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+										<select
+											value={advancedSearch.listing_type}
+											onChange={e =>
+												setAdvancedSearch({
+													...advancedSearch,
+													listing_type: e.target.value as ListingType | '',
+												})
+											}
+											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer'
+										>
+											<option value=''>Any Type</option>
+											<option value='sale'>For Sale</option>
+											<option value='rent'>For Rent</option>
+											<option value='daily_rent'>Daily Rent</option>
+										</select>
+										<ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none' />
+									</div>
+								</div>
+
+								{/* Location */}
+								<div className='relative group'>
+									<label className='block text-sm font-semibold text-gray-700 mb-3'>
+										Location
+									</label>
+									<div className='relative'>
+										<MapPin className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+										<input
+											type='text'
+											placeholder='Enter location'
+											value={advancedSearch.location}
+											onChange={e =>
+												setAdvancedSearch({
+													...advancedSearch,
+													location: e.target.value,
+												})
+											}
+											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+										/>
+									</div>
+								</div>
+
+								{/* Min Price */}
+								<div className='relative group'>
+									<label className='block text-sm font-semibold text-gray-700 mb-3'>
+										Min Price
+									</label>
+									<div className='relative'>
+										<DollarSign className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-green-500 transition-colors' />
+										<input
+											type='number'
+											placeholder='0'
+											value={advancedSearch.min_price}
+											onChange={e =>
+												setAdvancedSearch({
+													...advancedSearch,
+													min_price: e.target.value,
+												})
+											}
+											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+										/>
+									</div>
+								</div>
+
+								{/* Max Price */}
+								<div className='relative group'>
+									<label className='block text-sm font-semibold text-gray-700 mb-3'>
+										Max Price
+									</label>
+									<div className='relative'>
+										<DollarSign className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors' />
+										<input
+											type='number'
+											placeholder='No limit'
+											value={advancedSearch.max_price}
+											onChange={e =>
+												setAdvancedSearch({
+													...advancedSearch,
+													max_price: e.target.value,
+												})
+											}
+											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+										/>
+									</div>
+								</div>
+
+								{/* Custom property type fields */}
+								{getPropertyTypeFields()}
+
+								{/* Area fields if applicable */}
+								{(selectedPropertyType === 'house' ||
+									selectedPropertyType === 'apartment' ||
+									selectedPropertyType === 'commercial') && (
+									<>
+										{/* Min Area */}
+										<div className='relative group'>
+											<label className='block text-sm font-semibold text-gray-700 mb-3'>
+												Min Area (sqft)
+											</label>
+											<div className='relative'>
+												<Square className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-purple-500 transition-colors' />
+												<input
+													type='number'
+													placeholder='0'
+													value={advancedSearch.min_area}
+													onChange={e =>
+														setAdvancedSearch({
+															...advancedSearch,
+															min_area: e.target.value,
+														})
+													}
+													className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+												/>
+											</div>
+										</div>
+
+										{/* Max Area */}
+										<div className='relative group'>
+											<label className='block text-sm font-semibold text-gray-700 mb-3'>
+												Max Area (sqft)
+											</label>
+											<div className='relative'>
+												<Square className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-purple-500 transition-colors' />
+												<input
+													type='number'
+													placeholder='No limit'
+													value={advancedSearch.max_area}
+													onChange={e =>
+														setAdvancedSearch({
+															...advancedSearch,
+															max_area: e.target.value,
+														})
+													}
+													className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+												/>
+											</div>
+										</div>
+									</>
+								)}
+							</div>
+						</div>
+
 						<div className='flex justify-center space-x-4'>
 							<button
 								type='button'
@@ -1379,7 +1616,8 @@ export default function HomePage() {
 								href: `/${language}/properties?property_type=house`,
 								icon: Home,
 								title: t.houses,
-								description: 'Find your perfect family home with gardens and privacy',
+								description:
+									'Find your perfect family home with gardens and privacy',
 								color: 'blue',
 								gradient: 'from-blue-500 to-blue-600',
 								bgPattern: 'from-blue-50 to-blue-100',
@@ -1449,24 +1687,6 @@ export default function HomePage() {
 							</Link>
 						))}
 					</div>
-
-					{/* Stats section */}
-					<div className='mt-16 grid grid-cols-2 md:grid-cols-4 gap-8'>
-						{[
-							{ number: '645+', label: t.availableProperties, icon: '🏘️' },
-							{ number: '1,200+', label: t.happyClients, icon: '😊' },
-							{ number: '15+', label: t.yearsExperience, icon: '⭐' },
-							{ number: '95%', label: t.satisfactionRate, icon: '🎯' },
-						].map((stat, index) => (
-							<div key={index} className='text-center group'>
-								<div className='text-3xl mb-2'>{stat.icon}</div>
-								<div className='text-3xl font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors'>
-									{stat.number}
-								</div>
-								<div className='text-gray-600 text-sm'>{stat.label}</div>
-							</div>
-						))}
-					</div>
 				</div>
 			</section>
 
@@ -1500,7 +1720,7 @@ export default function HomePage() {
 						</div>
 					) : (
 						<>
-							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12'>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12'>
 								{Array.isArray(recentProperties) &&
 									recentProperties.map((property, index) => (
 										<div
@@ -1606,28 +1826,6 @@ export default function HomePage() {
 							{t.contactExpert}
 							<ArrowRight className='ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300' />
 						</Link>
-					</div>
-
-					{/* Newsletter signup */}
-					<div className='mt-16 max-w-md mx-auto'>
-						<div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20'>
-							<h3 className='text-xl font-semibold text-white mb-3'>
-								{t.getLatestNews}
-							</h3>
-							<p className='text-blue-200 text-sm mb-4'>
-								{t.getLatestNews}
-							</p>
-							<div className='flex gap-3'>
-								<input
-									type='email'
-									placeholder={t.enterEmail}
-									className='flex-1 px-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur-sm'
-								/>
-								<button className='px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-blue-900 font-semibold rounded-xl hover:from-yellow-500 hover:to-orange-600 transition-all duration-300 shadow-lg'>
-									{t.subscribe}
-								</button>
-							</div>
-						</div>
 					</div>
 				</div>
 			</section>
