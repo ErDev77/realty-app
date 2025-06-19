@@ -1107,3 +1107,4 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		</div>
 	)
 }
+
