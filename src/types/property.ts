@@ -1,18 +1,40 @@
 export type ListingType = 'sale' | 'rent' | 'daily_rent'
 export type PropertyType = 'house' | 'apartment' | 'commercial' | 'land'
-export type PropertyStatus = 'available' | 'sold' | 'rented' | 'pending' | 'inactive'
 export type MediaType = 'image' | 'video'
 
 export interface State {
 	id: number
 	name: string
+	uses_districts: boolean
+	district_count?: number
+	city_count?: number
+}
+
+export interface PropertyStatus {
+	id: number
+	name: string
+	color: string
+	is_active: boolean
+	sort_order: number
+}
+
+
+export interface District {
+	id: number
+	name: string
+	name_hy: string
+	name_en?: string
+	name_ru?: string
+	state_id: number
 }
 
 export interface City {
 	id: number
 	state_id: number
 	name: string
+	district_id?: number // Optional reference to district
 	state?: State
+	district?: District
 }
 
 export interface PropertyFeature {
@@ -46,8 +68,10 @@ export interface BaseProperty {
 	// Relations
 	state?: State
 	city?: City
+	district?: District
 	features?: PropertyFeature[]
 	images?: PropertyMedia[]
+	status_info?: PropertyStatus
 }
 
 export interface HouseAttributes {
@@ -57,6 +81,7 @@ export interface HouseAttributes {
 	area_sqft: number
 	lot_size_sqft?: number
 	floors?: number
+	ceiling_height?: number
 }
 
 export interface ApartmentAttributes {
@@ -66,6 +91,7 @@ export interface ApartmentAttributes {
 	area_sqft: number
 	floor: number
 	total_floors: number
+	ceiling_height?: number
 }
 
 export interface CommercialAttributes {
@@ -124,6 +150,7 @@ export interface PropertyFilter {
 	listing_type?: ListingType
 	state_id?: number
 	city_id?: number
+	district_id?: number 
 	min_price?: number
 	max_price?: number
 	bedrooms?: number

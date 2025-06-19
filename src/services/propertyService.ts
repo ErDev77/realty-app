@@ -34,6 +34,8 @@ export async function getProperties(filter: PropertyFilter = {}) {
 		if (filter.listing_type) params.append('listing_type', filter.listing_type)
 		if (filter.state_id) params.append('state_id', filter.state_id.toString())
 		if (filter.city_id) params.append('city_id', filter.city_id.toString())
+		if (filter.district_id)
+			params.append('district_id', filter.district_id.toString())
 		if (filter.min_price)
 			params.append('min_price', filter.min_price.toString())
 		if (filter.max_price)
@@ -93,7 +95,6 @@ export async function getPropertyByCustomId(customId: string) {
 			`✅ Fetching property from PUBLIC endpoint: ${API_BASE_URL}/api/public/properties/${customId}`
 		)
 
-		// ✅ FIXED: Use PUBLIC endpoint that doesn't require authentication
 		const response = await fetch(
 			`${API_BASE_URL}/api/public/properties/${customId}?lang=${language}`
 		)
@@ -154,6 +155,28 @@ export async function getCitiesByState(stateId: number) {
 		return cities
 	} catch (error) {
 		console.error('Error fetching cities:', error)
+		throw error
+	}
+}
+
+export async function getDistrictsByState(stateId: number) {
+	try {
+		const language = getCurrentLanguage()
+
+		const response = await fetch(
+			`${API_BASE_URL}/api/public/properties/districts/${stateId}?lang=${language}`
+		)
+
+		if (!response.ok) {
+			throw new Error(
+				`Failed to fetch districts: ${response.status} ${response.statusText}`
+			)
+		}
+
+		const districts = await response.json()
+		return districts
+	} catch (error) {
+		console.error('Error fetching districts:', error)
 		throw error
 	}
 }
@@ -269,6 +292,29 @@ export async function getRecentProperties(limit: number = 8) {
 		return []
 	}
 }
+
+export async function getPropertyStatuses() {
+	try {
+		const language = getCurrentLanguage()
+
+		const response = await fetch(
+			`${API_BASE_URL}/api/public/properties/statuses?lang=${language}`
+		)
+
+		if (!response.ok) {
+			throw new Error(
+				`Failed to fetch statuses: ${response.status} ${response.statusText}`
+			)
+		}
+
+		const statuses = await response.json()
+		return statuses
+	} catch (error) {
+		console.error('Error fetching property statuses:', error)
+		throw error
+	}
+}
+
 
 export function getTranslatedField(
 	obj: any,

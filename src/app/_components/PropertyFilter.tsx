@@ -7,8 +7,17 @@ import {
 	ListingType,
 	State,
 	City,
+	District,
 	PropertyFeature,
+	PropertyStatus,
 } from '@/types/property'
+import {
+	getStates,
+	getCitiesByState,
+	getDistrictsByState,
+	getPropertyFeatures,
+	getPropertyStatuses,
+} from '@/services/propertyService'
 import {
 	SlidersHorizontal,
 	Home,
@@ -26,6 +35,7 @@ import {
 	Filter,
 	Tag,
 } from 'lucide-react'
+import { stat } from 'fs'
 
 interface PropertyFilterProps {
 	onFilterChange: (filter: FilterType) => void
@@ -37,6 +47,9 @@ export default function PropertyFilter({
 	initialFilter = {},
 }: PropertyFilterProps) {
 	const [states, setStates] = useState<State[]>([])
+	const [districts, setDistricts] = useState<District[]>([])
+	const [selectedState, setSelectedState] = useState<State | null>(null)
+	const [statuses, setStatuses] = useState<PropertyStatus[]>([])
 	const [cities, setCities] = useState<City[]>([])
 	const [features, setFeatures] = useState<PropertyFeature[]>([])
 	const [filter, setFilter] = useState<FilterType>(initialFilter)
@@ -49,57 +62,85 @@ export default function PropertyFilter({
 		price: true,
 		details: false,
 		features: false,
+		status: false,
 	})
 
-	// src/app/_components/PropertyFilter.tsx - FIXED PART
-	// Replace the useEffect hooks in your PropertyFilter component with these:
-
 	useEffect(() => {
-		// ✅ FIXED: Fetch states using correct service
-		import('@/services/propertyService').then(({ getStates }) => {
-			getStates()
-				.then(data => {
-					console.log('✅ States loaded:', data)
-					setStates(data || [])
-				})
-				.catch(error => {
-					console.error('❌ Error fetching states:', error)
-					setStates([])
-				})
-		})
-
-		// ✅ FIXED: Fetch features using correct service
-		import('@/services/propertyService').then(({ getPropertyFeatures }) => {
-			getPropertyFeatures()
-				.then(data => {
-					console.log('✅ Features loaded:', data)
-					setFeatures(data || [])
-				})
-				.catch(error => {
-					console.error('❌ Error fetching features:', error)
-					setFeatures([])
-				})
-		})
+		// Fetch initial data
+		fetchStates()
+		fetchFeatures()
+		fetchStatuses()
 	}, [])
 
+	// Handle state changes for district/city loading
 	useEffect(() => {
 		if (filter.state_id) {
-			// ✅ FIXED: Fetch cities using correct service
-			import('@/services/propertyService').then(({ getCitiesByState }) => {
-				getCitiesByState(filter.state_id!)
-					.then(data => {
-						console.log('✅ Cities loaded for state:', filter.state_id, data)
-						setCities(data || [])
-					})
-					.catch(error => {
-						console.error('❌ Error fetching cities:', error)
-						setCities([])
-					})
-			})
+			const state = states.find(s => s.id === filter.state_id)
+			setSelectedState(state || null)
+
+			if (state?.uses_districts) {
+				fetchDistricts(filter.state_id)
+				setCities([])
+			} else {
+				fetchCities(filter.state_id)
+				setDistricts([])
+			}
 		} else {
+			setSelectedState(null)
+			setCities([])
+			setDistricts([])
+		}
+	}, [filter.state_id, states])
+
+	const fetchStates = async () => {
+		try {
+			const data = await getStates()
+			setStates(data || [])
+		} catch (error) {
+			console.error('Error fetching states:', error)
+			setStates([])
+		}
+	}
+
+	const fetchCities = async (stateId: number) => {
+		try {
+			const data = await getCitiesByState(stateId)
+			setCities(data || [])
+		} catch (error) {
+			console.error('Error fetching cities:', error)
 			setCities([])
 		}
-	}, [filter.state_id])
+	}
+
+	const fetchDistricts = async (stateId: number) => {
+		try {
+			const data = await getDistrictsByState(stateId)
+			setDistricts(data || [])
+		} catch (error) {
+			console.error('Error fetching districts:', error)
+			setDistricts([])
+		}
+	}
+
+	const fetchFeatures = async () => {
+		try {
+			const data = await getPropertyFeatures()
+			setFeatures(data || [])
+		} catch (error) {
+			console.error('Error fetching features:', error)
+			setFeatures([])
+		}
+	}
+
+	const fetchStatuses = async () => {
+		try {
+			const data = await getPropertyStatuses()
+			setStatuses(data || [])
+		} catch (error) {
+			console.error('Error fetching statuses:', error)
+			setStatuses([])
+		}
+	}
 	
 	const handleFilterChange = (
 		key: keyof FilterType,
@@ -110,6 +151,7 @@ export default function PropertyFilter({
 		// Reset city if state changes
 		if (key === 'state_id') {
 			newFilter.city_id = undefined
+			newFilter.district_id = undefined
 		}
 
 		setFilter(newFilter)
@@ -354,13 +396,17 @@ export default function PropertyFilter({
 				title='Location'
 				sectionKey='location'
 				icon={MapPin}
-				badge={filter.state_id || filter.city_id ? '1' : undefined}
+				badge={
+					filter.state_id || filter.city_id || filter.district_id
+						? '1'
+						: undefined
+				}
 			>
 				<div className='space-y-4'>
 					{/* State */}
 					<div className='relative'>
 						<label className='block text-sm font-semibold text-gray-700 mb-2'>
-							State
+							State/Province
 						</label>
 						<div className='relative'>
 							<MapPin className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
@@ -378,6 +424,7 @@ export default function PropertyFilter({
 								{states.map(state => (
 									<option key={state.id} value={state.id}>
 										{state.name}
+										{state.uses_districts && ' (Districts)'}
 									</option>
 								))}
 							</select>
@@ -385,36 +432,120 @@ export default function PropertyFilter({
 						</div>
 					</div>
 
-					{/* City */}
-					<div className='relative'>
-						<label className='block text-sm font-semibold text-gray-700 mb-2'>
-							City
-						</label>
+					{/* District Selection (for states that use districts like Yerevan) */}
+					{selectedState?.uses_districts && (
 						<div className='relative'>
-							<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-							<select
-								value={filter.city_id || ''}
-								onChange={e =>
-									handleFilterChange(
-										'city_id',
-										e.target.value ? parseInt(e.target.value) : undefined
-									)
-								}
-								className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
-								disabled={!filter.state_id}
-							>
-								<option value=''>All Cities</option>
-								{cities.map(city => (
-									<option key={city.id} value={city.id}>
-										{city.name}
-									</option>
-								))}
-							</select>
-							<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+							<label className='block text-sm font-semibold text-gray-700 mb-2'>
+								District
+							</label>
+							<div className='relative'>
+								<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+								<select
+									value={filter.district_id || ''}
+									onChange={e =>
+										handleFilterChange(
+											'district_id',
+											e.target.value ? parseInt(e.target.value) : undefined
+										)
+									}
+									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
+									disabled={!filter.state_id}
+								>
+									<option value=''>All Districts</option>
+									{districts.map(district => (
+										<option key={district.id} value={district.id}>
+											{district.name_hy}
+										</option>
+									))}
+								</select>
+								<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+							</div>
+							<p className='text-xs text-blue-600 mt-1'>
+								💡 For Yerevan, select district instead of city
+							</p>
 						</div>
-					</div>
+					)}
+
+					{/* City Selection (for states that don't use districts) */}
+					{selectedState && !selectedState.uses_districts && (
+						<div className='relative'>
+							<label className='block text-sm font-semibold text-gray-700 mb-2'>
+								City
+							</label>
+							<div className='relative'>
+								<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+								<select
+									value={filter.city_id || ''}
+									onChange={e =>
+										handleFilterChange(
+											'city_id',
+											e.target.value ? parseInt(e.target.value) : undefined
+										)
+									}
+									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
+									disabled={!filter.state_id}
+								>
+									<option value=''>All Cities</option>
+									{cities.map(city => (
+										<option key={city.id} value={city.id}>
+											{city.name}
+										</option>
+									))}
+								</select>
+								<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+							</div>
+						</div>
+					)}
 				</div>
 			</FilterSection>
+
+			{/* Property Status */}
+			{statuses.length > 0 && (
+				<FilterSection
+					title='Property Status'
+					sectionKey='status'
+					icon={Tag}
+					badge={filter.status ? '1' : undefined}
+				>
+					<div className='space-y-2'>
+						{statuses.map(status => (
+							<button
+								key={status.id}
+								onClick={() =>
+									handleFilterChange(
+										'status',
+										filter.status === status.name ? undefined : status.name
+									)
+								}
+								className={`w-full flex items-center p-3 rounded-xl border-2 transition-all duration-200 ${
+									filter.status === status.name
+										? 'border-blue-300 bg-blue-50 shadow-md'
+										: 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+								}`}
+							>
+								<div
+									className='w-3 h-3 rounded-full mr-3'
+									style={{ backgroundColor: status.color }}
+								></div>
+								<span
+									className={`font-medium capitalize ${
+										filter.status === status.name
+											? 'text-blue-700'
+											: 'text-gray-700'
+									}`}
+								>
+									{status.name}
+								</span>
+								{filter.status === status.name && (
+									<div className='ml-auto w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
+										<span className='text-white text-xs'>✓</span>
+									</div>
+								)}
+							</button>
+						))}
+					</div>
+				</FilterSection>
+			)}
 
 			{/* Price Range */}
 			<FilterSection
