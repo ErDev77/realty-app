@@ -1,9 +1,10 @@
-// src/app/[locale]/properties/page.tsx - Fixed
+// src/app/[locale]/properties/page.tsx - Optimized
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { Loader2 } from 'lucide-react'
 import PropertiesContent from './PropertiesContent'
 import { generateLocationMetadata } from '@/utils/seo'
+import { generateBreadcrumbSchema } from '@/utils/structuredData'
 
 interface PropertiesPageProps {
 	params: Promise<{ locale: string }>
@@ -14,7 +15,6 @@ export async function generateMetadata({
 	params,
 	searchParams,
 }: PropertiesPageProps): Promise<Metadata> {
-	// ✅ FIX: Properly await both params and searchParams
 	const { locale } = await params
 	const searchParamsData = await searchParams
 
@@ -28,14 +28,14 @@ export async function generateMetadata({
 	})
 
 	let canonicalUrl = `https://chancerealty.am/${locale}/properties`
-	const params_url = new URLSearchParams()
-	if (propertyType) params_url.append('property_type', propertyType)
-	if (listingType) params_url.append('listing_type', listingType)
-	if (stateId) params_url.append('state_id', stateId)
-	if (cityId) params_url.append('city_id', cityId)
+	const urlParams = new URLSearchParams()
+	if (propertyType) urlParams.append('property_type', propertyType)
+	if (listingType) urlParams.append('listing_type', listingType)
+	if (stateId) urlParams.append('state_id', stateId)
+	if (cityId) urlParams.append('city_id', cityId)
 
-	if (params_url.toString()) {
-		canonicalUrl += `?${params_url.toString()}`
+	if (urlParams.toString()) {
+		canonicalUrl += `?${urlParams.toString()}`
 	}
 
 	return {
@@ -47,9 +47,33 @@ export async function generateMetadata({
 			description,
 			images: ['/images/og-properties.jpg'],
 			url: canonicalUrl,
+			type: 'website',
+			locale: locale === 'hy' ? 'hy_AM' : locale === 'ru' ? 'ru_RU' : 'en_US',
+		},
+		twitter: {
+			card: 'summary_large_image',
+			title,
+			description,
+			images: ['/images/og-properties.jpg'],
 		},
 		alternates: {
 			canonical: canonicalUrl,
+			languages: {
+				'hy-AM': `https://chancerealty.am/hy/properties`,
+				'en-US': `https://chancerealty.am/en/properties`,
+				'ru-RU': `https://chancerealty.am/ru/properties`,
+			},
+		},
+		robots: {
+			index: true,
+			follow: true,
+			googleBot: {
+				index: true,
+				follow: true,
+				'max-video-preview': -1,
+				'max-image-preview': 'large',
+				'max-snippet': -1,
+			},
 		},
 	}
 }
@@ -57,46 +81,80 @@ export async function generateMetadata({
 function LoadingFallback() {
 	return (
 		<div className='min-h-screen bg-gray-50 flex items-center justify-center'>
-			<Loader2 className='w-8 h-8 animate-spin text-blue-600' />
+			<div className='text-center'>
+				<div className='relative mb-4'>
+					<Loader2 className='w-12 h-12 animate-spin text-blue-600 mx-auto' />
+					<div className='absolute inset-0 w-12 h-12 border-4 border-blue-200 rounded-full animate-pulse mx-auto'></div>
+				</div>
+				<p className='text-gray-600 font-medium'>Loading properties...</p>
+				<p className='text-gray-400 text-sm mt-2'>
+					Please wait while we fetch the latest listings
+				</p>
+			</div>
 		</div>
 	)
 }
 
-export default async function PropertiesPage({
-	params,
-	searchParams,
-}: PropertiesPageProps) {
+export default async function PropertiesPage({ params }: PropertiesPageProps) {
 	const { locale } = await params
 
-	const breadcrumbSchema = {
+	const breadcrumbSchema = generateBreadcrumbSchema([
+		{ name: 'Home', url: `https://chancerealty.am/${locale}` },
+		{ name: 'Properties', url: `https://chancerealty.am/${locale}/properties` },
+	])
+
+	const organizationSchema = {
 		'@context': 'https://schema.org',
-		'@type': 'BreadcrumbList',
-		itemListElement: [
-			{
-				'@type': 'ListItem',
-				position: 1,
-				name: 'Home',
-				item: `https://chancerealty.am/${locale}`,
-			},
-			{
-				'@type': 'ListItem',
-				position: 2,
-				name: 'Properties',
-				item: `https://chancerealty.am/${locale}/properties`,
-			},
-		],
+		'@type': 'RealEstateAgent',
+		name: 'Chance Realty',
+		url: `https://chancerealty.am/${locale}/properties`,
+		description:
+			'Premium real estate properties in Armenia. Houses, apartments, commercial properties, and land for sale and rent.',
+		areaServed: {
+			'@type': 'Country',
+			name: 'Armenia',
+		},
+		hasOfferCatalog: {
+			'@type': 'OfferCatalog',
+			name: 'Real Estate Properties',
+			itemListElement: [
+				{
+					'@type': 'Offer',
+					itemOffered: {
+						'@type': 'Product',
+						name: 'Residential Properties',
+						category: 'Real Estate',
+					},
+				},
+				{
+					'@type': 'Offer',
+					itemOffered: {
+						'@type': 'Product',
+						name: 'Commercial Properties',
+						category: 'Real Estate',
+					},
+				},
+			],
+		},
 	}
 
 	return (
 		<>
-			{/* Structured Data */}
+			{/* Enhanced Structured Data */}
 			<script
 				type='application/ld+json'
 				dangerouslySetInnerHTML={{
 					__html: JSON.stringify(breadcrumbSchema),
 				}}
 			/>
+			<script
+				type='application/ld+json'
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(organizationSchema),
+				}}
+			/>
 
+			{/* Performance optimized loading */}
 			<Suspense fallback={<LoadingFallback />}>
 				<PropertiesContent />
 			</Suspense>
