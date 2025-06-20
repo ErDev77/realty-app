@@ -16,7 +16,6 @@ import {
 	getCitiesByState,
 	getDistrictsByState,
 	getPropertyFeatures,
-	getPropertyStatuses,
 } from '@/services/propertyService'
 import {
 	SlidersHorizontal,
@@ -36,6 +35,7 @@ import {
 	Tag,
 } from 'lucide-react'
 import { stat } from 'fs'
+import { t } from '@/translations/translations'
 
 interface PropertyFilterProps {
 	onFilterChange: (filter: FilterType) => void
@@ -49,7 +49,6 @@ export default function PropertyFilter({
 	const [states, setStates] = useState<State[]>([])
 	const [districts, setDistricts] = useState<District[]>([])
 	const [selectedState, setSelectedState] = useState<State | null>(null)
-	const [statuses, setStatuses] = useState<PropertyStatus[]>([])
 	const [cities, setCities] = useState<City[]>([])
 	const [features, setFeatures] = useState<PropertyFeature[]>([])
 	const [filter, setFilter] = useState<FilterType>(initialFilter)
@@ -69,7 +68,6 @@ export default function PropertyFilter({
 		// Fetch initial data
 		fetchStates()
 		fetchFeatures()
-		fetchStatuses()
 	}, [])
 
 	// Handle state changes for district/city loading
@@ -132,15 +130,6 @@ export default function PropertyFilter({
 		}
 	}
 
-	const fetchStatuses = async () => {
-		try {
-			const data = await getPropertyStatuses()
-			setStatuses(data || [])
-		} catch (error) {
-			console.error('Error fetching statuses:', error)
-			setStatuses([])
-		}
-	}
 	
 	const handleFilterChange = (
 		key: keyof FilterType,
@@ -262,10 +251,10 @@ export default function PropertyFilter({
 					<div className='p-3 bg-white/20 rounded-xl mr-3 backdrop-blur-sm'>
 						<SlidersHorizontal className='w-6 h-6' />
 					</div>
-					<h2 className='text-2xl font-bold'>Filter Properties</h2>
+					<h2 className='text-2xl font-bold'>{t('filterProperties')}</h2>
 				</div>
 				<p className='text-blue-100'>
-					Refine your search to find the perfect property
+					{t('refineSearch')} {t('toFindYourIdealProperty')}
 				</p>
 
 				{hasActiveFilters() && (
@@ -279,13 +268,13 @@ export default function PropertyFilter({
 										filter[key as keyof FilterType]
 								).length
 							}{' '}
-							active filters
+							{t('activeFilters')}
 						</span>
 						<button
 							onClick={clearFilter}
 							className='px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-white text-sm font-medium transition-colors backdrop-blur-sm'
 						>
-							Clear All
+							{t('clearAll')}
 						</button>
 					</div>
 				)}
@@ -293,7 +282,7 @@ export default function PropertyFilter({
 
 			{/* Property Type */}
 			<FilterSection
-				title='Property Type'
+				title={t('propertyType')}
 				sectionKey='propertyType'
 				icon={Home}
 				badge={filter.property_type ? '1' : undefined}
@@ -350,7 +339,7 @@ export default function PropertyFilter({
 
 			{/* Listing Type */}
 			<FilterSection
-				title='Listing Type'
+				title={t('listingType')}
 				sectionKey='listingType'
 				icon={Tag}
 				badge={filter.listing_type ? '1' : undefined}
@@ -393,7 +382,7 @@ export default function PropertyFilter({
 
 			{/* Location */}
 			<FilterSection
-				title='Location'
+				title={t('location')}
 				sectionKey='location'
 				icon={MapPin}
 				badge={
@@ -406,7 +395,7 @@ export default function PropertyFilter({
 					{/* State */}
 					<div className='relative'>
 						<label className='block text-sm font-semibold text-gray-700 mb-2'>
-							State/Province
+							{t('stateProvince')}
 						</label>
 						<div className='relative'>
 							<MapPin className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
@@ -420,7 +409,7 @@ export default function PropertyFilter({
 								}
 								className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none'
 							>
-								<option value=''>All States</option>
+								<option value=''>{t('allStates')}</option>
 								{states.map(state => (
 									<option key={state.id} value={state.id}>
 										{state.name}
@@ -436,7 +425,7 @@ export default function PropertyFilter({
 					{selectedState?.uses_districts && (
 						<div className='relative'>
 							<label className='block text-sm font-semibold text-gray-700 mb-2'>
-								District
+								{t('district')}
 							</label>
 							<div className='relative'>
 								<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
@@ -451,18 +440,15 @@ export default function PropertyFilter({
 									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
 									disabled={!filter.state_id}
 								>
-									<option value=''>All Districts</option>
+									<option value=''>{t('allDistricts')}</option>
 									{districts.map(district => (
 										<option key={district.id} value={district.id}>
-											{district.name_hy}
+											{district.name_hy} 
 										</option>
 									))}
 								</select>
 								<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 							</div>
-							<p className='text-xs text-blue-600 mt-1'>
-								💡 For Yerevan, select district instead of city
-							</p>
 						</div>
 					)}
 
@@ -470,7 +456,7 @@ export default function PropertyFilter({
 					{selectedState && !selectedState.uses_districts && (
 						<div className='relative'>
 							<label className='block text-sm font-semibold text-gray-700 mb-2'>
-								City
+								{t('city')}
 							</label>
 							<div className='relative'>
 								<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
@@ -499,57 +485,9 @@ export default function PropertyFilter({
 				</div>
 			</FilterSection>
 
-			{/* Property Status */}
-			{statuses.length > 0 && (
-				<FilterSection
-					title='Property Status'
-					sectionKey='status'
-					icon={Tag}
-					badge={filter.status ? '1' : undefined}
-				>
-					<div className='space-y-2'>
-						{statuses.map(status => (
-							<button
-								key={status.id}
-								onClick={() =>
-									handleFilterChange(
-										'status',
-										filter.status === status.name ? undefined : status.name
-									)
-								}
-								className={`w-full flex items-center p-3 rounded-xl border-2 transition-all duration-200 ${
-									filter.status === status.name
-										? 'border-blue-300 bg-blue-50 shadow-md'
-										: 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-								}`}
-							>
-								<div
-									className='w-3 h-3 rounded-full mr-3'
-									style={{ backgroundColor: status.color }}
-								></div>
-								<span
-									className={`font-medium capitalize ${
-										filter.status === status.name
-											? 'text-blue-700'
-											: 'text-gray-700'
-									}`}
-								>
-									{status.name}
-								</span>
-								{filter.status === status.name && (
-									<div className='ml-auto w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
-										<span className='text-white text-xs'>✓</span>
-									</div>
-								)}
-							</button>
-						))}
-					</div>
-				</FilterSection>
-			)}
-
 			{/* Price Range */}
 			<FilterSection
-				title='Price Range'
+				title={t('priceRange')}
 				sectionKey='price'
 				icon={DollarSign}
 				badge={filter.min_price || filter.max_price ? '1' : undefined}
@@ -558,7 +496,7 @@ export default function PropertyFilter({
 					<div className='grid grid-cols-2 gap-3'>
 						<div className='relative'>
 							<label className='block text-xs font-semibold text-gray-700 mb-2'>
-								Min Price
+								{t('minPrice')}
 							</label>
 							<div className='relative'>
 								<DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
@@ -578,13 +516,13 @@ export default function PropertyFilter({
 						</div>
 						<div className='relative'>
 							<label className='block text-xs font-semibold text-gray-700 mb-2'>
-								Max Price
+								{t('maxPrice')}
 							</label>
 							<div className='relative'>
 								<DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 								<input
 									type='number'
-									placeholder='No limit'
+									placeholder={t('noLimit')}
 									value={filter.max_price || ''}
 									onChange={e =>
 										handleFilterChange(
@@ -601,10 +539,10 @@ export default function PropertyFilter({
 					{/* Quick Price Ranges */}
 					<div className='grid grid-cols-2 gap-2'>
 						{[
-							{ label: 'Under $100K', min: 0, max: 100000 },
-							{ label: '$100K-$300K', min: 100000, max: 300000 },
-							{ label: '$300K-$500K', min: 300000, max: 500000 },
-							{ label: 'Over $500K', min: 500000, max: undefined },
+							{ label: t('under100K'), min: 0, max: 100000 },
+							{ label: t('100KK300K'), min: 100000, max: 300000 },
+							{ label: t('300KK500K'), min: 300000, max: 500000 },
+							{ label: t('over500K'), min: 500000, max: undefined },
 						].map((range, index) => (
 							<button
 								key={index}
@@ -626,7 +564,7 @@ export default function PropertyFilter({
 				filter.property_type === 'apartment' ||
 				!filter.property_type) && (
 				<FilterSection
-					title='Property Details'
+					title={t('propertyDetails')}
 					sectionKey='details'
 					icon={Bed}
 					badge={filter.bedrooms || filter.bathrooms ? '1' : undefined}
@@ -635,7 +573,7 @@ export default function PropertyFilter({
 						<div className='grid grid-cols-2 gap-3'>
 							<div className='relative'>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									Min Bedrooms
+									{t('minBedrooms')}
 								</label>
 								<div className='relative'>
 									<Bed className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
@@ -656,13 +594,13 @@ export default function PropertyFilter({
 							</div>
 							<div className='relative'>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									Min Bathrooms
+									{t('minBathrooms')}
 								</label>
 								<div className='relative'>
 									<Bath className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 									<input
 										type='number'
-										placeholder='Any'
+										placeholder={t('any')}
 										value={filter.bathrooms || ''}
 										onChange={e =>
 											handleFilterChange(
@@ -682,7 +620,7 @@ export default function PropertyFilter({
 						<div className='space-y-3'>
 							<div>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									Bedrooms
+									{t('bedrooms')}
 								</label>
 								<div className='flex gap-2'>
 									{[1, 2, 3, 4, 5].map(num => (
@@ -722,7 +660,7 @@ export default function PropertyFilter({
 							</div>
 							<div>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									Bathrooms
+									{t('bathrooms')}
 								</label>
 								<div className='flex gap-2'>
 									{[1, 1.5, 2, 2.5, 3].map(num => (
@@ -767,7 +705,7 @@ export default function PropertyFilter({
 
 			{/* Features */}
 			<FilterSection
-				title='Features & Amenities'
+				title={t('featuresAndAmenities')}
 				sectionKey='features'
 				icon={Star}
 				badge={filter.features?.length || undefined}
@@ -804,7 +742,7 @@ export default function PropertyFilter({
 					) : (
 						<div className='text-center py-8 text-gray-500'>
 							<Star className='w-8 h-8 mx-auto mb-2 text-gray-300' />
-							<p className='text-sm'>No features available</p>
+							<p className='text-sm'>{t('noFeaturesAvailable')}</p>
 						</div>
 					)}
 				</div>
@@ -817,7 +755,7 @@ export default function PropertyFilter({
 					className='w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'
 				>
 					<Search className='w-5 h-5 mr-2' />
-					Apply Filters
+					{t('applyFilters')}
 				</button>
 
 				{hasActiveFilters() && (
@@ -826,7 +764,7 @@ export default function PropertyFilter({
 						className='w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-2xl hover:bg-gray-200 transition-colors duration-200 font-medium flex items-center justify-center'
 					>
 						<X className='w-4 h-4 mr-2' />
-						Clear All Filters
+						{t('clearAllFilters')}
 					</button>
 				)}
 			</div>
@@ -836,7 +774,7 @@ export default function PropertyFilter({
 				<div className='bg-blue-50 border border-blue-200 rounded-2xl p-4'>
 					<h3 className='text-sm font-semibold text-blue-800 mb-2 flex items-center'>
 						<Filter className='w-4 h-4 mr-2' />
-						Active Filters
+						{t('activeFilters')}
 					</h3>
 					<div className='flex flex-wrap gap-2'>
 						{filter.property_type && (
@@ -911,19 +849,6 @@ export default function PropertyFilter({
 					</div>
 				</div>
 			)}
-
-			{/* Tips */}
-			<div className='bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-4'>
-				<h3 className='text-sm font-semibold text-gray-800 mb-2 flex items-center'>
-					💡 Search Tips
-				</h3>
-				<ul className='text-xs text-gray-600 space-y-1'>
-					<li>• Use multiple filters to narrow down results</li>
-					<li>• Clear filters to see all available properties</li>
-					<li>• Featured properties appear at the top</li>
-					<li>• Price ranges help find properties in your budget</li>
-				</ul>
-			</div>
 		</div>
 	)
 }

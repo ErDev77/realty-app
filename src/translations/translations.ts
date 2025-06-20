@@ -282,6 +282,8 @@ export const translations = {
 		smallest: 'Ամենափոքր',
 		nearest: 'Ամենամոտ',
 		farthest: 'Ամենահեռու',
+
+		
 	},
 
 	en: {

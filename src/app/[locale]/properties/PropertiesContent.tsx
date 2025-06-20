@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
+import { t } from '@/translations/translations'
 
 type PropertyCardProps = {
 	property?: Property
@@ -197,20 +198,24 @@ export default function PropertiesContent({
 								<div className='p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mr-4 shadow-lg'>
 									<Home className='w-8 h-8 text-white' />
 								</div>
-								<h1 className='text-4xl font-bold text-gray-900'>Properties</h1>
+								<h1 className='text-4xl font-bold text-gray-900'>
+									{t('properties')}
+								</h1>
 							</div>
-							<p className='text-xl text-gray-600 leading-relaxed'>
+							{/* <p className='text-xl text-gray-600 leading-relaxed'>
 								{loading
 									? 'Loading...'
-									: `${properties.length} properties found`}
-							</p>
-							{hasActiveFilters() && (
-								<div className='mt-2 flex items-center text-sm text-gray-500'>
-									<Filter className='w-4 h-4 mr-2' />
-									<span>Filtered by: {getFilterSummary()}</span>
-								</div>
-							)}
+									: `${properties.length} ${t('propertiesFound')}`
+
+							</p> */}
 						</div>
+						{hasActiveFilters() && (
+							<div className='mt-2 flex items-center text-sm text-gray-500'>
+								<Filter className='w-4 h-4 mr-2' />
+								<span>{t('filteredBy')}: {getFilterSummary()}</span>
+							</div>
+						)}
+						
 					</div>
 				</div>
 			</div>
@@ -227,7 +232,7 @@ export default function PropertiesContent({
 								className='lg:hidden flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors border border-blue-200'
 							>
 								<SlidersHorizontal className='w-4 h-4 mr-2' />
-								Filters
+								{t('filters')}
 								{hasActiveFilters() && (
 									<span className='ml-2 w-2 h-2 bg-blue-500 rounded-full'></span>
 								)}
@@ -264,10 +269,10 @@ export default function PropertiesContent({
 										<div className='absolute inset-0 w-16 h-16 border-4 border-blue-200 rounded-full animate-pulse'></div>
 									</div>
 									<p className='mt-4 text-gray-600 font-medium'>
-										Loading amazing properties...
+										{t('loadingProperties')}...
 									</p>
 									<p className='mt-2 text-gray-400 text-sm'>
-										Please wait while we fetch the latest listings
+										{t('pleaseWaitWhileFetching')}
 									</p>
 								</div>
 							) : error ? (
@@ -276,7 +281,7 @@ export default function PropertiesContent({
 										<X className='w-10 h-10 text-red-600' />
 									</div>
 									<h3 className='text-xl font-semibold text-gray-900 mb-2'>
-										Oops! Something went wrong
+										{t('oopsSomethingWentWrong')}
 									</h3>
 									<p className='text-red-600 mb-4'>{error}</p>
 									<button
@@ -284,7 +289,7 @@ export default function PropertiesContent({
 										className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl'
 									>
 										<RefreshCw className='w-4 h-4 mr-2' />
-										Try Again
+										{t('tryAgain')}
 									</button>
 								</div>
 							) : properties.length === 0 ? (
@@ -293,20 +298,20 @@ export default function PropertiesContent({
 										<Search className='w-10 h-10 text-gray-400' />
 									</div>
 									<h3 className='text-xl font-semibold text-gray-900 mb-2'>
-										No properties found
+										{t('noPropertiesFound')}
 									</h3>
 									<p className='text-gray-500 text-lg mb-4'>
-										No properties found matching your criteria.
+										{t('noPropertiesFound')}
 									</p>
 									<p className='text-gray-400 mb-6'>
-										Try adjusting your filters to see more results.
+										{t('tryAdjustingFilters')}
 									</p>
 									<button
 										onClick={clearAllFilters}
 										className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl'
 									>
 										<X className='w-4 h-4 mr-2' />
-										Clear All Filters
+										{t('clearAllFilters')}
 									</button>
 								</div>
 							) : (
@@ -317,13 +322,13 @@ export default function PropertiesContent({
 											<div className='flex items-center text-sm text-gray-600'>
 												<MapPin className='w-4 h-4 mr-2 text-blue-500' />
 												<span className='font-medium'>
-													{properties.length} properties found
+													{properties.length} {t('propertiesFound')}
 												</span>
 											</div>
 											{hasActiveFilters() && (
 												<div className='flex items-center text-sm text-blue-600'>
 													<Filter className='w-4 h-4 mr-1' />
-													<span>Filtered results</span>
+													<span>{t('filteredResults')}</span>
 												</div>
 											)}
 										</div>
@@ -333,12 +338,12 @@ export default function PropertiesContent({
 											<div className='relative group'>
 												<button className='flex items-center px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200'>
 													<span className='text-sm font-medium mr-2'>
-														Sort:{' '}
+														{t('sortBy')}:{' '}
 														{sortBy === 'created_at'
-															? 'Date'
+															? t('date')
 															: sortBy === 'price'
-															? 'Price'
-															: 'Views'}
+															? t('price')
+															: t('views')}
 													</span>
 													<ChevronDown className='w-4 h-4' />
 												</button>
@@ -348,26 +353,26 @@ export default function PropertiesContent({
 														{[
 															{
 																key: 'created_at',
-																label: 'Date Added',
+																label: t('dateAdded'),
 																orders: [
-																	{ key: 'desc', label: 'Newest First' },
-																	{ key: 'asc', label: 'Oldest First' },
+																	{ key: 'desc', label: t('newestFirst') },
+																	{ key: 'asc', label: t('oldestFirst') },
 																],
 															},
 															{
 																key: 'price',
-																label: 'Price',
+																label: t('price'),
 																orders: [
-																	{ key: 'asc', label: 'Low to High' },
-																	{ key: 'desc', label: 'High to Low' },
+																	{ key: 'asc', label: t('lowToHigh') },
+																	{ key: 'desc', label: t('highToLow') },
 																],
 															},
 															{
 																key: 'views',
-																label: 'Popularity',
+																label: t('popularity'),
 																orders: [
-																	{ key: 'desc', label: 'Most Viewed' },
-																	{ key: 'asc', label: 'Least Viewed' },
+																	{ key: 'desc', label: t('mostViewed') },
+																	{ key: 'asc', label: t('leastViewed') },
 																],
 															},
 														].map(sort => (
@@ -425,7 +430,7 @@ export default function PropertiesContent({
 											</div>
 										</div>
 										<div className='text-sm text-gray-500'>
-											Page {currentPage} of {totalPages}
+											{t('page')} {currentPage} {t('of')} {totalPages}
 										</div>
 									</div>
 
@@ -515,7 +520,7 @@ export default function PropertiesContent({
 																							</span>
 																							<span>
 																								{property.attributes.bedrooms}{' '}
-																								bed
+																								{t('bedrooms')}
 																							</span>
 																						</div>
 																					)}
@@ -526,7 +531,7 @@ export default function PropertiesContent({
 																							</span>
 																							<span>
 																								{property.attributes.bathrooms}{' '}
-																								bath
+																								{t('bathrooms')}
 																							</span>
 																						</div>
 																					)}
@@ -537,7 +542,7 @@ export default function PropertiesContent({
 																							</span>
 																							<span>
 																								{property.attributes.area_sqft}{' '}
-																								sqft
+																								{t('sqft')}
 																							</span>
 																						</div>
 																					)}
@@ -553,7 +558,7 @@ export default function PropertiesContent({
 																							</span>
 																							<span>
 																								{property.attributes.bedrooms}{' '}
-																								bed
+																								{t('bedrooms')}
 																							</span>
 																						</div>
 																					)}
@@ -564,7 +569,7 @@ export default function PropertiesContent({
 																							</span>
 																							<span>
 																								{property.attributes.bathrooms}{' '}
-																								bath
+																								{t('bathrooms')}
 																							</span>
 																						</div>
 																					)}
@@ -575,7 +580,7 @@ export default function PropertiesContent({
 																							</span>
 																							<span>
 																								{property.attributes.area_sqft}{' '}
-																								sqft
+																								{t('sqft')}
 																							</span>
 																						</div>
 																					)}
@@ -591,7 +596,7 @@ export default function PropertiesContent({
 																							</span>
 																							<span>
 																								{property.attributes.area_sqft}{' '}
-																								sqft
+																								{t('sqft')}
 																							</span>
 																						</div>
 																					)}
@@ -619,7 +624,7 @@ export default function PropertiesContent({
 																					</span>
 																					<span>
 																						{property.attributes.area_acres}{' '}
-																						acres
+																						{t('acres')}
 																					</span>
 																				</div>
 																			)}
@@ -654,7 +659,7 @@ export default function PropertiesContent({
 													disabled={currentPage === 1}
 													className='px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
 												>
-													Previous
+													{t('previous')}
 												</button>
 
 												{[...Array(Math.min(totalPages, 7))].map((_, index) => {

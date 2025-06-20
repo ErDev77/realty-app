@@ -1150,7 +1150,11 @@ import {
 	Navigation,
 	MapIcon,
 	Maximize2,
+	Layers3,
 } from 'lucide-react'
+
+import { RxHeight } from 'react-icons/rx'
+
 
 import Link from 'next/link'
 
@@ -1224,7 +1228,6 @@ const YandexMap = ({
 					zoom: zoom,
 					controls: controls,
 				}, {
-					searchControlProvider: 'yandex#search',
 					suppressMapOpenBlock: true,
 					yandexMapDisablePoiInteractivity: false,
 				})
@@ -1632,43 +1635,49 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 					<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
 						{'attributes' in property && property.attributes && (
 							<>
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Bed className='w-6 h-6 text-blue-600' />
+								{property.attributes.bedrooms != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Bed className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Bedrooms</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.bedrooms}
+											</p>
+										</div>
 									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Bedrooms</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.bedrooms}
-										</p>
-									</div>
-								</div>
+								)}
 
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Bath className='w-6 h-6 text-blue-600' />
+								{property.attributes.bathrooms != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Bath className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Bathrooms</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.bathrooms}
+											</p>
+										</div>
 									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Bathrooms</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.bathrooms}
-										</p>
-									</div>
-								</div>
+								)}
 
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Maximize className='w-6 h-6 text-blue-600' />
+								{property.attributes.area_sqft != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Maximize className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Area</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.area_sqft.toLocaleString()} sq ft
+											</p>
+										</div>
 									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Area</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.area_sqft.toLocaleString()} sq ft
-										</p>
-									</div>
-								</div>
+								)}
 
-								{property.attributes.lot_size_sqft && (
+								{property.attributes.lot_size_sqft != null && (
 									<div className='flex items-center'>
 										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
 											<MapPin className='w-6 h-6 text-blue-600' />
@@ -1683,15 +1692,29 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									</div>
 								)}
 
-								{property.attributes.floors && (
+								{property.attributes.floors != null && (
 									<div className='flex items-center'>
 										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-											<Building2 className='w-6 h-6 text-blue-600' />
+											<Layers3 className='w-5 h-5 text-blue-600' />
 										</div>
 										<div>
 											<p className='text-xs text-gray-500'>Floors</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.floors}
+											</p>
+										</div>
+									</div>
+								)}
+
+								{property.attributes.ceiling_height != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<RxHeight className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Ceiling Height</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.ceiling_height}
 											</p>
 										</div>
 									</div>
@@ -1706,54 +1729,77 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 					<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
 						{'attributes' in property && property.attributes && (
 							<>
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Bed className='w-6 h-6 text-blue-600' />
+								{property.attributes.bedrooms != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Bed className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Bedrooms</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.bedrooms}
+											</p>
+										</div>
 									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Bedrooms</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.bedrooms}
-										</p>
-									</div>
-								</div>
+								)}
 
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Bath className='w-6 h-6 text-blue-600' />
+								{property.attributes.bathrooms != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Bath className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Bathrooms</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.bathrooms}
+											</p>
+										</div>
 									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Bathrooms</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.bathrooms}
-										</p>
-									</div>
-								</div>
+								)}
 
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Maximize className='w-6 h-6 text-blue-600' />
+								{property.attributes.area_sqft != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Maximize className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Area</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.area_sqft.toLocaleString()} sq ft
+											</p>
+										</div>
 									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Area</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.area_sqft.toLocaleString()} sq ft
-										</p>
-									</div>
-								</div>
+								)}
 
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Building2 className='w-6 h-6 text-blue-600' />
+								{property.attributes.floor != null &&
+									property.attributes.total_floors != null && (
+										<div className='flex items-center'>
+											<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+												<Layers3 className='w-5 h-5 text-blue-600' />
+											</div>
+											<div>
+												<p className='text-xs text-gray-500'>Floor</p>
+												<p className='font-medium text-gray-700'>
+													{property.attributes.floor} /{' '}
+													{property.attributes.total_floors}
+												</p>
+											</div>
+										</div>
+									)}
+
+								{property.attributes.ceiling_height != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<RxHeight className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Ceiling Height</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.ceiling_height}
+											</p>
+										</div>
 									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Floor</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.floor} /{' '}
-											{property.attributes.total_floors}
-										</p>
-									</div>
-								</div>
+								)}
 							</>
 						)}
 					</div>
@@ -1764,17 +1810,19 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 					<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
 						{'attributes' in property && property.attributes && (
 							<>
-								<div className='flex items-center'>
-									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-										<Maximize className='w-6 h-6 text-blue-600' />
+								{property.attributes.area_sqft != null && (
+									<div className='flex items-center'>
+										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+											<Maximize className='w-6 h-6 text-blue-600' />
+										</div>
+										<div>
+											<p className='text-xs text-gray-500'>Area</p>
+											<p className='font-medium text-gray-700'>
+												{property.attributes.area_sqft.toLocaleString()} sq ft
+											</p>
+										</div>
 									</div>
-									<div>
-										<p className='text-xs text-gray-500'>Area</p>
-										<p className='font-medium text-gray-700'>
-											{property.attributes.area_sqft.toLocaleString()} sq ft
-										</p>
-									</div>
-								</div>
+								)}
 
 								{property.attributes.business_type && (
 									<div className='flex items-center'>
@@ -1790,10 +1838,10 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									</div>
 								)}
 
-								{property.attributes.floors && (
+								{property.attributes.floors != null && (
 									<div className='flex items-center'>
 										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-											<Building2 className='w-6 h-6 text-blue-600' />
+											<Layers3 className='w-5 h-5 text-blue-600' />
 										</div>
 										<div>
 											<p className='text-xs text-gray-500'>Floors</p>
@@ -1804,15 +1852,15 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									</div>
 								)}
 
-								{property.attributes.ceiling_height && (
+								{property.attributes.ceiling_height != null && (
 									<div className='flex items-center'>
 										<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-											<ArrowUp className='w-6 h-6 text-blue-600' />
+											<RxHeight className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
 											<p className='text-xs text-gray-500'>Ceiling Height</p>
 											<p className='font-medium text-gray-700'>
-												{property.attributes.ceiling_height.toLocaleString()} ft
+												{property.attributes.ceiling_height}
 											</p>
 										</div>
 									</div>
@@ -1825,19 +1873,21 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 			case 'land':
 				return (
 					<div className='grid grid-cols-2 gap-4 mb-6 border-b border-gray-100 pb-6'>
-						{'attributes' in property && property.attributes && (
-							<div className='flex items-center'>
-								<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
-									<Maximize className='w-6 h-6 text-blue-600' />
+						{'attributes' in property &&
+							property.attributes &&
+							property.attributes.area_acres != null && (
+								<div className='flex items-center'>
+									<div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2'>
+										<Maximize className='w-6 h-6 text-blue-600' />
+									</div>
+									<div>
+										<p className='text-xs text-gray-500'>Area</p>
+										<p className='font-medium text-gray-700'>
+											{property.attributes.area_acres.toLocaleString()} acres
+										</p>
+									</div>
 								</div>
-								<div>
-									<p className='text-xs text-gray-500'>Area</p>
-									<p className='font-medium text-gray-700'>
-										{property.attributes.area_acres.toLocaleString()} acres
-									</p>
-								</div>
-							</div>
-						)}
+							)}
 					</div>
 				)
 
@@ -1845,7 +1895,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 				return null
 		}
 	}, [property])
-
+	
 	if (loading) {
 		return (
 			<div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50'>
