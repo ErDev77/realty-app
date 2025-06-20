@@ -974,15 +974,6 @@ export default function PropertyCard({
 				onMouseEnter={() => setIsHovering(true)}
 				onMouseLeave={() => setIsHovering(false)}
 			>
-				{/* Featured Badge */}
-				{property.featured && (
-					<div className='absolute top-4 left-4 z-20'>
-						<div className='flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg'>
-							⭐ {t.featured}
-						</div>
-					</div>
-				)}
-
 				{/* Image Section */}
 				<div className='relative h-64 overflow-hidden'>
 					{property.images && property.images.length > 0 ? (
@@ -1058,24 +1049,32 @@ export default function PropertyCard({
 					{/* Location */}
 					<div className='flex items-center text-gray-600 mb-4'>
 						<MapPin className='w-4 h-4 mr-2 text-blue-500 flex-shrink-0' />
-						<span className='text-sm truncate'>
-							{property.district && (
-								<span>
-									{getTranslatedField(property.district, 'name', language)},{' '}
-								</span>
-							)}
-							{property.city && (
-								<span>
-									{getTranslatedCityName(property.city.name, language)},{' '}
-								</span>
-							)}
-							{property.state && (
-								<span>
-									{getTranslatedStateName(property.state.name, language)}
-								</span>
-							)}
-						</span>
+						<div className='text-sm truncate'>
+							{property.state
+								? property.district
+									? `${getTranslatedField(
+											property.district,
+											'name',
+											language
+									  )}, ${getTranslatedStateName(
+											property.state.name,
+											language
+									  )}`
+									: property.city
+									? `${getTranslatedCityName(
+											property.city.name,
+											language
+									  )}, ${getTranslatedStateName(
+											property.state.name,
+											language
+									  )}`
+									: getTranslatedStateName(property.state.name, language)
+								: '' 
+							}
+						</div>
 					</div>
+
+
 
 					{/* Price */}
 					<div className='text-2xl font-bold text-blue-600 mb-4'>

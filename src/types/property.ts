@@ -60,7 +60,6 @@ export interface BaseProperty {
 	latitude?: number
 	longitude?: number
 	status: PropertyStatus
-	featured: boolean
 	views: number
 	created_at: Date
 	updated_at: Date
@@ -124,26 +123,6 @@ export interface PropertyMedia {
 	isPrimary?: boolean // For compatibility with camelCase
 }
 
-export interface PropertyDocument {
-	id: number
-	property_id: number
-	name: string
-	url: string
-	document_type?: string
-	uploaded_at: Date
-}
-
-export interface PropertyInquiry {
-	id: number
-	property_id: number
-	user_id?: number
-	name: string
-	email: string
-	phone?: string
-	message: string
-	status: string
-	created_at: Date
-}
 
 export interface PropertyFilter {
 	property_type?: PropertyType

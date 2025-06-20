@@ -1,6 +1,6 @@
 import { PropertyFilter } from '../types/property'
 
-const API_BASE_URL = 'https://localhost:3000' // Update with your actual API base URL
+const API_BASE_URL = 'http://localhost:3000' // Update with your actual API base URL
 
 export function getCurrentLanguage(): 'hy' | 'en' | 'ru' {
 	if (typeof window !== 'undefined') {
@@ -405,52 +405,87 @@ export function getTranslatedCityName(
 	cityName: string,
 	language: 'hy' | 'en' | 'ru'
 ): string {
+	// ✅ FIXED: Updated to match your actual database city names
 	const cityTranslations: Record<string, Record<string, string>> = {
-		Yerevan: { hy: 'Երևան', en: 'Yerevan', ru: 'Ереван' },
-		Gyumri: { hy: 'Գյումրի', en: 'Gyumri', ru: 'Гюмри' },
-		Vanadzor: { hy: 'Վանաձոր', en: 'Vanadzor', ru: 'Ванадзор' },
-		Abovyan: { hy: 'Աբովյան', en: 'Abovyan', ru: 'Абовян' },
-		Kapan: { hy: 'Կապան', en: 'Kapan', ru: 'Капан' },
-		Armavir: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
-		Gavar: { hy: 'Գավառ', en: 'Gavar', ru: 'Гавар' },
-		Artashat: { hy: 'Արտաշատ', en: 'Artashat', ru: 'Арташат' },
-		Goris: { hy: 'Գորիս', en: 'Goris', ru: 'Горис' },
+		// From your database: cities.json
+		Աշտարակ: { hy: 'Աշտարակ', en: 'Ashtarak', ru: 'Аштарак' },
+		Ապարան: { hy: 'Ապարան', en: 'Aparan', ru: 'Апаран' },
+		Թալին: { hy: 'Թալին', en: 'Talin', ru: 'Талин' },
+		Արտաշատ: { hy: 'Արտաշատ', en: 'Artashat', ru: 'Арташат' },
+		Արարատ: { hy: 'Արարատ', en: 'Ararat', ru: 'Арарат' },
+		Մասիս: { hy: 'Մասիս', en: 'Masis', ru: 'Масис' },
+		Արմավիր: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
+		Վաղարշապատ: { hy: 'Վաղարշապատ', en: 'Vagharshapat', ru: 'Вагаршапат' },
+		Գավառ: { hy: 'Գավառ', en: 'Gavar', ru: 'Гавар' },
+		Սևան: { hy: 'Սևան', en: 'Sevan', ru: 'Севан' },
+		Աբովյան: { hy: 'Աբովյան', en: 'Abovyan', ru: 'Абовян' },
+		Հրազդան: { hy: 'Հրազդան', en: 'Hrazdan', ru: 'Раздан' },
+		Վեդի: { hy: 'Վեդի', en: 'Vedi', ru: 'Веди' },
+		Վարդենիս: { hy: 'Վարդենիս', en: 'Vardenis', ru: 'Варденис' },
+		Մարտունի: { hy: 'Մարտունի', en: 'Martuni', ru: 'Мартуни' },
+		Չարենցավան: { hy: 'Չարենցավան', en: 'Charentsavan', ru: 'Чаренцаван' },
+		Ցախկաձոր: { hy: 'Ցախկաձոր', en: 'Tsaghkadzor', ru: 'Цахкадзор' },
+		Վանաձոր: { hy: 'Վանաձոր', en: 'Vanadzor', ru: 'Ванадзор' },
+		Ալավերդի: { hy: 'Ալավերդի', en: 'Alaverdi', ru: 'Алаверди' },
+		Ստեփանավան: { hy: 'Ստեփանավան', en: 'Stepanavan', ru: 'Степанаван' },
+		Թաշիր: { hy: 'Թաշիր', en: 'Tashir', ru: 'Ташир' },
+		Սպիտակ: { hy: 'Սպիտակ', en: 'Spitak', ru: 'Спитак' },
+		Գյումրի: { hy: 'Գյումրի', en: 'Gyumri', ru: 'Гюмри' },
+		Արթիկ: { hy: 'Արթիկ', en: 'Artik', ru: 'Артик' },
+		Մարալիկ: { hy: 'Մարալիկ', en: 'Maralik', ru: 'Маралик' },
+		Կապան: { hy: 'Կապան', en: 'Kapan', ru: 'Капан' },
+		Գորիս: { hy: 'Գորիս', en: 'Goris', ru: 'Горис' },
+		Մեղրի: { hy: 'Մեղրի', en: 'Meghri', ru: 'Мегри' },
+		Սիսիան: { hy: 'Սիսիան', en: 'Sisian', ru: 'Сисиан' },
+		Իջևան: { hy: 'Իջևան', en: 'Ijevan', ru: 'Иджеван' },
+		Դիլիջան: { hy: 'Դիլիջան', en: 'Dilijan', ru: 'Дилижан' },
+		Նոյեմբերյան: { hy: 'Նոյեմբերյան', en: 'Noyemberyan', ru: 'Ноемберян' },
+		Բերդ: { hy: 'Բերդ', en: 'Berd', ru: 'Берд' },
+		Եղեգնաձոր: { hy: 'Եղեգնաձոր', en: 'Yeghegnadzor', ru: 'Егегнадзор' },
+		Վայք: { hy: 'Վայք', en: 'Vayk', ru: 'Вайк' },
+		Ջերմուկ: { hy: 'Ջերմուկ', en: 'Jermuk', ru: 'Джермук' },
+		Երևան: { hy: 'Երևան', en: 'Yerevan', ru: 'Ереван' },
+
+		// ✅ ALSO SUPPORT: English variations for compatibility
 		Ashtarak: { hy: 'Աշտարակ', en: 'Ashtarak', ru: 'Аштарак' },
-		Sevan: { hy: 'Սևան', en: 'Sevan', ru: 'Севан' },
-		Razdan: { hy: 'Ռազդան', en: 'Razdan', ru: 'Раздан' },
-		Ejmiadzin: { hy: 'Էջմիածին', en: 'Ejmiadzin', ru: 'Эчмиадзин' },
-		Charentsavan: { hy: 'Չարենցավան', en: 'Charentsavan', ru: 'Чаренцаван' },
-		Masis: { hy: 'Մասիս', en: 'Masis', ru: 'Масис' },
-		Alaverdi: { hy: 'Ալավերդի', en: 'Alaverdi', ru: 'Алаверди' },
-		Sisian: { hy: 'Սիսիան', en: 'Sisian', ru: 'Сисиан' },
-		Kajaran: { hy: 'Քաջարան', en: 'Kajaran', ru: 'Каджаран' },
-		Yeghegnadzor: { hy: 'Եղեգնաձոր', en: 'Yeghegnadzor', ru: 'Егегнадзор' },
-		Tashir: { hy: 'Տաշիր', en: 'Tashir', ru: 'Ташир' },
-		Akhtala: { hy: 'Ախթալա', en: 'Akhtala', ru: 'Ахтала' },
-		Metsamor: { hy: 'Մեծամոր', en: 'Metsamor', ru: 'Мецамор' },
-		Spitak: { hy: 'Սպիտակ', en: 'Spitak', ru: 'Спитак' },
-		Shamlugh: { hy: 'Շամլուղ', en: 'Shamlugh', ru: 'Шамлуг' },
-		Martuni: { hy: 'Մարտունի', en: 'Martuni', ru: 'Мартуни' },
-		Jermuk: { hy: 'Ջերմուկ', en: 'Jermuk', ru: 'Джермук' },
-		Byureghavan: { hy: 'Բյուրեղավան', en: 'Byureghavan', ru: 'Бюрегаван' },
-		'Nor Hachn': { hy: 'Նոր Հաճն', en: 'Nor Hachn', ru: 'Нор Ачн' },
-		Chambarak: { hy: 'Ճամբարակ', en: 'Chambarak', ru: 'Чамбарак' },
 		Aparan: { hy: 'Ապարան', en: 'Aparan', ru: 'Апаран' },
+		Talin: { hy: 'Թալին', en: 'Talin', ru: 'Талин' },
+		Artashat: { hy: 'Արտաշատ', en: 'Artashat', ru: 'Арташат' },
+		Ararat: { hy: 'Արարատ', en: 'Ararat', ru: 'Арарат' },
+		Masis: { hy: 'Մասիս', en: 'Masis', ru: 'Масис' },
+		Armavir: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
+		Vagharshapat: { hy: 'Վաղարշապատ', en: 'Vagharshapat', ru: 'Вагаршапат' },
+		Ejmiadzin: { hy: 'Վաղարշապատ', en: 'Ejmiadzin', ru: 'Эчмиадзин' }, // Alternative name
+		Gavar: { hy: 'Գավառ', en: 'Gavar', ru: 'Гавар' },
+		Sevan: { hy: 'Սևան', en: 'Sevan', ru: 'Севан' },
+		Abovyan: { hy: 'Աբովյան', en: 'Abovyan', ru: 'Абовян' },
+		Hrazdan: { hy: 'Հրազդան', en: 'Hrazdan', ru: 'Раздан' },
+		Razdan: { hy: 'Հրազդան', en: 'Razdan', ru: 'Раздан' }, // Alternative name
+		Vedi: { hy: 'Վեդի', en: 'Vedi', ru: 'Веди' },
+		Vardenis: { hy: 'Վարդենիս', en: 'Vardenis', ru: 'Варденис' },
+		Martuni: { hy: 'Մարտունի', en: 'Martuni', ru: 'Мартуни' },
+		Charentsavan: { hy: 'Չարենցավան', en: 'Charentsavan', ru: 'Чаренцаван' },
+		Tsaghkadzor: { hy: 'Ցախկաձոր', en: 'Tsaghkadzor', ru: 'Цахкадзор' },
+		Vanadzor: { hy: 'Վանաձոր', en: 'Vanadzor', ru: 'Ванадзор' },
+		Alaverdi: { hy: 'Ալավերդի', en: 'Alaverdi', ru: 'Алаверди' },
+		Stepanavan: { hy: 'Ստեփանավան', en: 'Stepanavan', ru: 'Степанаван' },
+		Tashir: { hy: 'Թաշիր', en: 'Tashir', ru: 'Ташир' },
+		Spitak: { hy: 'Սպիտակ', en: 'Spitak', ru: 'Спитак' },
+		Gyumri: { hy: 'Գյումրի', en: 'Gyumri', ru: 'Гюмри' },
 		Artik: { hy: 'Արթիկ', en: 'Artik', ru: 'Артик' },
 		Maralik: { hy: 'Մարալիկ', en: 'Maralik', ru: 'Маралик' },
+		Kapan: { hy: 'Կապան', en: 'Kapan', ru: 'Капан' },
+		Goris: { hy: 'Գորիս', en: 'Goris', ru: 'Горис' },
+		Meghri: { hy: 'Մեղրի', en: 'Meghri', ru: 'Мегри' },
+		Sisian: { hy: 'Սիսիան', en: 'Sisian', ru: 'Сисиан' },
 		Ijevan: { hy: 'Իջևան', en: 'Ijevan', ru: 'Иджеван' },
-		Berd: { hy: 'Բերդ', en: 'Berd', ru: 'Берд' },
 		Dilijan: { hy: 'Դիլիջան', en: 'Dilijan', ru: 'Дилижан' },
 		Noyemberyan: { hy: 'Նոյեմբերյան', en: 'Noyemberyan', ru: 'Ноемберян' },
-		Ayrum: { hy: 'Այրում', en: 'Ayrum', ru: 'Айрум' },
-		Vardenis: { hy: 'Վարդենիս', en: 'Vardenis', ru: 'Варденис' },
-		Meghri: { hy: 'Մեղրի', en: 'Meghri', ru: 'Мегри' },
-		Agarak: { hy: 'Ագարակ', en: 'Agarak', ru: 'Агарак' },
-		Dastakert: { hy: 'Դաստակերտ', en: 'Dastakert', ru: 'Дастакерт' },
-		Akhuryan: { hy: 'Ախուրյան', en: 'Akhuryan', ru: 'Ахурян' },
-		Amasia: { hy: 'Ամասիա', en: 'Amasia', ru: 'Амасия' },
-		Ashotsk: { hy: 'Աշոցք', en: 'Ashotsk', ru: 'Ашоцк' },
-		// Add more as needed
+		Berd: { hy: 'Բերդ', en: 'Berd', ru: 'Берд' },
+		Yeghegnadzor: { hy: 'Եղեգնաձոր', en: 'Yeghegnadzor', ru: 'Егегнадзор' },
+		Vayk: { hy: 'Վայք', en: 'Vayk', ru: 'Вайк' },
+		Jermuk: { hy: 'Ջերմուկ', en: 'Jermuk', ru: 'Джермук' },
+		Yerevan: { hy: 'Երևան', en: 'Yerevan', ru: 'Ереван' },
 	}
 
 	return cityTranslations[cityName]?.[language] || cityName
@@ -460,22 +495,38 @@ export function getTranslatedStateName(
 	stateName: string,
 	language: 'hy' | 'en' | 'ru'
 ): string {
+	// ✅ FIXED: Updated to match your actual database state names
 	const stateTranslations: Record<string, Record<string, string>> = {
-		Yerevan: { hy: 'Երևան', en: 'Yerevan', ru: 'Ереван' },
-		Shirak: { hy: 'Շիրակ', en: 'Shirak', ru: 'Ширак' },
-		Lori: { hy: 'Լոռի', en: 'Lori', ru: 'Лори' },
-		Kotayk: { hy: 'Կոտայք', en: 'Kotayk', ru: 'Котайк' },
-		Gegharkunik: { hy: 'Գեղարքունիք', en: 'Gegharkunik', ru: 'Гегаркуник' },
-		Ararat: { hy: 'Արարատ', en: 'Ararat', ru: 'Арарат' },
-		'Vayots Dzor': { hy: 'Վայոց Ձոր', en: 'Vayots Dzor', ru: 'Вайоц Дзор' },
-		Syunik: { hy: 'Սյունիք', en: 'Syunik', ru: 'Сюник' },
-		Armavir: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
+		// From your database: states.json
+		Արագածոտն: { hy: 'Արագածոտն', en: 'Aragatsotn', ru: 'Арагацотн' },
+		Արարատ: { hy: 'Արարատ', en: 'Ararat', ru: 'Арарат' },
+		Արմավիր: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
+		Գեղարքունիք: { hy: 'Գեղարքունիք', en: 'Gegharkunik', ru: 'Гегаркуник' },
+		Կոտայք: { hy: 'Կոտայք', en: 'Kotayk', ru: 'Котайк' },
+		Լոռի: { hy: 'Լոռի', en: 'Lori', ru: 'Лори' },
+		Շիրակ: { hy: 'Շիրակ', en: 'Shirak', ru: 'Ширак' },
+		Սյունիք: { hy: 'Սյունիք', en: 'Syunik', ru: 'Сюник' },
+		Տավուշ: { hy: 'Տավուշ', en: 'Tavush', ru: 'Тавуш' },
+		'Վայոց Ձոր': { hy: 'Վայոց Ձոր', en: 'Vayots Dzor', ru: 'Вайоц Дзор' },
+		Երևան: { hy: 'Երևան', en: 'Yerevan', ru: 'Ереван' },
+
+		// ✅ ALSO SUPPORT: English variations for compatibility
 		Aragatsotn: { hy: 'Արագածոտն', en: 'Aragatsotn', ru: 'Арагацотн' },
+		Ararat: { hy: 'Արարատ', en: 'Ararat', ru: 'Арарат' },
+		Armavir: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
+		Gegharkunik: { hy: 'Գեղարքունիք', en: 'Gegharkunik', ru: 'Гегаркуник' },
+		Kotayk: { hy: 'Կոտայք', en: 'Kotayk', ru: 'Котайк' },
+		Lori: { hy: 'Լոռի', en: 'Lori', ru: 'Лори' },
+		Shirak: { hy: 'Շիրակ', en: 'Shirak', ru: 'Ширак' },
+		Syunik: { hy: 'Սյունիք', en: 'Syunik', ru: 'Сюник' },
 		Tavush: { hy: 'Տավուշ', en: 'Tavush', ru: 'Тавуш' },
+		'Vayots Dzor': { hy: 'Վայոց Ձոր', en: 'Vayots Dzor', ru: 'Вайоц Дзор' },
+		Yerevan: { hy: 'Երևան', en: 'Yerevan', ru: 'Ереван' },
 	}
 
 	return stateTranslations[stateName]?.[language] || stateName
 }
+
 
 export function getTranslatedField(
 	obj: any,
