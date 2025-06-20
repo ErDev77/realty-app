@@ -1116,7 +1116,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { Property, PropertyStatus } from '@/types/property'
-import { getPropertyByCustomId } from '@/services/propertyService'
+import { getPropertyByCustomId, getTranslatedCityName, getTranslatedField, getTranslatedStateName } from '@/services/propertyService'
 import { useCurrencyConversion } from '@/hooks/useCurrencyConversion'
 import {
 	MapPin,
@@ -1157,6 +1157,7 @@ import { RxHeight } from 'react-icons/rx'
 
 
 import Link from 'next/link'
+import { t } from '@/translations/translations'
 
 interface PropertyDetailClientProps {
 	property: any
@@ -1188,6 +1189,19 @@ const YandexMap = ({
 		const loadYandexMaps = () => {
 			if (window.ymaps) {
 				initMap()
+				return
+			}
+
+			const existingScript = document.querySelector(
+				'script[src*="api-maps.yandex.ru"]'
+			)
+			if (existingScript) {
+				// Wait for the existing script to load
+				existingScript.addEventListener('load', () => {
+					if (window.ymaps) {
+						window.ymaps.ready(initMap)
+					}
+				})
 				return
 			}
 
@@ -1353,6 +1367,7 @@ const YandexMap = ({
 		)
 	}
 
+	
 	return (
 		<div className='relative'>
 			<div
@@ -1564,6 +1579,7 @@ function CurrencyDisplay({
 
 export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	const params = useParams()
+	const language = Array.isArray(params.locale) ? params.locale[0] : params.locale || 'en'
 	const [property, setProperty] = useState<Property | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
@@ -1956,6 +1972,66 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	const hasValidCoordinates = property.latitude && property.longitude && 
 		property.latitude !== 0 && property.longitude !== 0
 
+
+	const formatLocalizedDate = (
+		date: string | Date,
+		language: 'hy' | 'en' | 'ru'
+	) => {
+		const dateObj = new Date(date)
+
+		const monthNames = {
+			hy: [
+				'Հունվար',
+				'Փետրվար',
+				'Մարտ',
+				'Ապրիլ',
+				'Մայիս',
+				'Հունիս',
+				'Հուլիս',
+				'Օգոստոս',
+				'Սեպտեմբեր',
+				'Հոկտեմբեր',
+				'Նոյեմբեր',
+				'Դեկտեմբեր',
+			],
+			en: [
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+			],
+			ru: [
+				'Январь',
+				'Февраль',
+				'Март',
+				'Апрель',
+				'Май',
+				'Июнь',
+				'Июль',
+				'Август',
+				'Сентябрь',
+				'Октябрь',
+				'Ноябрь',
+				'Декабрь',
+			],
+		}
+
+		const day = dateObj.getDate()
+		const month = monthNames[language][dateObj.getMonth()]
+		const year = dateObj.getFullYear()
+
+		return `${day} ${month} ${year}`
+	}
+
+
 	return (
 		<div className='min-h-screen bg-gray-50'>
 			{/* Navigation */}
@@ -2009,7 +2085,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 					<div className='bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden'>
 						<div className='p-4 border-b border-gray-200 flex items-center justify-between'>
 							<div>
-								<h3 className='text-lg font-semibold text-gray-900'>Property Location</h3>
+								<h3 className='text-lg font-semibold text-gray-900'>
+									Property Location
+								</h3>
 								<p className='text-sm text-gray-600'>{property.address}</p>
 							</div>
 							<button
@@ -2045,19 +2123,30 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									{property.images && property.images.length > 0 ? (
 										<>
 											{property.images[selectedImage].type === 'image' ? (
-												<Image
-													src={getImageUrl(property.images[selectedImage].url)}
-													alt={property.title}
-													fill
-													className='object-cover'
-													priority
-												/>
+												<div
+													className='relative w-full h-full cursor-pointer'
+													onClick={() => setShowFullGallery(true)}
+												>
+													<Image
+														src={getImageUrl(
+															property.images[selectedImage].url
+														)}
+														alt={property.title}
+														fill
+														className='object-cover transition-all duration-700 group-hover:scale-110'
+														priority
+													/>
+												</div>
 											) : property.images[selectedImage].type === 'video' ? (
-												<div className='w-full h-full bg-black flex items-center justify-center'>
+												<div
+													className='w-full h-full bg-black flex items-center justify-center cursor-pointer'
+													onClick={() => setShowFullGallery(true)}
+												>
 													<video
-														src={getImageUrl(property.images[selectedImage].url)}
-														controls
-														className='max-h-full max-w-full'
+														src={getImageUrl(
+															property.images[selectedImage].url
+														)}
+														className='w-full h-full object-contain' // Changed from max-h-full max-w-full
 														poster={
 															property.images[selectedImage].thumbnail_url
 																? getImageUrl(
@@ -2065,6 +2154,10 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 																  )
 																: undefined
 														}
+														onClick={e => {
+															e.stopPropagation()
+															// Let the parent div handle the gallery opening
+														}}
 													>
 														Your browser does not support the video tag.
 													</video>
@@ -2136,8 +2229,8 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 														className='object-cover'
 													/>
 												) : media.type === 'video' ? (
-													<div className='w-full h-full bg-gray-800 flex items-center justify-center'>
-														<Play className='w-8 h-8 text-white' />
+													<div className='w-full h-full bg-gray-800 flex items-center justify-center relative'>
+														<Play className='w-8 h-8 text-white absolute z-10' />
 														{media.thumbnail_url && (
 															<Image
 																src={getImageUrl(media.thumbnail_url)}
@@ -2179,9 +2272,36 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									</h1>
 									<div className='flex items-center text-gray-600'>
 										<MapPin className='w-5 h-5 mr-2 flex-shrink-0 text-blue-600' />
-										<span>
-											{property.city?.name},{' '}
-											{property.state?.name}
+										<span className='text-sm'>
+											{property.address}
+											{property.district && (
+												<span>
+													,{' '}
+													{getTranslatedField(
+														property.district,
+														'name',
+														language as 'hy' | 'en' | 'ru'
+													)}
+												</span>
+											)}
+											{property.city && (
+												<span>
+													,{' '}
+													{getTranslatedCityName(
+														property.city.name,
+														language as 'hy' | 'en' | 'ru'
+													)}
+												</span>
+											)}
+											{property.state && (
+												<span>
+													,{' '}
+													{getTranslatedStateName(
+														property.state.name,
+														language as 'hy' | 'en' | 'ru'
+													)}
+												</span>
+											)}
 										</span>
 									</div>
 
@@ -2208,7 +2328,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									) : (
 										<div className='flex items-center gap-2 text-sm text-muted-foreground italic'>
 											<FileText className='w-4 h-4 text-gray-600' />
-											<span className='text-gray-600'>No description available</span>
+											<span className='text-gray-600'>
+												No description available
+											</span>
 										</div>
 									)}
 								</div>
@@ -2261,8 +2383,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									<div className='flex items-center text-gray-600'>
 										<MapPin className='w-5 h-5 mr-2 flex-shrink-0 text-blue-600' />
 										<span>
-											{property.city?.name},{' '}
-											{property.state?.name}
+											{property.city?.name}, {property.state?.name}
 										</span>
 									</div>
 								</div>
@@ -2315,17 +2436,10 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									</div>
 									<div className='flex justify-between items-center py-2'>
 										<span className='text-gray-600 flex items-center'>
-											<Calendar className='w-4 h-4 mr-2' /> Listed
+											<Calendar className='w-4 h-4 mr-2' /> {t('listed')}
 										</span>
 										<span className='font-medium text-gray-700'>
-											{new Date(property.created_at).toLocaleDateString(
-												'en-US',
-												{
-													year: 'numeric',
-													month: 'short',
-													day: 'numeric',
-												}
-											)}
+											{formatLocalizedDate(property.created_at, language as 'hy' | 'en' | 'ru')}
 										</span>
 									</div>
 								</div>
@@ -2337,7 +2451,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									<MapPin className='w-5 h-5 mr-2 text-blue-600' />
 									Location
 								</h3>
-								
+
 								{hasValidCoordinates ? (
 									<>
 										<YandexMap
@@ -2347,10 +2461,12 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											title={property.title}
 										/>
 										<div className='mt-4 space-y-2'>
-											<p className='text-gray-900 font-medium'>{property.address}</p>
+											<p className='text-gray-900 font-medium'>
+												{property.address}
+											</p>
 										</div>
-										
-										<button 
+
+										<button
 											onClick={() => setShowMapPopup(true)}
 											className='w-full mt-4 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center font-medium'
 										>
@@ -2363,16 +2479,22 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 										<div className='bg-gray-100 h-48 rounded-lg flex items-center justify-center text-gray-500 mb-4'>
 											<div className='text-center'>
 												<MapPin className='w-12 h-12 mx-auto mb-2 text-gray-400' />
-												<p className='text-sm'>Location coordinates not available</p>
+												<p className='text-sm'>
+													Location coordinates not available
+												</p>
 											</div>
 										</div>
 										<div className='space-y-2'>
-											<p className='text-gray-900 font-medium'>{property.address}</p>
+											<p className='text-gray-900 font-medium'>
+												{property.address}
+											</p>
 											<p className='text-gray-600'>
 												{property.city?.name}, {property.state?.name}
 											</p>
 											{property.postal_code && (
-												<p className='text-gray-500 text-sm'>{property.postal_code}</p>
+												<p className='text-gray-500 text-sm'>
+													{property.postal_code}
+												</p>
 											)}
 										</div>
 									</>
@@ -2415,12 +2537,17 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											priority={index === 0}
 										/>
 									) : media.type === 'video' ? (
-										<div className='w-full h-full flex items-center justify-center'>
+										<div className='w-full h-full flex items-center justify-center p-4'>
 											<video
 												src={getImageUrl(media.url)}
 												controls
-												className='max-h-full max-w-full'
-												poster={media.thumbnail_url ? getImageUrl(media.thumbnail_url) : undefined}
+												className='max-w-full max-h-full object-contain'
+												poster={
+													media.thumbnail_url
+														? getImageUrl(media.thumbnail_url)
+														: undefined
+												}
+												style={{ maxHeight: '100%', maxWidth: '100%' }}
 											>
 												Your browser does not support the video tag.
 											</video>

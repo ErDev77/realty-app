@@ -86,6 +86,8 @@ export default function PropertiesContent({
 		return initialFilter
 	})
 
+	
+
 	const fetchProperties = async () => {
 		setLoading(true)
 		setError(null)
@@ -103,18 +105,29 @@ export default function PropertiesContent({
 				page: currentPage,
 				sort_by: sortBy,
 				sort_order: sortOrder,
+				limit: 50, // Increase limit to ensure we get more properties
 			})
 
-			if (data && data.length > 0) {
+			console.log('Received properties data:', data)
+
+			if (data && Array.isArray(data) && data.length > 0) {
 				setProperties(data)
-				setTotalPages(Math.ceil(data.length / (filter.limit || 12)))
+				// Calculate total pages based on actual data length or assume more data exists
+				const calculatedPages = Math.max(
+					1,
+					Math.ceil(data.length / (filter.limit || 12))
+				)
+				setTotalPages(calculatedPages)
 			} else {
+				console.log('No properties returned from API')
 				setProperties([])
 				setTotalPages(1)
 			}
 		} catch (err) {
 			console.error('Error in fetchProperties:', err)
 			setError('Failed to load properties. Please try again.')
+			setProperties([])
+			setTotalPages(1)
 		} finally {
 			setLoading(false)
 		}
@@ -187,6 +200,64 @@ export default function PropertiesContent({
 		}
 	}
 
+	const formatLocalizedDate = (
+		date: string | Date,
+		language: 'hy' | 'en' | 'ru'
+	) => {
+		const dateObj = new Date(date)
+
+		const monthNames = {
+			hy: [
+				'Հունվար',
+				'Փետրվար',
+				'Մարտ',
+				'Ապրիլ',
+				'Մայիս',
+				'Հունիս',
+				'Հուլիս',
+				'Օգոստոս',
+				'Սեպտեմբեր',
+				'Հոկտեմբեր',
+				'Նոյեմբեր',
+				'Դեկտեմբեր',
+			],
+			en: [
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+			],
+			ru: [
+				'Январь',
+				'Февраль',
+				'Март',
+				'Апрель',
+				'Май',
+				'Июнь',
+				'Июль',
+				'Август',
+				'Сентябрь',
+				'Октябрь',
+				'Ноябрь',
+				'Декабрь',
+			],
+		}
+
+		const day = dateObj.getDate()
+		const month = monthNames[language][dateObj.getMonth()]
+		const year = dateObj.getFullYear()
+
+		return `${day} ${month} ${year}`
+	}
+
 	return (
 		<div className='min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/50'>
 			{/* Header Section */}
@@ -212,10 +283,11 @@ export default function PropertiesContent({
 						{hasActiveFilters() && (
 							<div className='mt-2 flex items-center text-sm text-gray-500'>
 								<Filter className='w-4 h-4 mr-2' />
-								<span>{t('filteredBy')}: {getFilterSummary()}</span>
+								<span>
+									{t('filteredBy')}: {getFilterSummary()}
+								</span>
 							</div>
 						)}
-						
 					</div>
 				</div>
 			</div>
@@ -636,9 +708,10 @@ export default function PropertiesContent({
 																		</div>
 																		<div className='flex items-center'>
 																			<Calendar className='w-3 h-3 mr-1' />
-																			{new Date(
-																				property.created_at
-																			).toLocaleDateString()}
+																			{formatLocalizedDate(
+																				property.created_at,
+																				language
+																			)}
 																		</div>
 																	</div>
 																</div>
@@ -696,7 +769,7 @@ export default function PropertiesContent({
 													disabled={currentPage === totalPages}
 													className='px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
 												>
-													Next
+													{t('next')}
 												</button>
 											</nav>
 										</div>

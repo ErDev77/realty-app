@@ -1010,8 +1010,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import PropertyCard from '../_components/PropertyCard'
-import { Property, PropertyType, ListingType } from '@/types/property'
-import { getFeaturedProperties, getRecentProperties } from '@/services/propertyService'
+import { Property, PropertyType, ListingType, State, City, District } from '@/types/property'
+import { getCitiesByState, getDistrictsByState, getFeaturedProperties, getRecentProperties, getStates, getTranslatedCityName, getTranslatedField, getTranslatedStateName } from '@/services/propertyService'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import {
@@ -1041,6 +1041,10 @@ export default function HomePage() {
 	const [loading, setLoading] = useState(true)
 	const [showAdvancedSearch, setShowAdvancedSearch] = useState(false)
 	const [customId, setCustomId] = useState('')
+	const [states, setStates] = useState<State[]>([])
+	const [cities, setCities] = useState<City[]>([])
+	const [districts, setDistricts] = useState<District[]>([])
+	const [selectedState, setSelectedState] = useState<State | null>(null)
 
 	// Advanced search state
 	const [selectedPropertyType, setSelectedPropertyType] = useState<PropertyType | ''>('')
@@ -1053,6 +1057,9 @@ export default function HomePage() {
 		bathrooms: '',
 		min_area: '',
 		max_area: '',
+		state_id: undefined as number | undefined,
+		city_id: undefined as number | undefined,
+		district_id: undefined as number | undefined,
 	})
 
 	useEffect(() => {
@@ -1074,6 +1081,70 @@ export default function HomePage() {
 		}
 		fetchProperties()
 	}, [])
+
+	useEffect(() => {
+		// Fetch states on component mount
+		const fetchStates = async () => {
+			try {
+				const statesData = await getStates()
+				setStates(statesData || [])
+			} catch (error) {
+				console.error('Error fetching states:', error)
+			}
+		}
+		fetchStates()
+	}, [])
+
+	useEffect(() => {
+		// Handle state changes for district/city loading
+		if (advancedSearch.state_id) {
+			const state = states.find(s => s.id === advancedSearch.state_id)
+			setSelectedState(state || null)
+
+			if (state?.uses_districts) {
+				fetchDistricts(advancedSearch.state_id)
+				setCities([])
+			} else {
+				fetchCities(advancedSearch.state_id)
+				setDistricts([])
+			}
+		} else {
+			setSelectedState(null)
+			setCities([])
+			setDistricts([])
+		}
+	}, [advancedSearch.state_id, states])
+
+	// Add these fetch functions
+	const fetchStates = async () => {
+		try {
+			const data = await getStates()
+			setStates(data || [])
+		} catch (error) {
+			console.error('Error fetching states:', error)
+			setStates([])
+		}
+	}
+
+	const fetchCities = async (stateId: number) => {
+		try {
+			const data = await getCitiesByState(stateId)
+			setCities(data || [])
+		} catch (error) {
+			console.error('Error fetching cities:', error)
+			setCities([])
+		}
+	}
+
+	const fetchDistricts = async (stateId: number) => {
+		try {
+			const data = await getDistrictsByState(stateId)
+			setDistricts(data || [])
+		} catch (error) {
+			console.error('Error fetching districts:', error)
+			setDistricts([])
+		}
+	}
 
 	const handleSimpleSearch = (e: React.FormEvent) => {
 		e.preventDefault()
@@ -1110,6 +1181,9 @@ export default function HomePage() {
 			bathrooms: '',
 			min_area: '',
 			max_area: '',
+			state_id: undefined,
+			city_id: undefined,
+			district_id: undefined,
 		})
 	}
 
@@ -1220,6 +1294,8 @@ export default function HomePage() {
 		 	}
 	
 
+
+
 	return (
 		<div className='min-h-screen'>
 			{/* Hero Section */}
@@ -1305,14 +1381,14 @@ export default function HomePage() {
 								{t.selectPropertyType}
 							</label>
 							{hasActiveFilters() && (
-							<button
-								onClick={clearAdvancedSearch}
-								className='inline-flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium'
-							>
-								<X className='w-4 h-4 mr-1' />
- 									Clear All
- 								</button>
- 							)}
+								<button
+									onClick={clearAdvancedSearch}
+									className='inline-flex items-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium'
+								>
+									<X className='w-4 h-4 mr-1' />
+									Clear All
+								</button>
+							)}
 						</div>
 						<div className='grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto'>
 							{propertyTypes.map(
@@ -1382,36 +1458,112 @@ export default function HomePage() {
 											}
 											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer'
 										>
-											<option value=''>Any Type</option>
-											<option value='sale'>For Sale</option>
-											<option value='rent'>For Rent</option>
-											<option value='daily_rent'>Daily Rent</option>
+											<option value=''>{t.anyType}</option>
+											<option value='sale'>{t.forSale}</option>
+											<option value='rent'>{t.forRent}</option>
+											<option value='daily_rent'>{t.forDailyRent}</option>
 										</select>
 										<ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none' />
 									</div>
 								</div>
 
-								{/* Location */}
 								<div className='relative group'>
 									<label className='block text-sm font-semibold text-gray-700 mb-3'>
-										Location
+										location
 									</label>
 									<div className='relative'>
 										<MapPin className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
-										<input
-											type='text'
-											placeholder='Enter location'
-											value={advancedSearch.location}
-											onChange={e =>
+										<select
+											value={advancedSearch.state_id || ''}
+											onChange={e => {
+												const stateId = e.target.value
+													? parseInt(e.target.value)
+													: undefined
 												setAdvancedSearch({
 													...advancedSearch,
-													location: e.target.value,
+													state_id: stateId,
+													city_id: undefined, // Reset city when state changes
+													district_id: undefined, // Reset district when state changes
 												})
-											}
-											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
-										/>
+											}}
+											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer'
+										>
+											<option value=''>{t.allStates}</option>
+											{states.map(state => (
+												<option key={state.id} value={state.id}>
+													{getTranslatedStateName(state.name, language)}
+												</option>
+											))}
+										</select>
+										<ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none' />
 									</div>
 								</div>
+
+								{/* District Selection (for states that use districts like Yerevan) */}
+								{selectedState?.uses_districts && (
+									<div className='relative group'>
+										<label className='block text-sm font-semibold text-gray-700 mb-3'>
+											districts
+										</label>
+										<div className='relative'>
+											<Building2 className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+											<select
+												value={advancedSearch.district_id || ''}
+												onChange={e =>
+													setAdvancedSearch({
+														...advancedSearch,
+														district_id: e.target.value
+															? parseInt(e.target.value)
+															: undefined,
+													})
+												}
+												className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer disabled:bg-gray-50'
+												disabled={!advancedSearch.state_id}
+											>
+												<option value=''>all districts</option>
+												{districts.map(district => (
+													<option key={district.id} value={district.id}>
+														{getTranslatedField(district, 'name', language)}
+													</option>
+												))}
+											</select>
+											<ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none' />
+										</div>
+									</div>
+								)}
+
+								{/* City Selection (for states that don't use districts) */}
+								{selectedState && !selectedState.uses_districts && (
+									<div className='relative group'>
+										<label className='block text-sm font-semibold text-gray-700 mb-3'>
+											city
+										</label>
+										<div className='relative'>
+											<Building2 className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+											<select
+												value={advancedSearch.city_id || ''}
+												onChange={e =>
+													setAdvancedSearch({
+														...advancedSearch,
+														city_id: e.target.value
+															? parseInt(e.target.value)
+															: undefined,
+													})
+												}
+												className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer disabled:bg-gray-50'
+												disabled={!advancedSearch.state_id}
+											>
+												<option value=''>{t.allCities}</option>
+												{cities.map(city => (
+													<option key={city.id} value={city.id}>
+														{getTranslatedCityName(city.name, language)}
+													</option>
+												))}
+											</select>
+											<ChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none' />
+										</div>
+									</div>
+								)}
 
 								{/* Min Price */}
 								<div className='relative group'>

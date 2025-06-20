@@ -16,6 +16,7 @@ import {
 	getCitiesByState,
 	getDistrictsByState,
 	getPropertyFeatures,
+	getTranslatedField,
 } from '@/services/propertyService'
 import {
 	SlidersHorizontal,
@@ -36,6 +37,7 @@ import {
 } from 'lucide-react'
 import { stat } from 'fs'
 import { t } from '@/translations/translations'
+import { useLanguage } from '@/context/LanguageContext'
 
 interface PropertyFilterProps {
 	onFilterChange: (filter: FilterType) => void
@@ -46,6 +48,8 @@ export default function PropertyFilter({
 	onFilterChange,
 	initialFilter = {},
 }: PropertyFilterProps) {
+	const { language } = useLanguage()
+	
 	const [states, setStates] = useState<State[]>([])
 	const [districts, setDistricts] = useState<District[]>([])
 	const [selectedState, setSelectedState] = useState<State | null>(null)
@@ -443,7 +447,7 @@ export default function PropertyFilter({
 									<option value=''>{t('allDistricts')}</option>
 									{districts.map(district => (
 										<option key={district.id} value={district.id}>
-											{district.name_hy} 
+											{getTranslatedField(district, 'name', language)} 
 										</option>
 									))}
 								</select>
