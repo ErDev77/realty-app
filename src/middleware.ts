@@ -23,7 +23,12 @@ function getLocale(request: NextRequest): string {
 	// Check Accept-Language header
 	const acceptLanguage = request.headers.get('accept-language')
 	if (acceptLanguage) {
+		// First check for Armenian
+		if (acceptLanguage.includes('hy') || acceptLanguage.includes('am'))
+			return 'hy'
+		// Then Russian
 		if (acceptLanguage.includes('ru')) return 'ru'
+		// Finally English
 		if (acceptLanguage.includes('en')) return 'en'
 	}
 

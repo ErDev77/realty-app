@@ -4,7 +4,12 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { Property, PropertyStatus } from '@/types/property'
-import { getPropertyByCustomId, getTranslatedCityName, getTranslatedField, getTranslatedStateName } from '@/services/propertyService'
+import {
+	getPropertyByCustomId,
+	getTranslatedCityName,
+	getTranslatedField,
+	getTranslatedStateName,
+} from '@/services/propertyService'
 import { useCurrencyConversion } from '@/hooks/useCurrencyConversion'
 import {
 	MapPin,
@@ -39,10 +44,12 @@ import {
 	MapIcon,
 	Maximize2,
 	Layers3,
+	CheckCircle,
+	AlertCircle,
+	Clock,
 } from 'lucide-react'
 
 import { RxHeight } from 'react-icons/rx'
-
 
 import Link from 'next/link'
 import { t, useTranslations } from '@/translations/translations'
@@ -85,7 +92,6 @@ const YandexMap = ({
 				'script[src*="api-maps.yandex.ru"]'
 			)
 			if (existingScript) {
-				// Wait for the existing script to load
 				existingScript.addEventListener('load', () => {
 					if (window.ymaps) {
 						window.ymaps.ready(initMap)
@@ -110,7 +116,6 @@ const YandexMap = ({
 
 		const initMap = () => {
 			try {
-				// Clean up existing map if it exists
 				if (mapInstance) {
 					mapInstance.destroy()
 				}
@@ -122,20 +127,29 @@ const YandexMap = ({
 				}
 
 				const zoom = isPopup ? 17 : 16
-				const controls = isPopup 
-					? ['zoomControl', 'fullscreenControl', 'typeSelector', 'geolocationControl', 'routeButtonControl']
+				const controls = isPopup
+					? [
+							'zoomControl',
+							'fullscreenControl',
+							'typeSelector',
+							'geolocationControl',
+							'routeButtonControl',
+					  ]
 					: ['zoomControl', 'fullscreenControl', 'typeSelector']
 
-				const map = new window.ymaps.Map(mapId, {
-					center: [latitude, longitude],
-					zoom: zoom,
-					controls: controls,
-				}, {
-					suppressMapOpenBlock: true,
-					yandexMapDisablePoiInteractivity: false,
-				})
+				const map = new window.ymaps.Map(
+					mapId,
+					{
+						center: [latitude, longitude],
+						zoom: zoom,
+						controls: controls,
+					},
+					{
+						suppressMapOpenBlock: true,
+						yandexMapDisablePoiInteractivity: false,
+					}
+				)
 
-				// Add placemark with custom balloon
 				const placemark = new window.ymaps.Placemark(
 					[latitude, longitude],
 					{
@@ -177,18 +191,16 @@ const YandexMap = ({
 
 				map.geoObjects.add(placemark)
 
-				// Auto-open balloon in popup mode
 				if (isPopup) {
 					setTimeout(() => {
 						placemark.balloon.open()
 					}, 500)
 				}
 
-				// Add traffic layer control if in popup mode
 				if (isPopup) {
 					const trafficControl = new window.ymaps.control.TrafficControl({
 						providerKey: 'traffic#actual',
-						trafficShown: false
+						trafficShown: false,
 					})
 					map.controls.add(trafficControl)
 				}
@@ -203,7 +215,6 @@ const YandexMap = ({
 
 		loadYandexMaps()
 
-		// Cleanup function
 		return () => {
 			if (mapInstance) {
 				try {
@@ -227,7 +238,9 @@ const YandexMap = ({
 
 	if (mapError) {
 		return (
-			<div className={`w-full ${mapHeight} bg-gray-100 rounded-xl flex items-center justify-center`}>
+			<div
+				className={`w-full ${mapHeight} bg-gray-100 rounded-xl flex items-center justify-center`}
+			>
 				<div className='text-center p-6'>
 					<MapIcon className='w-12 h-12 text-gray-400 mx-auto mb-3' />
 					<p className='text-gray-500 text-sm mb-3'>Map could not be loaded</p>
@@ -256,16 +269,19 @@ const YandexMap = ({
 		)
 	}
 
-	
 	return (
 		<div className='relative'>
 			<div
 				id={mapId}
-				className={`w-full ${mapHeight} rounded-xl overflow-hidden ${!mapLoaded ? 'hidden' : 'block'}`}
+				className={`w-full ${mapHeight} rounded-xl overflow-hidden ${
+					!mapLoaded ? 'hidden' : 'block'
+				}`}
 			/>
-			
+
 			{!mapLoaded && (
-				<div className={`w-full ${mapHeight} bg-gray-100 rounded-xl flex items-center justify-center`}>
+				<div
+					className={`w-full ${mapHeight} bg-gray-100 rounded-xl flex items-center justify-center`}
+				>
 					<div className='text-center'>
 						<Loader2 className='w-8 h-8 text-blue-600 animate-spin mx-auto mb-2' />
 						<p className='text-gray-500 text-sm'>Loading map...</p>
@@ -273,7 +289,6 @@ const YandexMap = ({
 				</div>
 			)}
 
-			{/* Map controls overlay */}
 			{mapLoaded && !isPopup && (
 				<div className='absolute bottom-3 right-3 flex gap-2'>
 					<button
@@ -295,7 +310,6 @@ const YandexMap = ({
 				</div>
 			)}
 
-			{/* Popup close button */}
 			{isPopup && onClose && (
 				<button
 					onClick={onClose}
@@ -306,7 +320,6 @@ const YandexMap = ({
 				</button>
 			)}
 
-			{/* Enhanced controls for popup mode */}
 			{isPopup && mapLoaded && (
 				<div className='absolute bottom-3 left-3 right-3 flex justify-between items-end'>
 					<div className='bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg border border-gray-200'>
@@ -346,33 +359,39 @@ function CurrencyDisplay({
 	originalCurrency: string
 	listingType: string
 }) {
-	const conversionOptions = useMemo(() => ({
-		autoFetch: true,
-		refreshInterval: 30 * 60 * 1000,
-		targetCurrencies: ['RUB', 'AMD'],
-	}), [])
+	const conversionOptions = useMemo(
+		() => ({
+			autoFetch: true,
+			refreshInterval: 30 * 60 * 1000,
+			targetCurrencies: ['RUB', 'AMD'],
+		}),
+		[]
+	)
 
 	const { original, conversions, loading, error, refresh, isStale } =
 		useCurrencyConversion(amount, originalCurrency, conversionOptions)
 
-	const formatPriceWithSuffix = useCallback((formattedAmount: string, currency: string) => {
-		switch (listingType) {
-			case 'rent':
-				return currency === 'USD'
-					? `${formattedAmount}/month`
-					: currency === 'RUB'
-					? `${formattedAmount}/месяц`
-					: `${formattedAmount}/ամիս`
-			case 'daily_rent':
-				return currency === 'USD'
-					? `${formattedAmount}/day`
-					: currency === 'RUB'
-					? `${formattedAmount}/день`
-					: `${formattedAmount}/օր`
-			default:
-				return formattedAmount
-		}
-	}, [listingType])
+	const formatPriceWithSuffix = useCallback(
+		(formattedAmount: string, currency: string) => {
+			switch (listingType) {
+				case 'rent':
+					return currency === 'USD'
+						? `${formattedAmount}/month`
+						: currency === 'RUB'
+						? `${formattedAmount}/месяц`
+						: `${formattedAmount}/ամիս`
+				case 'daily_rent':
+					return currency === 'USD'
+						? `${formattedAmount}/day`
+						: currency === 'RUB'
+						? `${formattedAmount}/день`
+						: `${formattedAmount}/օր`
+				default:
+					return formattedAmount
+			}
+		},
+		[listingType]
+	)
 
 	const getCurrencyFlag = useCallback((currency: string) => {
 		const flags: Record<string, string> = {
@@ -532,18 +551,130 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		setShowShareOptions(false)
 	}, [])
 
+	// Enhanced translation functions
+	const getPropertyTypeLabel = (type: string) => {
+		switch (type) {
+			case 'house':
+				return language === 'hy' ? 'Տուն' : language === 'ru' ? 'Дом' : 'House'
+			case 'apartment':
+				return language === 'hy'
+					? 'Բնակարան'
+					: language === 'ru'
+					? 'Квартира'
+					: 'Apartment'
+			case 'commercial':
+				return language === 'hy'
+					? 'Կոմերցիոն'
+					: language === 'ru'
+					? 'Коммерческая'
+					: 'Commercial'
+			case 'land':
+				return language === 'hy'
+					? 'Հողատարածք'
+					: language === 'ru'
+					? 'Земельный участок'
+					: 'Land'
+			default:
+				return type
+		}
+	}
+
 	const getListingTypeLabel = (type: string) => {
 		switch (type) {
-		  case 'sale':
-			return t.forSale
-		  case 'rent':
-			return t.forRent
-		  case 'daily_rent':
-			return t.forDailyRent
-		  default:
-			return type.toUpperCase()
+			case 'sale':
+				return language === 'hy'
+					? 'Վաճառք'
+					: language === 'ru'
+					? 'Продажа'
+					: 'For Sale'
+			case 'rent':
+				return language === 'hy'
+					? 'Վարձակալություն'
+					: language === 'ru'
+					? 'Аренда'
+					: 'For Rent'
+			case 'daily_rent':
+				return language === 'hy'
+					? 'Օրավարձ'
+					: language === 'ru'
+					? 'Посуточная аренда'
+					: 'Daily Rent'
+			default:
+				return type.toUpperCase()
 		}
-	  }
+	}
+
+	const getStatusLabel = (status: string) => {
+		switch (status) {
+			case 'active':
+				return language === 'hy'
+					? 'Ակտիվ'
+					: language === 'ru'
+					? 'Активный'
+					: 'Active'
+			case 'pending':
+				return language === 'hy'
+					? 'Սպասող'
+					: language === 'ru'
+					? 'В ожидании'
+					: 'Pending'
+			case 'sold':
+				return language === 'hy'
+					? 'Վաճառված'
+					: language === 'ru'
+					? 'Продано'
+					: 'Sold'
+			case 'rented':
+				return language === 'hy'
+					? 'Վարձակալված'
+					: language === 'ru'
+					? 'Арендовано'
+					: 'Rented'
+			default:
+				return status
+		}
+	}
+
+	const getAttributeLabel = (key: string) => {
+		const labels: Record<string, Record<string, string>> = {
+			bedrooms: { hy: 'Ննջարաններ', ru: 'Спальни', en: 'Bedrooms' },
+			bathrooms: { hy: 'Լոգարաններ', ru: 'Ванные', en: 'Bathrooms' },
+			area_sqft: { hy: 'Մակերես', ru: 'Площадь', en: 'Area' },
+			lot_size_sqft: {
+				hy: 'Հողատարածքի չափ',
+				ru: 'Размер участка',
+				en: 'Lot Size',
+			},
+			floors: { hy: 'Հարկեր', ru: 'Этажи', en: 'Floors' },
+			floor: { hy: 'Հարկ', ru: 'Этаж', en: 'Floor' },
+			total_floors: {
+				hy: 'Ընդհանուր հարկեր',
+				ru: 'Всего этажей',
+				en: 'Total Floors',
+			},
+			ceiling_height: {
+				hy: 'Առաստաղի բարձրություն',
+				ru: 'Высота потолка',
+				en: 'Ceiling Height',
+			},
+			business_type: {
+				hy: 'Բիզնեսի տեսակ',
+				ru: 'Тип бизнеса',
+				en: 'Business Type',
+			},
+			area_acres: {
+				hy: 'Մակերես (ակր)',
+				ru: 'Площадь (акры)',
+				en: 'Area (acres)',
+			},
+		}
+		return labels[key]?.[language] || key
+	}
+
+	// Click handler for images to open gallery
+	const handleImageClick = useCallback(() => {
+		setShowFullGallery(true)
+	}, [])
 
 	const getPropertyAttributes = useCallback(() => {
 		if (!property) return null
@@ -560,7 +691,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Bed className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Bedrooms</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('bedrooms')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.bedrooms}
 											</p>
@@ -574,7 +707,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Bath className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Bathrooms</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('bathrooms')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.bathrooms}
 											</p>
@@ -588,7 +723,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Maximize className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Area</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('area_sqft')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.area_sqft.toLocaleString()} sq ft
 											</p>
@@ -602,7 +739,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<MapPin className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Lot Size</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('lot_size_sqft')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.lot_size_sqft.toLocaleString()} sq
 												ft
@@ -617,7 +756,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Layers3 className='w-5 h-5 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Floors</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('floors')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.floors}
 											</p>
@@ -631,7 +772,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<RxHeight className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Ceiling Height</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('ceiling_height')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.ceiling_height}
 											</p>
@@ -654,7 +797,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Bed className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Bedrooms</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('bedrooms')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.bedrooms}
 											</p>
@@ -668,7 +813,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Bath className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Bathrooms</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('bathrooms')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.bathrooms}
 											</p>
@@ -682,7 +829,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Maximize className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Area</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('area_sqft')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.area_sqft.toLocaleString()} sq ft
 											</p>
@@ -697,7 +846,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												<Layers3 className='w-5 h-5 text-blue-600' />
 											</div>
 											<div>
-												<p className='text-xs text-gray-500'>Floor</p>
+												<p className='text-xs text-gray-500'>
+													{getAttributeLabel('floor')}
+												</p>
 												<p className='font-medium text-gray-700'>
 													{property.attributes.floor} /{' '}
 													{property.attributes.total_floors}
@@ -712,7 +863,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<RxHeight className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Ceiling Height</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('ceiling_height')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.ceiling_height}
 											</p>
@@ -735,7 +888,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Maximize className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Area</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('area_sqft')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.area_sqft.toLocaleString()} sq ft
 											</p>
@@ -749,7 +904,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Landmark className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Business Type</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('business_type')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.business_type}
 											</p>
@@ -763,7 +920,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<Layers3 className='w-5 h-5 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Floors</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('floors')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.floors}
 											</p>
@@ -777,7 +936,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<RxHeight className='w-6 h-6 text-blue-600' />
 										</div>
 										<div>
-											<p className='text-xs text-gray-500'>Ceiling Height</p>
+											<p className='text-xs text-gray-500'>
+												{getAttributeLabel('ceiling_height')}
+											</p>
 											<p className='font-medium text-gray-700'>
 												{property.attributes.ceiling_height}
 											</p>
@@ -800,7 +961,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 										<Maximize className='w-6 h-6 text-blue-600' />
 									</div>
 									<div>
-										<p className='text-xs text-gray-500'>Area</p>
+										<p className='text-xs text-gray-500'>
+											{getAttributeLabel('area_acres')}
+										</p>
 										<p className='font-medium text-gray-700'>
 											{property.attributes.area_acres.toLocaleString()} acres
 										</p>
@@ -813,8 +976,8 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 			default:
 				return null
 		}
-	}, [property])
-	
+	}, [property, getAttributeLabel])
+
 	if (loading) {
 		return (
 			<div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50'>
@@ -860,21 +1023,34 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	const PropertyIcon = propertyTypeIcons[property.property_type] || Home
 
 	const statusColors: Record<string, string> = {
-		active: 'bg-green-100 text-green-800',
-		pending: 'bg-yellow-100 text-yellow-800',
-		sold: 'bg-red-100 text-red-800',
-		rented: 'bg-purple-100 text-purple-800',
-		default: 'bg-blue-100 text-blue-800',
+		active: 'bg-green-100 text-green-800 border-green-200',
+		pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+		sold: 'bg-red-100 text-red-800 border-red-200',
+		rented: 'bg-purple-100 text-purple-800 border-purple-200',
+		default: 'bg-blue-100 text-blue-800 border-blue-200',
+	}
+
+	const listingTypeColors: Record<string, string> = {
+		sale: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+		rent: 'bg-blue-100 text-blue-800 border-blue-200',
+		daily_rent: 'bg-purple-100 text-purple-800 border-purple-200',
+		default: 'bg-gray-100 text-gray-800 border-gray-200',
 	}
 
 	const getStatusColor = (status: PropertyStatus | string) => {
 		return statusColors[status as string] || statusColors.default
 	}
 
-	// Check if property has valid coordinates for map
-	const hasValidCoordinates = property.latitude && property.longitude && 
-		property.latitude !== 0 && property.longitude !== 0
+	const getListingTypeColor = (listingType: string) => {
+		return listingTypeColors[listingType] || listingTypeColors.default
+	}
 
+	// Check if property has valid coordinates for map
+	const hasValidCoordinates =
+		property.latitude &&
+		property.longitude &&
+		property.latitude !== 0 &&
+		property.longitude !== 0
 
 	const formatLocalizedDate = (
 		date: string | Date,
@@ -933,7 +1109,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 
 		return `${day} ${month} ${year}`
 	}
-
 
 	return (
 		<div className='min-h-screen bg-gray-50'>
@@ -1028,7 +1203,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											{property.images[selectedImage].type === 'image' ? (
 												<div
 													className='relative w-full h-full cursor-pointer'
-													onClick={() => setShowFullGallery(true)}
+													onClick={handleImageClick}
 												>
 													<Image
 														src={getImageUrl(
@@ -1042,32 +1217,45 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												</div>
 											) : property.images[selectedImage].type === 'video' ? (
 												<div
-													className='w-full h-full bg-black flex items-center justify-center cursor-pointer'
-													onClick={() => setShowFullGallery(true)}
+													className='w-full h-full bg-black flex items-center justify-center cursor-pointer relative'
+													onClick={handleImageClick}
 												>
-													{/* Video preview overlay */}
-													<div className='absolute inset-0 bg-black/30 flex items-center justify-center z-10'>
-														<div className='w-20 h-20 bg-white/90 rounded-full flex items-center justify-center'>
-															<Play className='w-10 h-10 text-gray-800 ml-1' />
-														</div>
-													</div>
-													<video
-														src={getImageUrl(
-															property.images[selectedImage].url
-														)}
-														className='w-full h-full object-contain'
-														poster={
-															property.images[selectedImage].thumbnail_url
-																? getImageUrl(
-																		property.images[selectedImage].thumbnail_url
-																  )
-																: undefined
-														}
-														muted
-														preload='metadata'
-													>
-														Your browser does not support the video tag.
-													</video>
+													{/* Video thumbnail */}
+													{property.images[selectedImage].thumbnail_url ? (
+														<>
+															<Image
+																src={getImageUrl(
+																	property.images[selectedImage].thumbnail_url!
+																)}
+																alt={`Video thumbnail ${selectedImage + 1}`}
+																fill
+																className='object-cover'
+															/>
+															<div className='absolute inset-0 bg-black/30 flex items-center justify-center z-10'>
+																<div className='w-20 h-20 bg-white/90 rounded-full flex items-center justify-center'>
+																	<Play className='w-10 h-10 text-gray-800 ml-1' />
+																</div>
+															</div>
+														</>
+													) : (
+														<>
+															<video
+																src={getImageUrl(
+																	property.images[selectedImage].url
+																)}
+																className='w-full h-full object-contain'
+																muted
+																preload='metadata'
+															>
+																Your browser does not support the video tag.
+															</video>
+															<div className='absolute inset-0 bg-black/30 flex items-center justify-center z-10'>
+																<div className='w-20 h-20 bg-white/90 rounded-full flex items-center justify-center'>
+																	<Play className='w-10 h-10 text-gray-800 ml-1' />
+																</div>
+															</div>
+														</>
+													)}
 												</div>
 											) : (
 												<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
@@ -1138,13 +1326,19 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												) : media.type === 'video' ? (
 													<div className='w-full h-full bg-gray-800 flex items-center justify-center relative'>
 														<Play className='w-8 h-8 text-white absolute z-10' />
-														{media.thumbnail_url && (
+														{media.thumbnail_url ? (
 															<Image
 																src={getImageUrl(media.thumbnail_url)}
 																alt={`Video thumbnail ${index + 1}`}
 																fill
-																className='object-cover opacity-50'
+																className='object-cover opacity-70'
 															/>
+														) : (
+															<div className='w-full h-full bg-gray-700 flex items-center justify-center'>
+																<span className='text-xs text-white'>
+																	Video
+																</span>
+															</div>
 														)}
 													</div>
 												) : (
@@ -1161,19 +1355,24 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							{/* Title and Address Bar (Mobile Only) */}
 							<div className='block lg:hidden mb-6'>
 								<div className='bg-white rounded-xl shadow-sm p-4 border border-gray-100'>
-									<div className='flex items-center gap-2 mb-2'>
+									<div className='flex items-center gap-2 mb-3'>
+										{/* Property Status Badge */}
 										<span
-											className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+											className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center ${getStatusColor(
 												property.status
 											)}`}
 										>
-											{String(property.status).charAt(0).toUpperCase() +
-												String(property.status).slice(1)}
+											<CheckCircle className='w-3 h-3 mr-1' />
+											{getStatusLabel(String(property.status))}
 										</span>
-										<span className='px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium capitalize'>
-											{getListingTypeLabel(
-												property.listing_type.replace('_', ' ')
-											)}
+										{/* Listing Type Badge */}
+										<span
+											className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center ${getListingTypeColor(
+												property.listing_type
+											)}`}
+										>
+											<Tag className='w-3 h-3 mr-1' />
+											{getListingTypeLabel(property.listing_type)}
 										</span>
 									</div>
 									<h1 className='text-2xl font-bold text-gray-900 mb-2'>
@@ -1231,9 +1430,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									) : (
 										<div className='flex items-center gap-2 text-sm text-muted-foreground italic'>
 											<FileText className='w-4 h-4 text-gray-600' />
-											<span className='text-gray-600'>
-												{t.noDescription}
-											</span>
+											<span className='text-gray-600'>{t.noDescription}</span>
 										</div>
 									)}
 								</div>
@@ -1267,19 +1464,24 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							{/* Title and Address (Desktop Only) */}
 							<div className='hidden lg:block mb-6'>
 								<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100'>
-									<div className='flex items-center gap-2 mb-2'>
+									<div className='flex items-center gap-2 mb-3'>
+										{/* Property Status Badge */}
 										<span
-											className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+											className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center ${getStatusColor(
 												property.status
 											)}`}
 										>
-											{String(property.status).charAt(0).toUpperCase() +
-												String(property.status).slice(1)}
+											<CheckCircle className='w-3 h-3 mr-1' />
+											{getStatusLabel(String(property.status))}
 										</span>
-										<span className='px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium capitalize'>
-											{getListingTypeLabel(
-												property.listing_type.replace('_', ' ')
-											)}
+										{/* Listing Type Badge */}
+										<span
+											className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center ${getListingTypeColor(
+												property.listing_type
+											)}`}
+										>
+											<Tag className='w-3 h-3 mr-1' />
+											{getListingTypeLabel(property.listing_type)}
 										</span>
 									</div>
 									<h1 className='text-2xl font-bold text-gray-900 mb-2'>
@@ -1328,8 +1530,8 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 								<div className='flex flex-wrap items-center gap-2 mt-6 mb-6'>
 									<div className='flex items-center px-3 py-2 bg-gray-100 rounded-lg'>
 										<PropertyIcon className='w-5 h-5 text-gray-700 mr-2' />
-										<span className='font-medium text-gray-700 capitalize'>
-											{property.property_type.replace('_', ' ')}
+										<span className='font-medium text-gray-700'>
+											{getPropertyTypeLabel(property.property_type)}
 										</span>
 									</div>
 
