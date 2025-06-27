@@ -528,6 +528,9 @@ export function getTranslatedStateName(
 }
 
 
+// In src/services/propertyService.ts
+// Replace the getTranslatedField function:
+
 export function getTranslatedField(
 	obj: any,
 	fieldName: string,
@@ -535,14 +538,22 @@ export function getTranslatedField(
 ): string {
 	if (!obj) return ''
 
-	// For Armenian, return the original field
-	if (language === 'hy') {
-		return obj[fieldName] || ''
+	// Check for translated fields first
+	const translatedFieldName = `${fieldName}_${language}`
+	if (obj[translatedFieldName]) {
+		return obj[translatedFieldName]
 	}
 
-	// For other languages, check for translated fields
-	const translatedFieldName = `${fieldName}_${language}`
-	return obj[translatedFieldName] || obj[fieldName] || ''
+	// For Armenian, check if there's a specific Armenian field
+	if (language === 'hy') {
+		const armenianFieldName = `${fieldName}_hy`
+		if (obj[armenianFieldName]) {
+			return obj[armenianFieldName]
+		}
+	}
+
+	// Fall back to original field
+	return obj[fieldName] || ''
 }
 // Export helper to check if translation exists
 export function hasTranslation(

@@ -13,28 +13,25 @@ const Header = () => {
 	const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
 	const pathname = usePathname()
 
-	 const pathParts = pathname.split('/')
-		const currentLang = (
-			['hy', 'en', 'ru'].includes(pathParts[1]) ? pathParts[1] : 'hy'
-		) as 'hy' | 'en' | 'ru'
-	// Handle scroll effect
+	const pathParts = pathname.split('/')
+	const currentLang = (
+		['hy', 'en', 'ru'].includes(pathParts[1]) ? pathParts[1] : 'hy'
+	) as 'hy' | 'en' | 'ru'
+
 	useEffect(() => {
 		const handleScroll = () => {
 			setIsScrolled(window.scrollY > 10)
 		}
-
 		window.addEventListener('scroll', handleScroll)
 		return () => window.removeEventListener('scroll', handleScroll)
 	}, [])
 
-	// Close mobile menu when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (isMenuOpen && !(event.target as Element).closest('.mobile-menu')) {
 				setIsMenuOpen(false)
 			}
 		}
-
 		document.addEventListener('click', handleClickOutside)
 		return () => document.removeEventListener('click', handleClickOutside)
 	}, [isMenuOpen])
@@ -48,6 +45,7 @@ const Header = () => {
 			houses: 'Տներ',
 			apartments: 'Բնակարաններ',
 			commercial: 'Կոմերցիոն',
+			land: 'Հողատարածքներ',
 			dailyRent: 'Օրավարձ',
 			login: 'Մուտք',
 		},
@@ -59,6 +57,7 @@ const Header = () => {
 			houses: 'Houses',
 			apartments: 'Apartments',
 			commercial: 'Commercial',
+			land: 'Land',
 			dailyRent: 'Daily Rent',
 			login: 'Login',
 		},
@@ -70,6 +69,7 @@ const Header = () => {
 			houses: 'Дома',
 			apartments: 'Квартиры',
 			commercial: 'Коммерческая',
+			land: 'Земельные участки',
 			dailyRent: 'Посуточная аренда',
 			login: 'Вход',
 		},
@@ -93,6 +93,10 @@ const Header = () => {
 				{
 					label: t.commercial,
 					href: `/${currentLang}/properties?property_type=commercial&listing_type=sale`,
+				},
+				{
+					label: t.land,
+					href: `/${currentLang}/properties?property_type=land&listing_type=sale`,
 				},
 			],
 		},
@@ -123,7 +127,19 @@ const Header = () => {
 			href: `/${currentLang}/about`,
 		},
 	]
-	
+
+	const getNavItemClass = (href: string) => {
+		const isActive = pathname.startsWith(href)
+		if (isScrolled) {
+			return isActive
+				? 'text-blue-600 bg-blue-50'
+				: 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+		} else {
+			return isActive
+				? 'text-white'
+				: 'text-white hover:text-blue-400 hover:bg-white/10'
+		}
+	}
 
 	return (
 		<header
@@ -135,13 +151,11 @@ const Header = () => {
 		>
 			<div className='container mx-auto px-4'>
 				<div className='flex items-center justify-between h-20'>
-					{/* Logo with dual image support */}
 					<Link
 						href={`/${currentLang}`}
 						className='flex items-center group relative'
 					>
 						<div className='relative overflow-hidden rounded-xl'>
-							{/* Default logo (when not scrolled) */}
 							<Image
 								src='/2.png'
 								alt='Chance Realty Logo'
@@ -159,10 +173,8 @@ const Header = () => {
 									left: isScrolled ? '0' : 'auto',
 								}}
 							/>
-
-							{/* Scrolled logo (appears when scrolled) */}
 							<Image
-								src='/3.png' // Replace with your second logo path
+								src='/3.png'
 								alt='Chance Realty Logo Compact'
 								width={200}
 								height={120}
@@ -180,68 +192,66 @@ const Header = () => {
 						</div>
 					</Link>
 
-					{/* Desktop Navigation */}
 					<nav className='hidden lg:flex items-center space-x-1'>
-						{navItems.map((item, index) => (
-							<div
-								key={item.label}
-								className='relative group'
-								onMouseEnter={() => setActiveDropdown(item.label)}
-								onMouseLeave={() => setActiveDropdown(null)}
-							>
-								<Link
-									href={item.href}
-									className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center ${
-										isScrolled
-											? 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-											: 'text-white hover:text-blue-400 hover:bg-white/10'
-									}`}
+						{navItems.map(item => {
+							const isActive = pathname.startsWith(item.href)
+							return (
+								<div
+									key={item.label}
+									className='relative group'
+									onMouseEnter={() => setActiveDropdown(item.label)}
+									onMouseLeave={() => setActiveDropdown(null)}
 								>
-									{item.label}
-									{item.dropdown && (
-										<ChevronDown
-											className={`ml-1 w-4 h-4 transition-transform duration-200 ${
-												activeDropdown === item.label ? 'rotate-180' : ''
-											}`}
-										/>
-									)}
-
-									{/* Hover effect bar */}
-									<span
-										className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 ${
-											isScrolled ? 'bg-blue-600' : 'bg-[#C5A572]'
-										} transition-all duration-300 group-hover:w-full`}
-									></span>
-								</Link>
-
-								{/* Dropdown Menu */}
-								{item.dropdown && (
-									<div
-										className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transition-all duration-300 ${
-											activeDropdown === item.label
-												? 'opacity-100 visible translate-y-0'
-												: 'opacity-0 invisible -translate-y-2'
-										}`}
+									<Link
+										href={item.href}
+										className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center ${getNavItemClass(
+											item.href
+										)}`}
 									>
-										<div className='p-2'>
-											{item.dropdown.map((dropdownItem, dropdownIndex) => (
-												<Link
-													key={dropdownItem.label}
-													href={dropdownItem.href}
-													className='block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors duration-200 text-sm font-medium'
-													style={{ animationDelay: `${dropdownIndex * 50}ms` }}
-												>
-													{dropdownItem.label}
-												</Link>
-											))}
+										{item.label}
+										{item.dropdown && (
+											<ChevronDown
+												className={`ml-1 w-4 h-4 transition-transform duration-200 ${
+													activeDropdown === item.label ? 'rotate-180' : ''
+												}`}
+											/>
+										)}
+										<span
+											className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 ${
+												isScrolled ? 'bg-blue-600' : 'bg-blue-600'
+											} transition-all duration-300 group-hover:w-full`}
+										></span>
+									</Link>
+
+									{item.dropdown && (
+										<div
+											className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transition-all duration-300 ${
+												activeDropdown === item.label
+													? 'opacity-100 visible translate-y-0'
+													: 'opacity-0 invisible -translate-y-2'
+											}`}
+										>
+											<div className='p-2'>
+												{item.dropdown.map((dropdownItem, dropdownIndex) => (
+													<Link
+														key={dropdownItem.label}
+														href={dropdownItem.href}
+														className='block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors duration-200 text-sm font-medium'
+														style={{
+															animationDelay: `${dropdownIndex * 50}ms`,
+														}}
+													>
+														{dropdownItem.label}
+													</Link>
+												))}
+											</div>
 										</div>
-									</div>
-								)}
-							</div>
-						))}
+									)}
+								</div>
+							)
+						})}
 					</nav>
 
-					{/* Desktop Actions */}
 					<div className='hidden lg:flex items-center space-x-2'>
 						<LanguageSwitcher />
 					</div>
@@ -294,39 +304,65 @@ const Header = () => {
 						<div className='pb-4 mb-4 border-b border-gray-100'>
 							<LanguageSwitcher />
 						</div>
-						{navItems.map((item, index) => (
-							<div key={item.label} className='space-y-2'>
-								<Link
-									href={item.href}
-									className='block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium'
-									onClick={() => setIsMenuOpen(false)}
-									style={{ animationDelay: `${index * 100}ms` }}
-								>
-									{item.label}
-								</Link>
+						{navItems.map((item, index) => {
+							const isActive = pathname.startsWith(item.href)
+							const baseClass =
+								'block px-4 py-3 rounded-xl transition-all duration-200 font-medium'
+							const activeClass = isScrolled
+								? 'text-blue-600 bg-blue-50'
+								: 'text-white bg-white/10'
+							const inactiveClass = isScrolled
+								? 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+								: 'text-white hover:text-blue-400 hover:bg-white/10'
 
-								{/* Mobile Dropdown Items */}
-								{item.dropdown && (
-									<div className='ml-4 space-y-1'>
-										{item.dropdown.map((dropdownItem, dropdownIndex) => (
-											<Link
-												key={dropdownItem.label}
-												href={dropdownItem.href}
-												className='block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
-												onClick={() => setIsMenuOpen(false)}
-												style={{
-													animationDelay: `${
-														index * 100 + dropdownIndex * 50
-													}ms`,
-												}}
-											>
-												{dropdownItem.label}
-											</Link>
-										))}
-									</div>
-								)}
-							</div>
-						))}
+							return (
+								<div key={item.label} className='space-y-2'>
+									<Link
+										href={item.href}
+										className={`${baseClass} ${
+											isActive ? activeClass : inactiveClass
+										}`}
+										onClick={() => setIsMenuOpen(false)}
+										style={{ animationDelay: `${index * 100}ms` }}
+									>
+										{item.label}
+									</Link>
+
+									{item.dropdown && (
+										<div className='ml-4 space-y-1'>
+											{item.dropdown.map((dropdownItem, dropdownIndex) => {
+												const isSubActive = pathname.startsWith(
+													dropdownItem.href
+												)
+												return (
+													<Link
+														key={dropdownItem.label}
+														href={dropdownItem.href}
+														className={`block px-4 py-2 text-sm rounded-lg transition-colors duration-200 ${
+															isSubActive
+																? isScrolled
+																	? 'text-blue-600 bg-blue-50'
+																	: 'text-white bg-white/10'
+																: isScrolled
+																? 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+																: 'text-white hover:text-blue-400 hover:bg-white/10'
+														}`}
+														onClick={() => setIsMenuOpen(false)}
+														style={{
+															animationDelay: `${
+																index * 100 + dropdownIndex * 50
+															}ms`,
+														}}
+													>
+														{dropdownItem.label}
+													</Link>
+												)
+											})}
+										</div>
+									)}
+								</div>
+							)
+						})}
 					</div>
 				</div>
 			</div>

@@ -1,4 +1,7 @@
 // src/translations/translations.ts
+
+import { mark } from "framer-motion/client"
+
 // src/translations/translations.ts - Enhanced with missing translations
 export const translations = {
 	hy: {
@@ -141,6 +144,7 @@ export const translations = {
 		listed: 'Ցուցակագրված',
 		updated: 'Թարմացված',
 		views: 'Դիտումներ',
+		viewOnMap: 'Ցույց տալ քարտեզի վրա',
 		viewAllPhotos: 'Տեսնել բոլոր նկարները',
 		scheduleShowing: 'Պայմանավորել դիտում',
 		contactAgent: 'Կապվել գործակալի հետ',
@@ -206,24 +210,54 @@ export const translations = {
 
 		// About page
 		aboutTitle: 'Մեր մասին',
-		aboutSubtitle: '15+ տարի անշարժ գույքի գծով գերազանցություն',
+		aboutSubtitle:
+			'Ավելի քան 15 տարի մենք օգնում ենք ընտանիքներին և բիզնեսներին գտնել իրենց համար իդեալական անշարժ գույքը Հայաստանում: Մեր նվիրվածությունը գերազանցությանը և նորարարությանը մեզ դարձրել է անշարժ գույքի ոլորտի ամենահուսալի անունը:',
 		ourMission: 'Մեր առաքելությունը',
 		ourVision: 'Մեր տեսլականը',
 		ourValues: 'Մեր արժեքները',
+		impact: 'Մեր ազդեցությունը թվերով',
+		coreValues: 'Հիմնական արժեքներ',
+		coreValuesDescription:
+			'Այս սկզբունքները առաջնորդում են մեր բոլոր գործողությունները և ձևավորում մեր հարաբերությունները հաճախորդների և համայնքի հետ։',
+		centeredApproach: 'Մեր կենտրոնացված մոտեցումը',
+		centeredApproachDescription:
+			'Մենք կենտրոնանում ենք հաճախորդի վրա՝ ապահովելով անհատականացված և պրոֆեսիոնալ սպասարկում, որը գերազանցում է սպասումները։',
+		trustTransparency: 'Վստահություն և թափանցիկություն',
+		trustTransparencyDescription:
+			'Մենք կառուցում ենք վստահություն՝ ապահովելով թափանցիկ և ազնիվ հաղորդակցություն յուրաքանչյուր գործարքի ընթացքում։',
+		innovation: 'Նորարարություն',
+		innovationDescription:
+			'Մենք օգտագործում ենք վերջին տեխնոլոգիաները և շուկայի միտումները՝ ապահովելու համար, որ մեր հաճախորդները միշտ առաջատար լինեն։',
+		excellence: 'Գերազանցություն',
+		excellenceDescription:
+			'Մենք ձգտում ենք գերազանցության՝ ապահովելով բարձրագույն որակի ծառայություններ և արդյունքներ։',
 		ourTeam: 'Մեր թիմը',
 		teamDescription:
 			'Մեր փորձառու մասնագետները կիրքով օգնում են ձեզ գտնել կատարյալ գույքը',
-		companyHistory: 'Ընկերության պատմություն',
 		achievements: 'Ձեռքբերումներ',
-		awards: 'Մրցանակներ',
 		clientTestimonials: 'Հաճախորդների գնահատականներ',
 		whyChooseUs: 'Ինչու՞ ընտրել մեզ',
+		whyChooseUsDescription:
+			'Ահա, թե ինչով ենք մենք տարբերվում Հայաստանի մյուս անշարժ գույքի գործակալություններից',
 		trustedReliable: 'Վստահելի և հուսալի',
+		trustedReliableDescription:
+			'Ավելի քան 15 տարվա ապացուցված փորձ թափանցիկ գործընթացներով և ազնիվ հաղորդակցությամբ։',
+		trustedTransparencyValue: 'Վստահություն և թափանցիկություն',
 		expertTeam: 'Փորձագետ թիմ',
+		expertTeamDescription:
+			'Մեր սերտիֆիկացված մասնագետներն ունեն խորը գիտելիքներ հայկական անշարժ գույքի շուկայի վերաբերյալ։',
 		fastEfficient: 'Արագ և արդյունավետ',
+		fastEfficientDescription:
+			'Ավտոմատացված գործընթացներն ու թվային գործիքները ապահովում են արագ գործարքներ։',
 		personalizedService: 'Անհատական սպասարկում',
+		personalizedServiceDescription:
+			'Յուրաքանչյուր հաճախորդի վերաբերվում ենք որպես ընտանիքի անդամ՝ առաջարկելով անհատական լուծումներ։',
 		marketLeadership: 'Շուկայի առաջնորդություն',
+		marketLeadershipDescription:
+			'Մենք մշտապես հետևում ենք շուկայի միտումներին՝ առաջարկելով լավագույն ներդրումային հնարավորությունները։',
 		technologyDriven: 'Տեխնոլոգիական մոտեցում',
+		technologyDrivenDescription:
+			'Զարգացած առցանց հարթակը և գործիքները հեշտացնում են գույքի որոնումն ու կառավարումը։',
 		communityInvolvement: 'Համայնքային ներգրավվածություն',
 		ourOffice: 'Մեր օֆիսը',
 		visitOffice: 'Այցելել մեր օֆիս',
@@ -321,6 +355,15 @@ export const translations = {
 		clearAll: 'Մաքրել բոլորը',
 		featuresAndAmenities: 'Հատկություններ և հարմարություններ',
 		noFeaturesAvailable: 'Հատկություններ չկան',
+		mission: 'Առաքելություն',
+		vision: 'Տեսլական',
+		values: 'Արժեքներ',
+		missionDescription:
+			'Հեղափոխել անշարժ գույքի փորձառությունը՝ տրամադրելով բացառիկ սպասարկում, նորարարական լուծումներ և իսկական հոգատարություն յուրաքանչյուր հաճախորդի նկատմամբ:',
+		visionDescription:
+			'Դառնալ Հայաստանի ամենավստահելի և նորարար անշարժ գույքի ընկերությունը՝ սահմանելով նոր չափանիշներ գույքի գործառնությունների և հաճախորդների գոհունակության գծով:',
+		valuesDescription:
+			'Մենք ղեկավարվում ենք ազնվությամբ, թափանցիկությամբ, նորարարությամբ և անսասան հանձնառությամբ մեր հաճախորդների հաջողության նկատմամբ:',
 	},
 
 	en: {
@@ -462,43 +505,58 @@ export const translations = {
 		listed: 'Listed',
 		updated: 'Updated',
 		views: 'Views',
+		viewOnMap: 'View on Map',
 		viewAllPhotos: 'View All Photos',
-		scheduleShowing: 'Schedule Showing',
 		contactAgent: 'Contact Agent',
 		saveProperty: 'Save Property',
 		shareProperty: 'Share Property',
-		printProperty: 'Print Property',
-		calculateMortgage: 'Calculate Mortgage',
 		getDirections: 'Get Directions',
 		streetView: 'Street View',
-		nearbyPlaces: 'Nearby Places',
-		schools: 'Schools',
-		hospitals: 'Hospitals',
-		shopping: 'Shopping',
-		restaurants: 'Restaurants',
-		transportation: 'Transportation',
 
 		// About page
 		aboutTitle: 'About Us',
-		aboutSubtitle: '15+ Years of Real Estate Excellence',
+		aboutSubtitle:
+			'For over 15 years, we been helping families and businesses find their perfect properties in Armenia. Our commitment to excellence and innovation has made us the most trusted name in real estate.',
 		ourMission: 'Our Mission',
 		ourVision: 'Our Vision',
 		ourValues: 'Our Values',
-		ourTeam: 'Our Team',
-		teamDescription:
-			'Our experienced professionals are passionate about helping you find the perfect property',
-		companyHistory: 'Company History',
-		achievements: 'Achievements',
-		awards: 'Awards',
-		clientTestimonials: 'Client Testimonials',
+		impact: 'Our Impact in Numbers',
+		coreValues: 'Core Values',
+		coreValuesDescription:
+			'These principles guide everything we do and shape our relationships with clients and community',
+		centeredApproach: 'Our Centered Approach',
+		centeredApproachDescription:
+			'We focus on the client, delivering personalized and professional service that exceeds expectations.',
+		trustTransparency: 'Trust and Transparency',
+		trustTransparencyDescription:
+			'We build trust by ensuring transparent and honest communication throughout every transaction.',
+		innovation: 'Innovation',
+		innovationDescription:
+			'We use the latest technologies and market trends to ensure our clients always stay ahead.',
+		excellence: 'Excellence',
+		excellenceDescription:
+			'We strive for excellence by delivering top-quality services and results.',
 		whyChooseUs: 'Why Choose Us?',
+		whyChooseUsDescription:
+			'Here what sets us apart from other real estate agencies in Armenia',
 		trustedReliable: 'Trusted & Reliable',
+		trustedReliableDescription:
+			'Over 15 years of proven experience with transparent processes and honest communication.',
 		expertTeam: 'Expert Team',
+		expertTeamDescription:
+			'Our certified professionals have deep knowledge of the Armenian real estate market.',
 		fastEfficient: 'Fast & Efficient',
+		fastEfficientDescription:
+			'Streamlined processes and digital tools ensure quick property transactions.',
 		personalizedService: 'Personalized Service',
+		personalizedServiceDescription:
+			'We treat every client like family, offering tailored solutions to meet your unique needs.',
 		marketLeadership: 'Market Leadership',
+		marketLeadershipDescription:
+			'We stay ahead of market trends to provide you with the best investment opportunities.',
 		technologyDriven: 'Technology Driven',
-		communityInvolvement: 'Community Involvement',
+		technologyDrivenDescription:
+			'Our advanced online platform and tools make property search and management easy.',
 		ourOffice: 'Our Office',
 		visitOffice: 'Visit Our Office',
 		modernOffice: 'Modern Office Space',
@@ -642,6 +700,15 @@ export const translations = {
 		clearAll: 'Clear All',
 		featuresAndAmenities: 'Features & Amenities',
 		noFeaturesAvailable: 'No features available',
+		mission: 'Mission',
+		vision: 'Vision',
+		values: 'Values',
+		missionDescription:
+			'To revolutionize the real estate experience by providing exceptional service, innovative solutions, and genuine care for every client.',
+		visionDescription:
+			"To become Armenia's most trusted and innovative real estate company, setting new standards for excellence in property transactions and client satisfaction.",
+		valuesDescription:
+			"We are guided by integrity, transparency, innovation, and an unwavering commitment to our clients' success.",
 	},
 
 	ru: {
@@ -784,6 +851,7 @@ export const translations = {
 		listed: 'Добавлено',
 		updated: 'Обновлено',
 		views: 'Просмотры',
+		viewOnMap: 'Посмотреть на карте',
 		viewAllPhotos: 'Посмотреть все фото',
 		scheduleShowing: 'Запланировать показ',
 		contactAgent: 'Связаться с агентом',
@@ -802,24 +870,51 @@ export const translations = {
 
 		// About page
 		aboutTitle: 'О нас',
-		aboutSubtitle: '15+ лет превосходства в сфере недвижимости',
+		aboutSubtitle:
+			'Более 15 лет мы помогаем семьям и компаниям находить идеальную недвижимость в Армении. Наша приверженность совершенству и инновациям сделала нас самым надежным именем в сфере недвижимости.',
 		ourMission: 'Наша миссия',
 		ourVision: 'Наше видение',
 		ourValues: 'Наши ценности',
+		impact: 'Наши достижения в цифрах',
+		coreValues: 'Основные ценности',
+		coreValuesDescription:
+			'Эти принципы определяют все, что мы делаем, и формируют наши отношения с клиентами и обществом.',
+		centeredApproach: 'Наш целенаправленный подход',
+		centeredApproachDescription:
+			'Мы сосредотачиваемся на клиенте, предоставляя персонализированное и профессиональное обслуживание, которое превосходит ожидания.',
+		trustTransparency: 'Доверие и прозрачность',
+		trustTransparencyDescription:
+			'Мы строим доверие, обеспечивая прозрачное и честное общение на каждом этапе сделки.',
+		innovation: 'Инновации',
+		innovationDescription:
+			'Мы используем новейшие технологии и рыночные тренды, чтобы наши клиенты всегда были на шаг впереди.',
+		excellence: 'Совершенство',
+		excellenceDescription:
+			'Мы стремимся к совершенству, предоставляя услуги и результаты наивысшего качества.',
 		ourTeam: 'Наша команда',
 		teamDescription:
 			'Наши опытные профессионалы с энтузиазмом помогают найти идеальную недвижимость',
-		companyHistory: 'История компании',
-		achievements: 'Достижения',
-		awards: 'Награды',
-		clientTestimonials: 'Отзывы клиентов',
 		whyChooseUs: 'Почему выбирают нас?',
+		whyChooseUsDescription:
+			'Вот что отличает нас от других агентств недвижимости в Армении',
 		trustedReliable: 'Надежные и проверенные',
+		trustedReliableDescription:
+			'Более 15 лет доказанного опыта с прозрачными процессами и честным общением.',
 		expertTeam: 'Команда экспертов',
+		expertTeamDescription:
+			'Наши сертифицированные специалисты обладают глубокими знаниями армянского рынка недвижимости.',
 		fastEfficient: 'Быстро и эффективно',
+		fastEfficientDescription:
+			'Автоматизированные процессы и цифровые инструменты обеспечивают быструю сделку с недвижимостью.',
 		personalizedService: 'Персонализированный сервис',
+		personalizedServiceDescription:
+			'Мы относимся к каждому клиенту как к семье, предлагая решения под ваши нужды.',
 		marketLeadership: 'Лидерство на рынке',
+		marketLeadershipDescription:
+			'Мы опережаем рыночные тренды, предлагая лучшие инвестиционные возможности.',
 		technologyDriven: 'Технологический подход',
+		technologyDrivenDescription:
+			'Развитая онлайн-платформа и инструменты упрощают поиск и управление недвижимостью.',
 		communityInvolvement: 'Участие в жизни сообщества',
 		ourOffice: 'Наш офис',
 		visitOffice: 'Посетить наш офис',
@@ -964,6 +1059,15 @@ export const translations = {
 		clearAll: 'Очистить все',
 		featuresAndAmenities: 'Особенности и удобства',
 		noFeaturesAvailable: 'Особенности недоступны',
+		mission: 'Миссия',
+		vision: 'Видение',
+		values: 'Ценности',
+		missionDescription:
+			'Революционизировать опыт недвижимости, предоставляя исключительный сервис, инновационные решения и искреннюю заботу о каждом клиенте.',
+		visionDescription:
+			'Стать самой надежной и инновационной компанией недвижимости в Армении, устанавливая новые стандарты совершенства в сделках с недвижимостью и удовлетворенности клиентов.',
+		valuesDescription:
+			'Нас направляют честность, прозрачность, инновации и непоколебимая приверженность успеху наших клиентов.',
 	},
 }
 

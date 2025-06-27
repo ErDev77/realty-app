@@ -6,7 +6,6 @@ import { motion } from 'framer-motion'
 import {
 	Home,
 	Users,
-	Award,
 	Target,
 	Heart,
 	Zap,
@@ -19,33 +18,36 @@ import {
 	UserCheck,
 	Calendar,
 	Phone,
-	Mail,
 	MapPin,
-	Quote,
+	HeartHandshake,
 } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
+import { useTranslations } from '@/translations/translations'
 
 const AboutClient = () => {
+	const t = useTranslations()
+	const { language } = useLanguage()
 	const [activeTab, setActiveTab] = useState('mission')
 
 	const stats = [
 		{
 			number: '15+',
-			label: 'Years of Experience',
+			label: t.yearsExperience,
 			icon: Calendar,
 			color: 'blue',
 		},
-		{ number: '10,000+', label: 'Happy Clients', icon: Users, color: 'green' },
-		{ number: '5,000+', label: 'Properties Sold', icon: Home, color: 'purple' },
+		{ number: '10,000+', label: t.happyClients, icon: Users, color: 'green' },
+		{ number: '5,000+', label: t.sold, icon: Home, color: 'purple' },
 		{
 			number: '98%',
-			label: 'Client Satisfaction',
+			label: t.satisfactionRate,
 			icon: Star,
 			color: 'orange',
 		},
-		{ number: '50+', label: 'Expert Agents', icon: UserCheck, color: 'red' },
+		{ number: '50+', label: t.expertTeam, icon: UserCheck, color: 'red' },
 		{
 			number: '24/7',
-			label: 'Customer Support',
+			label: t.support,
 			icon: Shield,
 			color: 'indigo',
 		},
@@ -54,185 +56,51 @@ const AboutClient = () => {
 	const values = [
 		{
 			icon: Heart,
-			title: 'Client-Centered Approach',
-			description:
-				'We put our clients first in everything we do, ensuring their dreams become reality.',
+			title: t.centeredApproach,
+			description: t.centeredApproachDescription,
 			color: 'red',
 			gradient: 'from-red-500 to-pink-600',
 		},
 		{
 			icon: Shield,
-			title: 'Trust & Transparency',
+			title: t.trustTransparency,
 			description:
-				'Honest communication and transparent processes build lasting relationships.',
+				t.trustTransparencyDescription,
 			color: 'blue',
 			gradient: 'from-blue-500 to-indigo-600',
 		},
 		{
 			icon: Zap,
-			title: 'Innovation',
+			title: t.innovation,
 			description:
-				'We leverage cutting-edge technology to provide the best real estate experience.',
+				t.innovationDescription,
 			color: 'yellow',
 			gradient: 'from-yellow-500 to-orange-600',
 		},
 		{
 			icon: TrendingUp,
-			title: 'Excellence',
+			title: t.excellence,
 			description:
-				'We strive for excellence in every transaction and client interaction.',
+				t.excellenceDescription,
 			color: 'green',
 			gradient: 'from-green-500 to-emerald-600',
 		},
 	]
 
-	const team = [
-		{
-			name: 'Armen Hakobyan',
-			role: 'Founder & CEO',
-			image: '/api/placeholder/300/400',
-			bio: 'With over 20 years in real estate, Armen founded Chance Realty with a vision to revolutionize property transactions in Armenia.',
-			specialties: [
-				'Luxury Properties',
-				'Commercial Real Estate',
-				'Investment Properties',
-			],
-			contact: {
-				phone: '+374 00 000 001',
-				email: 'armen@chancerealty.am',
-			},
-		},
-		{
-			name: 'Anahit Grigoryan',
-			role: 'Head of Sales',
-			image: '/api/placeholder/300/400',
-			bio: 'Anahit leads our sales team with passion and expertise, helping families find their perfect homes.',
-			specialties: [
-				'Residential Sales',
-				'First-Time Buyers',
-				'Property Valuation',
-			],
-			contact: {
-				phone: '+374 00 000 002',
-				email: 'anahit@chancerealty.am',
-			},
-		},
-		{
-			name: 'Gevorg Martirosyan',
-			role: 'Commercial Director',
-			image: '/api/placeholder/300/400',
-			bio: 'Gevorg specializes in commercial properties and has helped numerous businesses find their ideal locations.',
-			specialties: [
-				'Commercial Leasing',
-				'Investment Analysis',
-				'Market Research',
-			],
-			contact: {
-				phone: '+374 00 000 003',
-				email: 'gevorg@chancerealty.am',
-			},
-		},
-		{
-			name: 'Sona Abrahamyan',
-			role: 'Customer Relations Manager',
-			image: '/api/placeholder/300/400',
-			bio: 'Sona ensures every client receives exceptional service and support throughout their property journey.',
-			specialties: [
-				'Client Relations',
-				'After-Sales Support',
-				'Customer Experience',
-			],
-			contact: {
-				phone: '+374 00 000 004',
-				email: 'sona@chancerealty.am',
-			},
-		},
-	]
-
-	const testimonials = [
-		{
-			name: 'Ani Petrosyan',
-			role: 'Homeowner',
-			content:
-				'Chance Realty made buying our first home an amazing experience. Their team was professional, knowledgeable, and truly cared about our needs.',
-			rating: 5,
-			image: '/api/placeholder/100/100',
-		},
-		{
-			name: 'David Avagyan',
-			role: 'Business Owner',
-			content:
-				'They helped us find the perfect commercial space for our restaurant. The process was smooth and their expertise was invaluable.',
-			rating: 5,
-			image: '/api/placeholder/100/100',
-		},
-		{
-			name: 'Maria Khachatryan',
-			role: 'Investor',
-			content:
-				'Outstanding service! They guided me through multiple property investments with excellent market insights and professional advice.',
-			rating: 5,
-			image: '/api/placeholder/100/100',
-		},
-	]
-
-	const timeline = [
-		{
-			year: '2008',
-			title: 'Company Founded',
-			description:
-				'Chance Realty was established with a mission to transform the real estate landscape in Armenia.',
-			icon: Home,
-		},
-		{
-			year: '2012',
-			title: 'First 1000 Sales',
-			description:
-				'Reached our first milestone of 1000 successful property transactions.',
-			icon: Target,
-		},
-		{
-			year: '2016',
-			title: 'Digital Innovation',
-			description:
-				'Launched our advanced online platform, making property search easier than ever.',
-			icon: Globe,
-		},
-		{
-			year: '2020',
-			title: 'Market Leadership',
-			description:
-				'Became the leading real estate agency in Yerevan with the highest client satisfaction rate.',
-			icon: Award,
-		},
-		{
-			year: '2024',
-			title: 'Continued Growth',
-			description:
-				'Expanded our services and team, helping more families find their dream homes.',
-			icon: TrendingUp,
-		},
-	]
-
-
-
 	const tabContent = {
 		mission: {
-			title: 'Our Mission',
-			content:
-				'To revolutionize the real estate experience by providing exceptional service, innovative solutions, and genuine care for every client. We believe that finding the perfect property should be exciting, not stressful.',
+			title: t.mission,
+			content: t.missionDescription,
 			icon: Target,
 		},
 		vision: {
-			title: 'Our Vision',
-			content:
-				"To become Armenia's most trusted and innovative real estate company, setting new standards for excellence in property transactions and client satisfaction.",
+			title: t.vision,
+			content: t.visionDescription,
 			icon: Globe,
 		},
 		values: {
-			title: 'Our Values',
-			content:
-				"We are guided by integrity, transparency, innovation, and an unwavering commitment to our clients' success. These values shape every interaction and decision we make.",
+			title: t.values,
+			content: t.valuesDescription,
 			icon: Heart,
 		},
 	}
@@ -262,40 +130,15 @@ const AboutClient = () => {
 						</div>
 
 						<h1 className='text-5xl md:text-7xl font-bold mb-8 leading-tight'>
-							About
+							{t.aboutTitle}
 							<span className='block bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent'>
 								Chance Realty
 							</span>
 						</h1>
 
 						<p className='text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed mb-12'>
-							For over 15 years, we've been helping families and businesses find
-							their perfect properties in Armenia. Our commitment to excellence
-							and innovation has made us the most trusted name in real estate.
+							{t.aboutSubtitle}
 						</p>
-
-						{/* Quick stats */}
-						<div className='grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto'>
-							{stats.slice(0, 3).map((stat, index) => (
-								<motion.div
-									key={index}
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.6, delay: index * 0.2 }}
-									className='text-center'
-								>
-									<div
-										className={`w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm`}
-									>
-										<stat.icon className='w-8 h-8 text-white' />
-									</div>
-									<div className='text-3xl font-bold text-white mb-2'>
-										{stat.number}
-									</div>
-									<div className='text-blue-200 text-sm'>{stat.label}</div>
-								</motion.div>
-							))}
-						</div>
 					</motion.div>
 				</div>
 			</div>
@@ -350,14 +193,11 @@ const AboutClient = () => {
 				<div className='container mx-auto px-4'>
 					<div className='text-center mb-16'>
 						<h2 className='text-4xl font-bold text-gray-900 mb-4'>
-							Our Impact by Numbers
+							{t.impact}
 						</h2>
-						<p className='text-xl text-gray-600'>
-							These numbers represent real families and businesses we've helped
-						</p>
 					</div>
 
-					<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 max-w-6xl mx-auto'>
+					<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 max-w-6xl mx-auto cursor-pointer'>
 						{stats.map((stat, index) => (
 							<motion.div
 								key={index}
@@ -374,7 +214,7 @@ const AboutClient = () => {
 								<div className='text-3xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors'>
 									{stat.number}
 								</div>
-								<div className='text-gray-600 text-sm'>{stat.label}</div>
+								<div className='text-gray-800 text-sm'>{stat.label}</div>
 							</motion.div>
 						))}
 					</div>
@@ -389,11 +229,10 @@ const AboutClient = () => {
 							<Heart className='w-8 h-8 text-white' />
 						</div>
 						<h2 className='text-4xl font-bold text-gray-900 mb-4'>
-							Our Core Values
+							{t.coreValues}
 						</h2>
 						<p className='text-xl text-gray-600 max-w-2xl mx-auto'>
-							These principles guide everything we do and shape our
-							relationships with clients and community
+							{t.coreValuesDescription}
 						</p>
 					</div>
 
@@ -423,76 +262,6 @@ const AboutClient = () => {
 				</div>
 			</div>
 
-			{/* Final CTA Section */}
-			<div className='bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 py-20 relative overflow-hidden'>
-				{/* Background decorations */}
-				<div className='absolute inset-0 opacity-10'>
-					<div className='absolute top-20 left-20 w-32 h-32 border-2 border-white rounded-full animate-pulse'></div>
-					<div className='absolute bottom-20 right-20 w-24 h-24 border-2 border-white rounded-lg transform rotate-45 animate-pulse'></div>
-					<div
-						className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-white rounded-full animate-spin'
-						style={{ animationDuration: '20s' }}
-					></div>
-				</div>
-
-				<div className='container mx-auto px-4 relative z-10'>
-					<div className='max-w-4xl mx-auto text-center'>
-						<motion.div
-							initial={{ opacity: 0, y: 30 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.8 }}
-						>
-							<div className='w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm'>
-								<Home className='w-10 h-10 text-white' />
-							</div>
-
-							<h2 className='text-4xl md:text-5xl font-bold text-white mb-6'>
-								Ready to Start Your
-								<span className='block text-yellow-400'>Property Journey?</span>
-							</h2>
-
-							<p className='text-xl text-blue-100 mb-8 max-w-2xl mx-auto'>
-								Let our experienced team help you find the perfect property.
-								Contact us today for a free consultation.
-							</p>
-
-							<div className='flex flex-col sm:flex-row gap-4 justify-center'>
-								<a
-									href='/contact'
-									className='inline-flex items-center px-8 py-4 bg-white text-blue-600 rounded-2xl hover:bg-gray-100 transition-colors font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1'
-								>
-									<Phone className='w-5 h-5 mr-3' />
-									Get Free Consultation
-								</a>
-								<a
-									href='/properties'
-									className='inline-flex items-center px-8 py-4 border-2 border-white text-white rounded-2xl hover:bg-white hover:text-blue-600 transition-all duration-300 font-bold text-lg'
-								>
-									<Home className='w-5 h-5 mr-3' />
-									Browse Properties
-								</a>
-							</div>
-
-							{/* Trust indicators */}
-							<div className='mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-blue-100'>
-								<div className='text-center'>
-									<div className='text-3xl font-bold text-white mb-2'>15+</div>
-									<div className='text-sm'>Years of Experience</div>
-								</div>
-								<div className='text-center'>
-									<div className='text-3xl font-bold text-white mb-2'>10K+</div>
-									<div className='text-sm'>Happy Clients</div>
-								</div>
-								<div className='text-center'>
-									<div className='text-3xl font-bold text-white mb-2'>98%</div>
-									<div className='text-sm'>Satisfaction Rate</div>
-								</div>
-							</div>
-						</motion.div>
-					</div>
-				</div>
-			</div>
-
 			{/* Why Choose Us Section */}
 			<div className='bg-gradient-to-br from-gray-50 to-blue-50 py-20'>
 				<div className='container mx-auto px-4'>
@@ -501,11 +270,10 @@ const AboutClient = () => {
 							<CheckCircle className='w-8 h-8 text-white' />
 						</div>
 						<h2 className='text-4xl font-bold text-gray-900 mb-4'>
-							Why Choose Chance Realty?
+							{t.whyChooseUs}
 						</h2>
 						<p className='text-xl text-gray-600 max-w-2xl mx-auto'>
-							Here's what sets us apart from other real estate agencies in
-							Armenia
+							{t.whyChooseUsDescription}
 						</p>
 					</div>
 
@@ -513,49 +281,46 @@ const AboutClient = () => {
 						{[
 							{
 								icon: Shield,
-								title: 'Trusted & Reliable',
-								description:
-									'Over 15 years of proven track record with transparent processes and honest communication.',
+								title: t.trustedReliable,
+								description: t.trustedReliableDescription,
 								color: 'blue',
-								stats: '10,000+ satisfied clients',
+								stats: `10,000+ ${t.happyClients}`,
 							},
 							{
 								icon: Users,
-								title: 'Expert Team',
-								description:
-									'Our certified professionals have deep knowledge of the Armenian real estate market.',
+								title: t.expertTeam,
+								description: t.expertTeamDescription,
 								color: 'green',
-								stats: '50+ expert agents',
+								stats: `50+ ${t.expertTeam}`,
 							},
 							{
 								icon: Zap,
-								title: 'Fast & Efficient',
-								description:
-									'Streamlined processes and digital tools ensure quick property transactions.',
+								title: t.fastEfficient,
+								description: t.fastEfficientDescription,
 								color: 'yellow',
 								stats: 'Average 30-day closing',
 							},
 							{
-								icon: Heart,
-								title: 'Personalized Service',
+								icon: HeartHandshake,
+								title: t.personalizedService,
 								description:
-									'We treat every client as family, providing tailored solutions for your unique needs.',
+									t.personalizedServiceDescription,
 								color: 'red',
 								stats: '24/7 customer support',
 							},
 							{
 								icon: TrendingUp,
-								title: 'Market Leadership',
+								title: t.marketLeadership,
 								description:
-									'We stay ahead of market trends to provide you with the best investment opportunities.',
+									t.marketLeadershipDescription,
 								color: 'purple',
 								stats: '#1 in Yerevan',
 							},
 							{
 								icon: Globe,
-								title: 'Technology Driven',
+								title: t.technologyDriven,
 								description:
-									'Advanced online platform and tools make property search and management easier.',
+									t.technologyDrivenDescription,
 								color: 'indigo',
 								stats: 'Digital-first approach',
 							},
@@ -578,11 +343,6 @@ const AboutClient = () => {
 								<p className='text-gray-600 mb-4 leading-relaxed'>
 									{feature.description}
 								</p>
-								<div
-									className={`inline-flex items-center px-3 py-1 bg-${feature.color}-100 text-${feature.color}-700 rounded-full text-sm font-semibold`}
-								>
-									{feature.stats}
-								</div>
 							</motion.div>
 						))}
 					</div>

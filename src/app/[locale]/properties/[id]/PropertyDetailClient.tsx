@@ -45,7 +45,7 @@ import { RxHeight } from 'react-icons/rx'
 
 
 import Link from 'next/link'
-import { t } from '@/translations/translations'
+import { t, useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 
 interface PropertyDetailClientProps {
@@ -467,6 +467,7 @@ function CurrencyDisplay({
 }
 
 export default function PropertyDetailClient({}: PropertyDetailClientProps) {
+	const t = useTranslations()
 	const { language } = useLanguage()
 	const params = useParams()
 	const [property, setProperty] = useState<Property | null>(null)
@@ -530,6 +531,19 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		window.print()
 		setShowShareOptions(false)
 	}, [])
+
+	const getListingTypeLabel = (type: string) => {
+		switch (type) {
+		  case 'sale':
+			return t.forSale
+		  case 'rent':
+			return t.forRent
+		  case 'daily_rent':
+			return t.forDailyRent
+		  default:
+			return type.toUpperCase()
+		}
+	  }
 
 	const getPropertyAttributes = useCallback(() => {
 		if (!property) return null
@@ -932,7 +946,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							className='inline-flex items-center text-gray-700 hover:text-blue-600 transition-colors'
 						>
 							<ChevronLeft className='w-5 h-5 mr-1' />
-							<span>Back to listings</span>
+							{t.backToListings}
 						</Link>
 						<div className='flex items-center space-x-3'>
 							<button
@@ -975,7 +989,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 						<div className='p-4 border-b border-gray-200 flex items-center justify-between'>
 							<div>
 								<h3 className='text-lg font-semibold text-gray-900'>
-									Property Location
+									{t.location}
 								</h3>
 								<p className='text-sm text-gray-600'>{property.address}</p>
 							</div>
@@ -1031,11 +1045,17 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 													className='w-full h-full bg-black flex items-center justify-center cursor-pointer'
 													onClick={() => setShowFullGallery(true)}
 												>
+													{/* Video preview overlay */}
+													<div className='absolute inset-0 bg-black/30 flex items-center justify-center z-10'>
+														<div className='w-20 h-20 bg-white/90 rounded-full flex items-center justify-center'>
+															<Play className='w-10 h-10 text-gray-800 ml-1' />
+														</div>
+													</div>
 													<video
 														src={getImageUrl(
 															property.images[selectedImage].url
 														)}
-														className='w-full h-full object-contain' // Changed from max-h-full max-w-full
+														className='w-full h-full object-contain'
 														poster={
 															property.images[selectedImage].thumbnail_url
 																? getImageUrl(
@@ -1043,10 +1063,8 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 																  )
 																: undefined
 														}
-														onClick={e => {
-															e.stopPropagation()
-															// Let the parent div handle the gallery opening
-														}}
+														muted
+														preload='metadata'
 													>
 														Your browser does not support the video tag.
 													</video>
@@ -1153,7 +1171,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												String(property.status).slice(1)}
 										</span>
 										<span className='px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium capitalize'>
-											{property.listing_type.replace('_', ' ')}
+											{getListingTypeLabel(
+												property.listing_type.replace('_', ' ')
+											)}
 										</span>
 									</div>
 									<h1 className='text-2xl font-bold text-gray-900 mb-2'>
@@ -1201,7 +1221,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							{/* Property Description */}
 							<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6 mt-6'>
 								<h2 className='text-xl font-semibold mb-4 text-gray-900'>
-									Overview
+									{t.overview}
 								</h2>
 								<div>
 									{property.description ? (
@@ -1212,7 +1232,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 										<div className='flex items-center gap-2 text-sm text-muted-foreground italic'>
 											<FileText className='w-4 h-4 text-gray-600' />
 											<span className='text-gray-600'>
-												No description available
+												{t.noDescription}
 											</span>
 										</div>
 									)}
@@ -1223,7 +1243,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							{property.features && property.features.length > 0 && (
 								<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6'>
 									<h2 className='text-xl font-semibold mb-4 text-gray-900'>
-										Features & Amenities
+										{t.featuresAndAmenities}
 									</h2>
 									<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
 										{property.features.map(feature => (
@@ -1257,7 +1277,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												String(property.status).slice(1)}
 										</span>
 										<span className='px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium capitalize'>
-											{property.listing_type.replace('_', ' ')}
+											{getListingTypeLabel(
+												property.listing_type.replace('_', ' ')
+											)}
 										</span>
 									</div>
 									<h1 className='text-2xl font-bold text-gray-900 mb-2'>
@@ -1266,7 +1288,29 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									<div className='flex items-center text-gray-600'>
 										<MapPin className='w-5 h-5 mr-2 flex-shrink-0 text-blue-600' />
 										<span>
-											{property.city?.name}, {property.state?.name}
+											{property.state
+												? property.district
+													? `${getTranslatedField(
+															property.district,
+															'name',
+															language
+													  )}, ${getTranslatedStateName(
+															property.state.name,
+															language
+													  )}`
+													: property.city
+													? `${getTranslatedCityName(
+															property.city.name,
+															language
+													  )}, ${getTranslatedStateName(
+															property.state.name,
+															language
+													  )}`
+													: getTranslatedStateName(
+															property.state.name,
+															language
+													  )
+												: ''}
 										</span>
 									</div>
 								</div>
@@ -1303,7 +1347,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 								<div className='space-y-3 mb-6'>
 									<button className='w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'>
 										<Mail className='w-5 h-5 mr-2' />
-										Contact Agent
+										{t.contactAgent}
 									</button>
 								</div>
 
@@ -1311,7 +1355,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 								<div className='pt-4 mt-4 border-t border-gray-100'>
 									<div className='flex justify-between items-center py-2'>
 										<span className='text-gray-600 flex items-center'>
-											<Eye className='w-4 h-4 mr-2' /> Views
+											<Eye className='w-4 h-4 mr-2' /> {t.views}
 										</span>
 										<span className='font-medium text-gray-700'>
 											{property.views}
@@ -1319,7 +1363,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									</div>
 									<div className='flex justify-between items-center py-2'>
 										<span className='text-gray-600 flex items-center'>
-											<Calendar className='w-4 h-4 mr-2' /> {t('listed')}
+											<Calendar className='w-4 h-4 mr-2' /> {t.listed}
 										</span>
 										<span className='font-medium text-gray-700'>
 											{formatLocalizedDate(
@@ -1335,7 +1379,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 hidden md:block'>
 								<h3 className='text-lg font-semibold mb-4 text-gray-900 flex items-center'>
 									<MapPin className='w-5 h-5 mr-2 text-blue-600' />
-									Location
+									{t.location}
 								</h3>
 
 								{hasValidCoordinates ? (
@@ -1357,7 +1401,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											className='w-full mt-4 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center font-medium'
 										>
 											<Maximize2 className='w-4 h-4 mr-2' />
-											View on Map
+											{t.viewOnMap}
 										</button>
 									</>
 								) : (
@@ -1374,14 +1418,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											<p className='text-gray-900 font-medium'>
 												{property.address}
 											</p>
-											<p className='text-gray-600'>
-												{property.city?.name}, {property.state?.name}
-											</p>
-											{property.postal_code && (
-												<p className='text-gray-500 text-sm'>
-													{property.postal_code}
-												</p>
-											)}
 										</div>
 									</>
 								)}
