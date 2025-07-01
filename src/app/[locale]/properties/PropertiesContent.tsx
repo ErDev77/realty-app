@@ -291,7 +291,6 @@ export default function PropertiesContent({
 					</div>
 				</div>
 			</div>
-
 			{/* Controls Bar */}
 			<div className='bg-white border-b border-gray-100 shadow-sm'>
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
@@ -313,474 +312,357 @@ export default function PropertiesContent({
 					</div>
 				</div>
 			</div>
-
 			{/* Main Content */}
 			<div className='max-w-7xl mx-auto py-8 sm:px-6 lg:px-8'>
 				<div className='px-4 sm:px-0'>
-					<div className='grid grid-cols-1 lg:grid-cols-4 gap-8'>
-						{/* Filters Sidebar - Desktop */}
+					{/* Filters Section - Now at Top */}
+					<div className='mb-8'>
+						{/* Mobile Filter Toggle */}
+						<div className='lg:hidden mb-4'>
+							<button
+								onClick={() => setShowFilters(!showFilters)}
+								className='flex items-center justify-center w-full px-4 py-3 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors border border-blue-200'
+							>
+								<SlidersHorizontal className='w-5 h-5 mr-2' />
+								{t('filters')}
+								{hasActiveFilters() && (
+									<span className='ml-2 w-2 h-2 bg-blue-500 rounded-full'></span>
+								)}
+								<ChevronDown
+									className={`w-4 h-4 ml-auto transition-transform ${
+										showFilters ? 'rotate-180' : ''
+									}`}
+								/>
+							</button>
+						</div>
+
+						{/* Filters Container */}
 						<div
-							className={`lg:col-span-1 ${
+							className={`${
 								showFilters ? 'block' : 'hidden lg:block'
-							}`}
+							} transition-all duration-300 ease-in-out`}
 						>
-							<div className='sticky top-24'>
+							<div className='bg-white rounded-2xl shadow-lg border border-gray-100 p-6'>
 								<PropertyFilter
 									onFilterChange={handleFilterChange}
 									initialFilter={filter}
 								/>
 							</div>
 						</div>
+					</div>
 
-						{/* Properties Grid/List */}
-						<div className='lg:col-span-4'>
-							{loading ? (
-								<div className='flex flex-col items-center justify-center h-96 bg-white rounded-2xl shadow-lg border border-gray-100'>
-									<div className='relative'>
-										<Loader2 className='w-16 h-16 animate-spin text-blue-600' />
-										<div className='absolute inset-0 w-16 h-16 border-4 border-blue-200 rounded-full animate-pulse'></div>
-									</div>
-									<p className='mt-4 text-gray-600 font-medium'>
-										{t('loadingProperties')}...
-									</p>
-									<p className='mt-2 text-gray-400 text-sm'>
-										{t('pleaseWaitWhileFetching')}
-									</p>
+					{/* Properties Grid - Now Full Width */}
+					<div className='w-full'>
+						{loading ? (
+							<div className='flex flex-col items-center justify-center h-96 bg-white rounded-2xl shadow-lg border border-gray-100'>
+								<div className='relative'>
+									<Loader2 className='w-16 h-16 animate-spin text-blue-600' />
+									<div className='absolute inset-0 w-16 h-16 border-4 border-blue-200 rounded-full animate-pulse'></div>
 								</div>
-							) : error ? (
-								<div className='text-center py-16 bg-white rounded-2xl shadow-lg border border-gray-100'>
-									<div className='w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-										<X className='w-10 h-10 text-red-600' />
-									</div>
-									<h3 className='text-xl font-semibold text-gray-900 mb-2'>
-										{t('oopsSomethingWentWrong')}
-									</h3>
-									<p className='text-red-600 mb-4'>{error}</p>
-									<button
-										onClick={fetchProperties}
-										className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl'
-									>
-										<RefreshCw className='w-4 h-4 mr-2' />
-										{t('tryAgain')}
-									</button>
+								<p className='mt-4 text-gray-600 font-medium'>
+									{t('loadingProperties')}...
+								</p>
+								<p className='mt-2 text-gray-400 text-sm'>
+									{t('pleaseWaitWhileFetching')}
+								</p>
+							</div>
+						) : error ? (
+							<div className='text-center py-16 bg-white rounded-2xl shadow-lg border border-gray-100'>
+								<div className='w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+									<X className='w-10 h-10 text-red-600' />
 								</div>
-							) : properties.length === 0 ? (
-								<div className='text-center py-16 bg-white rounded-2xl shadow-lg border border-gray-100'>
-									<div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-										<Search className='w-10 h-10 text-gray-400' />
-									</div>
-									<h3 className='text-xl font-semibold text-gray-900 mb-2'>
-										{t('noPropertiesFound')}
-									</h3>
-									<p className='text-gray-500 text-lg mb-4'>
-										{t('noPropertiesFound')}
-									</p>
-									<p className='text-gray-400 mb-6'>
-										{t('tryAdjustingFilters')}
-									</p>
-									<button
-										onClick={clearAllFilters}
-										className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl'
-									>
-										<X className='w-4 h-4 mr-2' />
-										{t('clearAllFilters')}
-									</button>
+								<h3 className='text-xl font-semibold text-gray-900 mb-2'>
+									{t('oopsSomethingWentWrong')}
+								</h3>
+								<p className='text-red-600 mb-4'>{error}</p>
+								<button
+									onClick={fetchProperties}
+									className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl'
+								>
+									<RefreshCw className='w-4 h-4 mr-2' />
+									{t('tryAgain')}
+								</button>
+							</div>
+						) : properties.length === 0 ? (
+							<div className='text-center py-16 bg-white rounded-2xl shadow-lg border border-gray-100'>
+								<div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+									<Search className='w-10 h-10 text-gray-400' />
 								</div>
-							) : (
-								<>
-									{/* Results Summary */}
-									<div className='mb-6 flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-100'>
-										<div className='flex items-center space-x-4'>
-											<div className='flex items-center text-sm text-gray-600'>
-												<MapPin className='w-4 h-4 mr-2 text-blue-500' />
-												<span className='font-medium'>
-													{properties.length} {t('propertiesFound')}
+								<h3 className='text-xl font-semibold text-gray-900 mb-2'>
+									{t('noPropertiesFound')}
+								</h3>
+								<p className='text-gray-500 text-lg mb-4'>
+									{t('noPropertiesFound')}
+								</p>
+								<p className='text-gray-400 mb-6'>{t('tryAdjustingFilters')}</p>
+								<button
+									onClick={clearAllFilters}
+									className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl'
+								>
+									<X className='w-4 h-4 mr-2' />
+									{t('clearAllFilters')}
+								</button>
+							</div>
+						) : (
+							<>
+								{/* Results Summary */}
+								<div className='mb-6 flex flex-col lg:flex-row items-start lg:items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-100 gap-4'>
+									<div className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4'>
+										<div className='flex items-center text-sm text-gray-600'>
+											<MapPin className='w-4 h-4 mr-2 text-blue-500' />
+											<span className='font-medium'>
+												{properties.length} {t('propertiesFound')}
+											</span>
+										</div>
+										{hasActiveFilters() && (
+											<div className='flex items-center text-sm text-blue-600'>
+												<Filter className='w-4 h-4 mr-1' />
+												<span>{t('filteredResults')}</span>
+											</div>
+										)}
+									</div>
+
+									{/* Controls */}
+									<div className='flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto'>
+										{/* Sort Dropdown */}
+										<div className='relative group w-full sm:w-auto'>
+											<button className='flex items-center justify-between px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 w-full sm:w-auto min-w-[160px]'>
+												<span className='text-sm font-medium mr-2'>
+													{t('sortBy')}:{' '}
+													{sortBy === 'created_at'
+														? t('date')
+														: sortBy === 'price'
+														? t('price')
+														: t('views')}
 												</span>
-											</div>
-											{hasActiveFilters() && (
-												<div className='flex items-center text-sm text-blue-600'>
-													<Filter className='w-4 h-4 mr-1' />
-													<span>{t('filteredResults')}</span>
-												</div>
-											)}
-										</div>
-										{/* Right Controls */}
-										<div className='flex items-center space-x-4'>
-											{/* Sort Dropdown */}
-											<div className='relative group'>
-												<button className='flex items-center px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200'>
-													<span className='text-sm font-medium mr-2'>
-														{t('sortBy')}:{' '}
-														{sortBy === 'created_at'
-															? t('date')
-															: sortBy === 'price'
-															? t('price')
-															: t('views')}
-													</span>
-													<ChevronDown className='w-4 h-4' />
-												</button>
+												<ChevronDown className='w-4 h-4' />
+											</button>
 
-												<div className='absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20'>
-													<div className='p-2'>
-														{[
-															{
-																key: 'created_at',
-																label: t('dateAdded'),
-																orders: [
-																	{ key: 'desc', label: t('newestFirst') },
-																	{ key: 'asc', label: t('oldestFirst') },
-																],
-															},
-															{
-																key: 'price',
-																label: t('price'),
-																orders: [
-																	{ key: 'asc', label: t('lowToHigh') },
-																	{ key: 'desc', label: t('highToLow') },
-																],
-															},
-															{
-																key: 'views',
-																label: t('popularity'),
-																orders: [
-																	{ key: 'desc', label: t('mostViewed') },
-																	{ key: 'asc', label: t('leastViewed') },
-																],
-															},
-														].map(sort => (
-															<div key={sort.key}>
-																<div className='px-3 py-2 text-xs font-semibold text-gray-500 uppercase'>
-																	{sort.label}
-																</div>
-																{sort.orders.map(order => (
-																	<button
-																		key={`${sort.key}-${order.key}`}
-																		onClick={() =>
-																			handleSortChange(
-																				sort.key as any,
-																				order.key as any
-																			)
-																		}
-																		className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${
-																			sortBy === sort.key &&
-																			sortOrder === order.key
-																				? 'bg-blue-50 text-blue-700'
-																				: 'text-gray-700 hover:bg-gray-50'
-																		}`}
-																	>
-																		{order.label}
-																	</button>
-																))}
+											<div className='absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20'>
+												<div className='p-2'>
+													{[
+														{
+															key: 'created_at',
+															label: t('dateAdded'),
+															orders: [
+																{ key: 'desc', label: t('newestFirst') },
+																{ key: 'asc', label: t('oldestFirst') },
+															],
+														},
+														{
+															key: 'price',
+															label: t('price'),
+															orders: [
+																{ key: 'asc', label: t('lowToHigh') },
+																{ key: 'desc', label: t('highToLow') },
+															],
+														},
+														{
+															key: 'views',
+															label: t('popularity'),
+															orders: [
+																{ key: 'desc', label: t('mostViewed') },
+																{ key: 'asc', label: t('leastViewed') },
+															],
+														},
+													].map(sort => (
+														<div key={sort.key}>
+															<div className='px-3 py-2 text-xs font-semibold text-gray-500 uppercase'>
+																{sort.label}
 															</div>
-														))}
-													</div>
+															{sort.orders.map(order => (
+																<button
+																	key={`${sort.key}-${order.key}`}
+																	onClick={() =>
+																		handleSortChange(
+																			sort.key as any,
+																			order.key as any
+																		)
+																	}
+																	className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${
+																		sortBy === sort.key &&
+																		sortOrder === order.key
+																			? 'bg-blue-50 text-blue-700'
+																			: 'text-gray-700 hover:bg-gray-50'
+																	}`}
+																>
+																	{order.label}
+																</button>
+															))}
+														</div>
+													))}
 												</div>
 											</div>
-
-											{/* View Mode Toggle */}
-											<div className='flex items-center bg-gray-100 p-1 rounded-xl'>
-												<button
-													onClick={() => setViewMode('grid')}
-													className={`p-2 rounded-lg transition-colors ${
-														viewMode === 'grid'
-															? 'bg-white text-blue-600 shadow-sm'
-															: 'text-gray-600 hover:text-gray-900'
-													}`}
-												>
-													<Grid3X3 className='w-4 h-4' />
-												</button>
-												<button
-													onClick={() => setViewMode('list')}
-													className={`p-2 rounded-lg transition-colors ${
-														viewMode === 'list'
-															? 'bg-white text-blue-600 shadow-sm'
-															: 'text-gray-600 hover:text-gray-900'
-													}`}
-												>
-													<List className='w-4 h-4' />
-												</button>
-											</div>
 										</div>
-										<div className='text-sm text-gray-500'>
-											{t('page')} {currentPage} {t('of')} {totalPages}
+
+										{/* View Mode Toggle */}
+										<div className='flex items-center bg-gray-100 p-1 rounded-xl'>
+											<button
+												onClick={() => setViewMode('grid')}
+												className={`p-2 rounded-lg transition-colors ${
+													viewMode === 'grid'
+														? 'bg-white text-blue-600 shadow-sm'
+														: 'text-gray-600 hover:text-gray-900'
+												}`}
+											>
+												<Grid3X3 className='w-4 h-4' />
+											</button>
+											<button
+												onClick={() => setViewMode('list')}
+												className={`p-2 rounded-lg transition-colors ${
+													viewMode === 'list'
+														? 'bg-white text-blue-600 shadow-sm'
+														: 'text-gray-600 hover:text-gray-900'
+												}`}
+											>
+												<List className='w-4 h-4' />
+											</button>
 										</div>
 									</div>
+								</div>
 
-									{/* Properties Display */}
-									{viewMode === 'grid' ? (
-										<div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8'>
-											{properties.map((property, index) => (
-												<div
-													key={property.id}
-													className='animate-fade-in'
-													style={{ animationDelay: `${index * 100}ms` }}
+								{/* Properties Display - Full Width Grid */}
+								{viewMode === 'grid' ? (
+									<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+										{' '}
+										{properties.map((property, index) => (
+											<div
+												key={property.id}
+												className='animate-fade-in'
+												style={{ animationDelay: `${index * 100}ms` }}
+											>
+												<PropertyCard property={property} />
+											</div>
+										))}
+									</div>
+								) : (
+									<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+										{properties.map((property, index) => (
+											<div
+												key={property.id}
+												className='animate-fade-in bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300'
+												style={{ animationDelay: `${index * 50}ms` }}
+											>
+												<Link
+													href={`/${language}/properties/${property.custom_id}`}
 												>
-													<PropertyCard
-														property={property}
-														variant={property.featured ? 'featured' : 'default'}
-													/>
-												</div>
-											))}
-										</div>
-									) : (
-										<Link
-											href={
-												property
-													? `/${language}/properties/${property.custom_id}`
-													: `/${language}/properties`
-											}
-										>
-											<div className='space-y-6'>
-												{properties.map((property, index) => (
-													<div
-														key={property.id}
-														className='animate-fade-in bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300'
-														style={{ animationDelay: `${index * 50}ms` }}
-													>
-														<div className='flex flex-col md:flex-row'>
-															<div className='md:w-1/3 h-48 md:h-auto relative'>
-																{property.images &&
-																property.images.length > 0 ? (
-																	<img
-																		src={property.images[0].url}
-																		alt={property.title}
-																		className='w-full h-full object-cover'
-																	/>
-																) : (
-																	<div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-																		<Home className='w-12 h-12 text-gray-400' />
-																	</div>
-																)}
-																{property.featured && (
-																	<div className='absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold'>
-																		FEATURED
-																	</div>
+													<div className='flex flex-col md:flex-row'>
+														<div className='md:w-1/3 h-48 md:h-auto relative'>
+															{property.images && property.images.length > 0 ? (
+																<img
+																	src={property.images[0].url}
+																	alt={property.title}
+																	className='w-full h-full object-cover'
+																/>
+															) : (
+																<div className='w-full h-full bg-gray-200 flex items-center justify-center'>
+																	<Home className='w-12 h-12 text-gray-400' />
+																</div>
+															)}
+														</div>
+														<div className='md:w-2/3 p-6'>
+															<div className='flex justify-between items-start mb-2'>
+																<h3 className='text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors'>
+																	{property.title}
+																</h3>
+																<span className='text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600'>
+																	ID: {property.custom_id}
+																</span>
+															</div>
+															<div className='flex items-center text-gray-600 mb-3'>
+																<MapPin className='w-4 h-4 mr-2 text-blue-500' />
+																<span>
+																	{property.city?.name}, {property.state?.name}
+																</span>
+															</div>
+															<div className='text-2xl font-bold text-blue-600 mb-4'>
+																{formatPrice(
+																	property.price,
+																	property.listing_type
 																)}
 															</div>
-															<div className='md:w-2/3 p-6'>
-																<div className='flex justify-between items-start mb-2'>
-																	<h3 className='text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors'>
-																		{property.title}
-																	</h3>
-																	<span className='text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600'>
-																		ID: {property.custom_id}
-																	</span>
+															<div className='flex items-center justify-between'>
+																<div className='flex items-center space-x-4 text-gray-600 text-sm'>
+																	{/* Property attributes rendering here */}
 																</div>
-																<div className='flex items-center text-gray-600 mb-3'>
-																	<MapPin className='w-4 h-4 mr-2 text-blue-500' />
-																	<span>
-																		{property.city?.name},{' '}
-																		{property.state?.name}
-																	</span>
-																</div>
-																<div className='text-2xl font-bold text-blue-600 mb-4'>
-																	{formatPrice(
-																		property.price,
-																		property.listing_type
-																	)}
-																</div>
-																<div className='flex items-center justify-between'>
-																	<div className='flex items-center space-x-4 text-gray-600 text-sm'>
-																		{/* Property attributes based on type */}
-																		{property.property_type === 'house' &&
-																			'attributes' in property && (
-																				<>
-																					{property.attributes.bedrooms && (
-																						<div className='flex items-center'>
-																							<span className='text-xs mr-1'>
-																								🛏️
-																							</span>
-																							<span>
-																								{property.attributes.bedrooms}{' '}
-																								{t('bedrooms')}
-																							</span>
-																						</div>
-																					)}
-																					{property.attributes.bathrooms && (
-																						<div className='flex items-center'>
-																							<span className='text-xs mr-1'>
-																								🚿
-																							</span>
-																							<span>
-																								{property.attributes.bathrooms}{' '}
-																								{t('bathrooms')}
-																							</span>
-																						</div>
-																					)}
-																					{property.attributes.area_sqft && (
-																						<div className='flex items-center'>
-																							<span className='text-xs mr-1'>
-																								📐
-																							</span>
-																							<span>
-																								{property.attributes.area_sqft}{' '}
-																								{t('sqft')}
-																							</span>
-																						</div>
-																					)}
-																				</>
-																			)}
-																		{property.property_type === 'apartment' &&
-																			'attributes' in property && (
-																				<>
-																					{property.attributes.bedrooms && (
-																						<div className='flex items-center'>
-																							<span className='text-xs mr-1'>
-																								🛏️
-																							</span>
-																							<span>
-																								{property.attributes.bedrooms}{' '}
-																								{t('bedrooms')}
-																							</span>
-																						</div>
-																					)}
-																					{property.attributes.bathrooms && (
-																						<div className='flex items-center'>
-																							<span className='text-xs mr-1'>
-																								🚿
-																							</span>
-																							<span>
-																								{property.attributes.bathrooms}{' '}
-																								{t('bathrooms')}
-																							</span>
-																						</div>
-																					)}
-																					{property.attributes.area_sqft && (
-																						<div className='flex items-center'>
-																							<span className='text-xs mr-1'>
-																								📐
-																							</span>
-																							<span>
-																								{property.attributes.area_sqft}{' '}
-																								{t('sqft')}
-																							</span>
-																						</div>
-																					)}
-																				</>
-																			)}
-																		{property.property_type === 'commercial' &&
-																			'attributes' in property && (
-																				<>
-																					{property.attributes.area_sqft && (
-																						<div className='flex items-center'>
-																							<span className='text-xs mr-1'>
-																								📐
-																							</span>
-																							<span>
-																								{property.attributes.area_sqft}{' '}
-																								{t('sqft')}
-																							</span>
-																						</div>
-																					)}
-																					{property.attributes
-																						.business_type && (
-																						<div className='flex items-center'>
-																							<span className='text-xs mr-1'>
-																								🏢
-																							</span>
-																							<span>
-																								{
-																									property.attributes
-																										.business_type
-																								}
-																							</span>
-																						</div>
-																					)}
-																				</>
-																			)}
-																		{property.property_type === 'land' &&
-																			'attributes' in property && (
-																				<div className='flex items-center'>
-																					<span className='text-xs mr-1'>
-																						🌍
-																					</span>
-																					<span>
-																						{property.attributes.area_acres}{' '}
-																						{t('acres')}
-																					</span>
-																				</div>
-																			)}
+																<div className='flex items-center space-x-4 text-xs text-gray-500'>
+																	<div className='flex items-center'>
+																		<Eye className='w-3 h-3 mr-1' />
+																		{property.views}
 																	</div>
-																	<div className='flex items-center space-x-4 text-xs text-gray-500'>
-																		<div className='flex items-center'>
-																			<Eye className='w-3 h-3 mr-1' />
-																			{property.views}
-																		</div>
-																		<div className='flex items-center'>
-																			<Calendar className='w-3 h-3 mr-1' />
-																			{formatLocalizedDate(
-																				property.created_at,
-																				language
-																			)}
-																		</div>
+																	<div className='flex items-center'>
+																		<Calendar className='w-3 h-3 mr-1' />
+																		{formatLocalizedDate(
+																			property.created_at,
+																			language
+																		)}
 																	</div>
 																</div>
 															</div>
 														</div>
 													</div>
-												))}
+												</Link>
 											</div>
-										</Link>
-									)}
+										))}
+									</div>
+								)}
 
-									{/* Pagination */}
-									{totalPages > 1 && (
-										<div className='mt-12 flex justify-center'>
-											<nav className='flex items-center space-x-2'>
-												<button
-													onClick={() => handlePageChange(currentPage - 1)}
-													disabled={currentPage === 1}
-													className='px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
-												>
-													{t('previous')}
-												</button>
+								{/* Pagination */}
+								{totalPages > 1 && (
+									<div className='mt-12 flex justify-center'>
+										<nav className='flex items-center space-x-2'>
+											<button
+												onClick={() => handlePageChange(currentPage - 1)}
+												disabled={currentPage === 1}
+												className='px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+											>
+												{t('previous')}
+											</button>
 
-												{[...Array(Math.min(totalPages, 7))].map((_, index) => {
-													let pageNumber
-													if (totalPages <= 7) {
+											{[...Array(Math.min(totalPages, 7))].map((_, index) => {
+												let pageNumber
+												if (totalPages <= 7) {
+													pageNumber = index + 1
+												} else {
+													if (currentPage <= 4) {
 														pageNumber = index + 1
+													} else if (currentPage >= totalPages - 3) {
+														pageNumber = totalPages - 6 + index
 													} else {
-														if (currentPage <= 4) {
-															pageNumber = index + 1
-														} else if (currentPage >= totalPages - 3) {
-															pageNumber = totalPages - 6 + index
-														} else {
-															pageNumber = currentPage - 3 + index
-														}
+														pageNumber = currentPage - 3 + index
 													}
+												}
 
-													return (
-														<button
-															key={pageNumber}
-															onClick={() => handlePageChange(pageNumber)}
-															className={`px-4 py-2 text-sm font-medium rounded-xl transition-colors ${
-																currentPage === pageNumber
-																	? 'bg-blue-600 text-white shadow-lg'
-																	: 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-															}`}
-														>
-															{pageNumber}
-														</button>
-													)
-												})}
+												return (
+													<button
+														key={pageNumber}
+														onClick={() => handlePageChange(pageNumber)}
+														className={`px-4 py-2 text-sm font-medium rounded-xl transition-colors ${
+															currentPage === pageNumber
+																? 'bg-blue-600 text-white shadow-lg'
+																: 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+														}`}
+													>
+														{pageNumber}
+													</button>
+												)
+											})}
 
-												<button
-													onClick={() => handlePageChange(currentPage + 1)}
-													disabled={currentPage === totalPages}
-													className='px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
-												>
-													{t('next')}
-												</button>
-											</nav>
-										</div>
-									)}
-								</>
-							)}
-						</div>
+											<button
+												onClick={() => handlePageChange(currentPage + 1)}
+												disabled={currentPage === totalPages}
+												className='px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+											>
+												{t('next')}
+											</button>
+										</nav>
+									</div>
+								)}
+							</>
+						)}
 					</div>
 				</div>
 			</div>
-
 			{/* Add custom CSS for animations */}
 			<style jsx>{`
 				@keyframes fade-in {

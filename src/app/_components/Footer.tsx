@@ -93,32 +93,104 @@ const Footer = () => {
 								? 'Найдите недвижимость вашей мечты с нами. Мы делаем поиск недвижимости простым и приятным.'
 								: 'Find your dream property with us. We make real estate search easy and enjoyable.'}
 						</p>
-						<div className='flex space-x-3'>
+
+						{/* Social Media and Messaging Apps */}
+						<div className='flex flex-wrap gap-3'>
+							{/* Social Media */}
 							{[
 								{
 									icon: Facebook,
 									href: 'https://www.facebook.com/share/1BzdM7fmJ6/?mibextid=wwXIfr',
 									color: 'hover:bg-blue-600',
+									label: 'Facebook',
 								},
 								{
 									icon: Instagram,
 									href: 'https://www.instagram.com/chance_realty_?igsh=cGR6NW10ZW1jb2x0&utm_source=qr',
 									color: 'hover:bg-pink-600',
+									label: 'Instagram',
 								},
 								{
 									icon: BsTiktok,
 									href: 'https://www.tiktok.com/@chance_realty_?_t=ZS-8xYPKwImd6Y&_r=1',
 									color: 'hover:bg-blue-700',
+									label: 'TikTok',
 								},
-							].map(({ icon: Icon, href, color }, index) => (
+							].map(({ icon: Icon, href, color, label }, index) => (
 								<a
 									key={index}
 									href={href}
+									target='_blank'
+									rel='noopener noreferrer'
 									className={`group relative p-3 bg-gray-800 rounded-xl ${color} transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl`}
-									aria-label={`Social media link ${index + 1}`}
+									aria-label={`${label} ${
+										language === 'hy'
+											? 'էջ'
+											: language === 'ru'
+											? 'страница'
+											: 'page'
+									}`}
 								>
 									<Icon className='h-5 w-5 group-hover:scale-110 transition-transform duration-200' />
 									<div className='absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+								</a>
+							))}
+
+							{/* Messaging Apps */}
+							{[
+								{
+									name: 'WhatsApp',
+									href: 'https://wa.me/37441194646',
+									icon: '💬',
+									color: 'hover:bg-green-600',
+									bgColor: 'bg-green-500',
+								},
+								{
+									name: 'Viber',
+									href: 'viber://chat?number=37441194646',
+									icon: '📱',
+									color: 'hover:bg-purple-600',
+									bgColor: 'bg-purple-500',
+								},
+								{
+									name: 'Telegram',
+									href: 'https://t.me/+37441194646',
+									icon: '✈️',
+									color: 'hover:bg-blue-500',
+									bgColor: 'bg-blue-400',
+								},
+							].map(({ name, href, icon, color, bgColor }, index) => (
+								<a
+									key={`messaging-${index}`}
+									href={href}
+									target='_blank'
+									rel='noopener noreferrer'
+									className={`group relative p-3 ${bgColor} rounded-xl ${color} transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl`}
+									aria-label={`${
+										language === 'hy'
+											? 'Կապվել'
+											: language === 'ru'
+											? 'Связаться через'
+											: 'Contact via'
+									} ${name}`}
+									title={`${
+										language === 'hy'
+											? 'Կապվել մեզ հետ'
+											: language === 'ru'
+											? 'Связаться с нами'
+											: 'Contact us'
+									} ${name}`}
+								>
+									<span className='text-lg group-hover:scale-110 transition-transform duration-200'>
+										{icon}
+									</span>
+									<div className='absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+
+									{/* Tooltip */}
+									<div className='absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10'>
+										{name}
+										<div className='absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900'></div>
+									</div>
 								</a>
 							))}
 						</div>

@@ -1,10 +1,28 @@
-// src/app/_components/PropertyCard.tsx - Enhanced with image slider and property type
+// PropertyCard.tsx - Enhanced status and property type with icons and non-automatic slider
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, MapPin, Bed, Bath, Maximize, Home, Play } from 'lucide-react'
+import {
+	Heart,
+	MapPin,
+	Bed,
+	Bath,
+	Maximize,
+	Home,
+	Play,
+	CheckCircle,
+	Clock,
+	XCircle,
+	Building2,
+	Landmark,
+	Trees,
+	ChevronLeft,
+	ChevronRight,
+	AlertCircle,
+	Pause,
+} from 'lucide-react'
 import { Property } from '@/types/property'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
@@ -32,11 +50,9 @@ export default function PropertyCard({
 	const t = useTranslations()
 	const { language } = useLanguage()
 
-	// State for image slider
+	// State for manual image slider
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [isHovering, setIsHovering] = useState(false)
-	const [showImageIndicators, setShowImageIndicators] = useState(false)
-	const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
 	// Function to get full image URL
 	const getImageUrl = (path?: string) => {
@@ -45,74 +61,128 @@ export default function PropertyCard({
 		return `${API_BASE_URL}${path}`
 	}
 
-	// Get property type in current language
-	const getPropertyTypeLabel = (type: string) => {
-		switch (type) {
-			case 'house':
-				return language === 'hy' ? 'Տուն' : language === 'ru' ? 'Дом' : 'House'
-			case 'apartment':
-				return language === 'hy'
-					? 'Բնակարան'
-					: language === 'ru'
-					? 'Квартира'
-					: 'Apartment'
-			case 'commercial':
-				return language === 'hy'
-					? 'Կոմերցիոն'
-					: language === 'ru'
-					? 'Коммерческая'
-					: 'Commercial'
-			case 'land':
-				return language === 'hy'
-					? 'Հողատարածք'
-					: language === 'ru'
-					? 'Земельный участок'
-					: 'Land'
-			default:
-				return type
+	// Get property type in current language with icons
+	const getPropertyTypeInfo = (type: string) => {
+		const types = {
+			house: {
+				icon: Home,
+				label: language === 'hy' ? 'Տուն' : language === 'ru' ? 'Дом' : 'House',
+				color: 'from-blue-500 to-blue-600',
+			},
+			apartment: {
+				icon: Building2,
+				label:
+					language === 'hy'
+						? 'Բնակարան'
+						: language === 'ru'
+						? 'Квартира'
+						: 'Apartment',
+				color: 'from-emerald-500 to-emerald-600',
+			},
+			commercial: {
+				icon: Landmark,
+				label:
+					language === 'hy'
+						? 'Կոմերցիոն'
+						: language === 'ru'
+						? 'Коммерческая'
+						: 'Commercial',
+				color: 'from-purple-500 to-purple-600',
+			},
+			land: {
+				icon: Trees,
+				label:
+					language === 'hy'
+						? 'Հողատարածք'
+						: language === 'ru'
+						? 'Земельный участок'
+						: 'Land',
+				color: 'from-amber-500 to-amber-600',
+			},
 		}
+		return types[type as keyof typeof types] || types.house
 	}
 
-	// Auto-slide function for images when hovering
-	const startImageSlider = () => {
-		if (!property.images || property.images.length <= 1) return
+	// Get status info with icons and colors
+	const getStatusInfo = (status: any) => {
+		const statusStr =
+			typeof status === 'object' ? status?.name || 'active' : String(status)
 
-		intervalRef.current = setInterval(() => {
-			setCurrentImageIndex(prev => (prev + 1) % property.images!.length)
-		}, 800) // Change image every 800ms
-	}
-
-	const stopImageSlider = () => {
-		if (intervalRef.current) {
-			clearInterval(intervalRef.current)
-			intervalRef.current = null
+		const statuses = {
+			active: {
+				icon: CheckCircle,
+				label:
+					language === 'hy'
+						? 'Ակտիվ'
+						: language === 'ru'
+						? 'Активный'
+						: 'Active',
+				color: 'bg-green-100 text-green-800 border-green-200',
+			},
+			pending: {
+				icon: Clock,
+				label:
+					language === 'hy'
+						? 'Սպասող'
+						: language === 'ru'
+						? 'В ожидании'
+						: 'Pending',
+				color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+			},
+			sold: {
+				icon: XCircle,
+				label:
+					language === 'hy'
+						? 'Վաճառված'
+						: language === 'ru'
+						? 'Продано'
+						: 'Sold',
+				color: 'bg-red-100 text-red-800 border-red-200',
+			},
+			rented: {
+				icon: Pause,
+				label:
+					language === 'hy'
+						? 'Վարձակալված'
+						: language === 'ru'
+						? 'Арендовано'
+						: 'Rented',
+				color: 'bg-purple-100 text-purple-800 border-purple-200',
+			},
+			inactive: {
+				icon: AlertCircle,
+				label:
+					language === 'hy'
+						? 'Ոչ ակտիվ'
+						: language === 'ru'
+						? 'Неактивный'
+						: 'Inactive',
+				color: 'bg-gray-100 text-gray-800 border-gray-200',
+			},
 		}
+		return statuses[statusStr as keyof typeof statuses] || statuses.active
 	}
 
-	// Handle mouse enter/leave
-	const handleMouseEnter = () => {
-		setIsHovering(true)
-		setShowImageIndicators(true)
+	// Manual navigation functions
+	const nextImage = () => {
 		if (property.images && property.images.length > 1) {
-			startImageSlider()
+			setCurrentImageIndex(prev => (prev + 1) % property.images!.length)
 		}
 	}
 
-	const handleMouseLeave = () => {
-		setIsHovering(false)
-		setShowImageIndicators(false)
-		stopImageSlider()
-		setCurrentImageIndex(0) // Reset to first image
+	const prevImage = () => {
+		if (property.images && property.images.length > 1) {
+			setCurrentImageIndex(prev =>
+				prev === 0 ? property.images!.length - 1 : prev - 1
+			)
+		}
 	}
 
-	// Cleanup interval on unmount
-	useEffect(() => {
-		return () => {
-			if (intervalRef.current) {
-				clearInterval(intervalRef.current)
-			}
-		}
-	}, [])
+	// Get property type and status info
+	const propertyTypeInfo = getPropertyTypeInfo(property.property_type)
+	const statusInfo = getStatusInfo(property.status)
+	const PropertyTypeIcon = propertyTypeInfo.icon
+	const StatusIcon = statusInfo.icon
 
 	// Function to format price based on listing type
 	const formatPrice = (price: number, listingType: string) => {
@@ -163,24 +233,20 @@ export default function PropertyCard({
 						>
 							{property.attributes.bedrooms && (
 								<div className='flex items-center'>
-									🛏️
-									<span className='ml-1'>
-										{property.attributes.bedrooms} {t.bedrooms}
-									</span>
+									<Bed className='w-4 h-4 mr-1 text-blue-500' />
+									<span>{property.attributes.bedrooms}</span>
 								</div>
 							)}
 							{property.attributes.bathrooms && (
 								<div className='flex items-center'>
-									🚿
-									<span className='ml-1'>
-										{property.attributes.bathrooms} {t.bathrooms}
-									</span>
+									<Bath className='w-4 h-4 mr-1 text-blue-500' />
+									<span>{property.attributes.bathrooms}</span>
 								</div>
 							)}
 							{property.attributes.area_sqft && (
 								<div className='flex items-center'>
-									📐
-									<span className='ml-1'>
+									<Maximize className='w-4 h-4 mr-1 text-blue-500' />
+									<span>
 										{property.attributes.area_sqft.toLocaleString()} {t.sqft}
 									</span>
 								</div>
@@ -197,8 +263,8 @@ export default function PropertyCard({
 							className={`flex items-center space-x-4 text-gray-600 ${attributeClass}`}
 						>
 							<div className='flex items-center'>
-								📐
-								<span className='ml-1'>
+								<Maximize className='w-4 h-4 mr-1 text-blue-500' />
+								<span>
 									{property.attributes.area_acres} {t.acres}
 								</span>
 							</div>
@@ -212,13 +278,13 @@ export default function PropertyCard({
 
 	return (
 		<Link href={`/${language}/properties/${property.custom_id}`}>
-			<div
-				className={`group bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 transform hover:-translate-y-2`}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
-			>
-				{/* Image Section with Slider */}
-				<div className='relative h-64 overflow-hidden'>
+			<div className='group bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 transform hover:-translate-y-2'>
+				{/* Image Section with Manual Slider */}
+				<div
+					className='relative h-64 overflow-hidden'
+					onMouseEnter={() => setIsHovering(true)}
+					onMouseLeave={() => setIsHovering(false)}
+				>
 					{property.images && property.images.length > 0 ? (
 						<>
 							<Image
@@ -238,16 +304,47 @@ export default function PropertyCard({
 								</div>
 							)}
 
+							{/* Manual Navigation Controls */}
+							{property.images.length > 1 && isHovering && (
+								<>
+									<button
+										onClick={e => {
+											e.preventDefault()
+											e.stopPropagation()
+											prevImage()
+										}}
+										className='absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 z-10'
+									>
+										<ChevronLeft className='w-4 h-4' />
+									</button>
+									<button
+										onClick={e => {
+											e.preventDefault()
+											e.stopPropagation()
+											nextImage()
+										}}
+										className='absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 z-10'
+									>
+										<ChevronRight className='w-4 h-4' />
+									</button>
+								</>
+							)}
+
 							{/* Image Indicators */}
-							{showImageIndicators && property.images.length > 1 && (
+							{property.images.length > 1 && (
 								<div className='absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2'>
 									{property.images.map((_, index) => (
-										<div
+										<button
 											key={index}
+											onClick={e => {
+												e.preventDefault()
+												e.stopPropagation()
+												setCurrentImageIndex(index)
+											}}
 											className={`w-2 h-2 rounded-full transition-all duration-300 ${
 												index === currentImageIndex
 													? 'bg-white scale-125'
-													: 'bg-white/50'
+													: 'bg-white/50 hover:bg-white/80'
 											}`}
 										/>
 									))}
@@ -270,11 +367,14 @@ export default function PropertyCard({
 						</div>
 					)}
 
-					{/* Property Type and Listing Type Badges */}
+					{/* Enhanced Badges */}
 					<div className='absolute top-3 left-3 flex flex-col gap-2'>
-						{/* Property Type Badge */}
-						<span className='px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600'>
-							{getPropertyTypeLabel(property.property_type)}
+						{/* Property Type Badge with Icon */}
+						<span
+							className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg bg-gradient-to-r ${propertyTypeInfo.color} flex items-center gap-1`}
+						>
+							<PropertyTypeIcon className='w-3 h-3' />
+							{propertyTypeInfo.label}
 						</span>
 
 						{/* Listing Type Badge */}
@@ -288,6 +388,14 @@ export default function PropertyCard({
 							}`}
 						>
 							{getListingTypeLabel(property.listing_type)}
+						</span>
+
+						{/* Status Badge with Icon */}
+						<span
+							className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-1 ${statusInfo.color}`}
+						>
+							<StatusIcon className='w-3 h-3' />
+							{statusInfo.label}
 						</span>
 					</div>
 

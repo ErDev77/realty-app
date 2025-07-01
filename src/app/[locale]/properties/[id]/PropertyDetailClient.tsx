@@ -47,6 +47,7 @@ import {
 	CheckCircle,
 	AlertCircle,
 	Clock,
+	XCircle,
 } from 'lucide-react'
 
 import { RxHeight } from 'react-icons/rx'
@@ -54,6 +55,7 @@ import { RxHeight } from 'react-icons/rx'
 import Link from 'next/link'
 import { t, useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
+import React from 'react'
 
 interface PropertyDetailClientProps {
 	property: any
@@ -579,6 +581,24 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		}
 	}
 
+	const getTranslatedContent = (
+		property: Property,
+		field: 'title' | 'description',
+		language: 'hy' | 'en' | 'ru'
+	) => {
+		// Check for translated fields based on language
+		if (language === 'en' && property[`${field}_en` as keyof Property]) {
+			return property[`${field}_en` as keyof Property] as string
+		}
+
+		if (language === 'ru' && property[`${field}_ru` as keyof Property]) {
+			return property[`${field}_ru` as keyof Property] as string
+		}
+
+		// Fall back to original field (Armenian)
+		return property[field] || ''
+	}
+
 	const getListingTypeLabel = (type: string) => {
 		switch (type) {
 			case 'sale':
@@ -603,9 +623,14 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 				return type.toUpperCase()
 		}
 	}
+	
 
-	const getStatusLabel = (status: string) => {
-		switch (status) {
+	const getStatusLabel = (status: string | any) => {
+		// Handle both object and string status
+		const statusStr =
+			typeof status === 'object' ? status?.name || 'active' : String(status)
+
+		switch (statusStr.toLowerCase()) {
 			case 'active':
 				return language === 'hy'
 					? 'Ակտիվ'
@@ -630,10 +655,37 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 					: language === 'ru'
 					? 'Арендовано'
 					: 'Rented'
+			case 'inactive':
+				return language === 'hy'
+					? 'Ոչ ակտիվ'
+					: language === 'ru'
+					? 'Неактивный'
+					: 'Inactive'
 			default:
-				return status
+				return statusStr
 		}
 	}
+
+	const getStatusIcon = (status: string | any) => {
+		const statusStr =
+			typeof status === 'object' ? status?.name || 'active' : String(status)
+
+		switch (statusStr.toLowerCase()) {
+			case 'active':
+				return CheckCircle
+			case 'pending':
+				return Clock
+			case 'sold':
+			case 'rented':
+				return XCircle
+			case 'inactive':
+				return AlertCircle
+			default:
+				return CheckCircle
+		}
+	}
+
+	
 
 	const getAttributeLabel = (key: string) => {
 		const labels: Record<string, Record<string, string>> = {
@@ -727,7 +779,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												{getAttributeLabel('area_sqft')}
 											</p>
 											<p className='font-medium text-gray-700'>
-												{property.attributes.area_sqft.toLocaleString()} sq ft
+												{property.attributes.area_sqft.toLocaleString()} {t.sqft}
 											</p>
 										</div>
 									</div>
@@ -743,8 +795,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												{getAttributeLabel('lot_size_sqft')}
 											</p>
 											<p className='font-medium text-gray-700'>
-												{property.attributes.lot_size_sqft.toLocaleString()} sq
-												ft
+												{property.attributes.lot_size_sqft.toLocaleString()} {t.sqft}
 											</p>
 										</div>
 									</div>
@@ -833,7 +884,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												{getAttributeLabel('area_sqft')}
 											</p>
 											<p className='font-medium text-gray-700'>
-												{property.attributes.area_sqft.toLocaleString()} sq ft
+												{property.attributes.area_sqft.toLocaleString()} {t.sqft}
 											</p>
 										</div>
 									</div>
@@ -892,7 +943,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												{getAttributeLabel('area_sqft')}
 											</p>
 											<p className='font-medium text-gray-700'>
-												{property.attributes.area_sqft.toLocaleString()} sq ft
+												{property.attributes.area_sqft.toLocaleString()} {t.sqft}
 											</p>
 										</div>
 									</div>
@@ -1037,8 +1088,20 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		default: 'bg-gray-100 text-gray-800 border-gray-200',
 	}
 
-	const getStatusColor = (status: PropertyStatus | string) => {
-		return statusColors[status as string] || statusColors.default
+	const getStatusColor = (status: PropertyStatus | string | any) => {
+		const statusStr =
+			typeof status === 'object' ? status?.name || 'active' : String(status)
+
+		const statusColors: Record<string, string> = {
+			active: 'bg-green-100 text-green-800 border-green-200',
+			pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+			sold: 'bg-red-100 text-red-800 border-red-200',
+			rented: 'bg-purple-100 text-purple-800 border-purple-200',
+			inactive: 'bg-gray-100 text-gray-800 border-gray-200',
+			default: 'bg-blue-100 text-blue-800 border-blue-200',
+		}
+
+		return statusColors[statusStr.toLowerCase()] || statusColors.default
 	}
 
 	const getListingTypeColor = (listingType: string) => {
@@ -1362,8 +1425,10 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												property.status
 											)}`}
 										>
-											<CheckCircle className='w-3 h-3 mr-1' />
-											{getStatusLabel(String(property.status))}
+											{React.createElement(getStatusIcon(property.status), {
+												className: 'w-3 h-3 mr-1',
+											})}
+											{getStatusLabel(property.status)}
 										</span>
 										{/* Listing Type Badge */}
 										<span
@@ -1376,7 +1441,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 										</span>
 									</div>
 									<h1 className='text-2xl font-bold text-gray-900 mb-2'>
-										{property.title}
+										{getTranslatedContent(property, 'title', language)}
 									</h1>
 									<div className='flex items-center text-gray-600'>
 										<MapPin className='w-5 h-5 mr-2 flex-shrink-0 text-blue-600' />
@@ -1423,17 +1488,17 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									{t.overview}
 								</h2>
 								<div>
-									{property.description ? (
-										<p className='text-sm text-gray-700 leading-relaxed'>
-											{property.description}
-										</p>
-									) : (
-										<div className='flex items-center gap-2 text-sm text-muted-foreground italic'>
-											<FileText className='w-4 h-4 text-gray-600' />
-											<span className='text-gray-600'>{t.noDescription}</span>
-										</div>
-									)}
-								</div>
+								{getTranslatedContent(property, 'description', language) ? (
+									<p className='text-sm text-gray-700 leading-relaxed'>
+										{getTranslatedContent(property, 'description', language)}
+									</p>
+								) : (
+									<div className='flex items-center gap-2 text-sm text-muted-foreground italic'>
+										<FileText className='w-4 h-4 text-gray-600' />
+										<span className='text-gray-600'>{t.noDescription}</span>
+									</div>
+								)}
+							</div>
 							</div>
 
 							{/* Features Section */}
@@ -1471,8 +1536,10 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												property.status
 											)}`}
 										>
-											<CheckCircle className='w-3 h-3 mr-1' />
-											{getStatusLabel(String(property.status))}
+											{React.createElement(getStatusIcon(property.status), {
+												className: 'w-3 h-3 mr-1',
+											})}
+											{getStatusLabel(property.status)}
 										</span>
 										{/* Listing Type Badge */}
 										<span
@@ -1485,7 +1552,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 										</span>
 									</div>
 									<h1 className='text-2xl font-bold text-gray-900 mb-2'>
-										{property.title}
+										{getTranslatedContent(property, 'title', language)}
 									</h1>
 									<div className='flex items-center text-gray-600'>
 										<MapPin className='w-5 h-5 mr-2 flex-shrink-0 text-blue-600' />
