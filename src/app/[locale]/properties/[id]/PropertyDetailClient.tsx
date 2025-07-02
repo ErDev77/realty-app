@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
+import { getTranslatedFeature } from '@/utils/featureTranslations'
+import { getTranslatedStatus } from '@/utils/statusTranslations'
 import { Property, PropertyStatus } from '@/types/property'
 import {
 	getPropertyByCustomId,
@@ -623,48 +625,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 				return type.toUpperCase()
 		}
 	}
-	
 
-	const getStatusLabel = (status: string | any) => {
-		// Handle both object and string status
-		const statusStr =
-			typeof status === 'object' ? status?.name || 'active' : String(status)
-
-		switch (statusStr.toLowerCase()) {
-			case 'active':
-				return language === 'hy'
-					? 'Ակտիվ'
-					: language === 'ru'
-					? 'Активный'
-					: 'Active'
-			case 'pending':
-				return language === 'hy'
-					? 'Սպասող'
-					: language === 'ru'
-					? 'В ожидании'
-					: 'Pending'
-			case 'sold':
-				return language === 'hy'
-					? 'Վաճառված'
-					: language === 'ru'
-					? 'Продано'
-					: 'Sold'
-			case 'rented':
-				return language === 'hy'
-					? 'Վարձակալված'
-					: language === 'ru'
-					? 'Арендовано'
-					: 'Rented'
-			case 'inactive':
-				return language === 'hy'
-					? 'Ոչ ակտիվ'
-					: language === 'ru'
-					? 'Неактивный'
-					: 'Inactive'
-			default:
-				return statusStr
-		}
-	}
 
 	const getStatusIcon = (status: string | any) => {
 		const statusStr =
@@ -1073,14 +1034,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 
 	const PropertyIcon = propertyTypeIcons[property.property_type] || Home
 
-	const statusColors: Record<string, string> = {
-		active: 'bg-green-100 text-green-800 border-green-200',
-		pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-		sold: 'bg-red-100 text-red-800 border-red-200',
-		rented: 'bg-purple-100 text-purple-800 border-purple-200',
-		default: 'bg-blue-100 text-blue-800 border-blue-200',
-	}
-
 	const listingTypeColors: Record<string, string> = {
 		sale: 'bg-emerald-100 text-emerald-800 border-emerald-200',
 		rent: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -1428,7 +1381,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											{React.createElement(getStatusIcon(property.status), {
 												className: 'w-3 h-3 mr-1',
 											})}
-											{getStatusLabel(property.status)}
+											{getTranslatedStatus(property.status, language).label}
 										</span>
 										{/* Listing Type Badge */}
 										<span
@@ -1443,7 +1396,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									<h1 className='text-2xl font-bold text-gray-900 mb-2'>
 										{getTranslatedContent(property, 'title', language)}
 									</h1>
-									<div className='flex items-center text-gray-600'>
+									<div className='flex items-center text-gray-600 mb-4'>
 										<MapPin className='w-5 h-5 mr-2 flex-shrink-0 text-blue-600' />
 										<span className='text-sm'>
 											{property.state
@@ -1472,12 +1425,63 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 										</span>
 									</div>
 
+									{/* Property Tags for Mobile */}
+									<div className='flex flex-wrap items-center gap-2 mb-4'>
+										<div className='flex items-center px-3 py-2 bg-gray-100 rounded-lg'>
+											<PropertyIcon className='w-5 h-5 text-gray-700 mr-2' />
+											<span className='font-medium text-gray-700'>
+												{getPropertyTypeLabel(property.property_type)}
+											</span>
+										</div>
+										<div className='flex items-center px-3 py-2 bg-gray-100 rounded-lg'>
+											<Tag className='w-5 h-5 text-gray-700 mr-2' />
+											<span className='font-medium text-gray-700'>
+												ID: {property.custom_id}
+											</span>
+										</div>
+									</div>
+
+									{/* Mobile Property Attributes */}
+									{getPropertyAttributes()}
+
+									{/* Price for Mobile */}
 									<div className='mt-4'>
 										<CurrencyDisplay
 											amount={property.price}
 											originalCurrency={property.currency || 'USD'}
 											listingType={property.listing_type}
 										/>
+									</div>
+
+									{/* Contact Button for Mobile */}
+									<div className='mt-6'>
+										<button className='w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'>
+											<Mail className='w-5 h-5 mr-2' />
+											{t.contactAgent}
+										</button>
+									</div>
+
+									{/* Property Stats for Mobile */}
+									<div className='pt-4 mt-4 border-t border-gray-100'>
+										<div className='flex justify-between items-center py-2'>
+											<span className='text-gray-600 flex items-center'>
+												<Eye className='w-4 h-4 mr-2' /> {t.views}
+											</span>
+											<span className='font-medium text-gray-700'>
+												{property.views}
+											</span>
+										</div>
+										<div className='flex justify-between items-center py-2'>
+											<span className='text-gray-600 flex items-center'>
+												<Calendar className='w-4 h-4 mr-2' /> {t.listed}
+											</span>
+											<span className='font-medium text-gray-700'>
+												{formatLocalizedDate(
+													property.created_at,
+													language as 'hy' | 'en' | 'ru'
+												)}
+											</span>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -1488,17 +1492,65 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									{t.overview}
 								</h2>
 								<div>
-								{getTranslatedContent(property, 'description', language) ? (
-									<p className='text-sm text-gray-700 leading-relaxed'>
-										{getTranslatedContent(property, 'description', language)}
-									</p>
-								) : (
-									<div className='flex items-center gap-2 text-sm text-muted-foreground italic'>
-										<FileText className='w-4 h-4 text-gray-600' />
-										<span className='text-gray-600'>{t.noDescription}</span>
-									</div>
-								)}
+									{getTranslatedContent(property, 'description', language) ? (
+										<p className='text-sm text-gray-700 leading-relaxed'>
+											{getTranslatedContent(property, 'description', language)}
+										</p>
+									) : (
+										<div className='flex items-center gap-2 text-sm text-muted-foreground italic'>
+											<FileText className='w-4 h-4 text-gray-600' />
+											<span className='text-gray-600'>{t.noDescription}</span>
+										</div>
+									)}
+								</div>
 							</div>
+
+							{/* Mobile Map Section */}
+							<div className='block md:hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6'>
+								<h3 className='text-lg font-semibold mb-4 text-gray-900 flex items-center'>
+									<MapPin className='w-5 h-5 mr-2 text-blue-600' />
+									{t.location}
+								</h3>
+
+								{hasValidCoordinates ? (
+									<>
+										<YandexMap
+											latitude={property.latitude!}
+											longitude={property.longitude!}
+											address={`${property.address}, ${property.city?.name}, ${property.state?.name}`}
+											title={property.title}
+										/>
+										<div className='mt-4 space-y-2'>
+											<p className='text-gray-900 font-medium'>
+												{property.address}
+											</p>
+										</div>
+
+										<button
+											onClick={() => setShowMapPopup(true)}
+											className='w-full mt-4 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center font-medium'
+										>
+											<Maximize2 className='w-4 h-4 mr-2' />
+											{t.viewOnMap}
+										</button>
+									</>
+								) : (
+									<>
+										<div className='bg-gray-100 h-48 rounded-lg flex items-center justify-center text-gray-500 mb-4'>
+											<div className='text-center'>
+												<MapPin className='w-12 h-12 mx-auto mb-2 text-gray-400' />
+												<p className='text-sm'>
+													Location coordinates not available
+												</p>
+											</div>
+										</div>
+										<div className='space-y-2'>
+											<p className='text-gray-900 font-medium'>
+												{property.address}
+											</p>
+										</div>
+									</>
+								)}
 							</div>
 
 							{/* Features Section */}
@@ -1516,7 +1568,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												<div className='w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0'>
 													<Check className='w-5 h-5 text-green-600' />
 												</div>
-												<span className='text-gray-700'>{feature.name}</span>
+												<span className='text-gray-700'>
+													{getTranslatedFeature(feature.name, language)}
+												</span>
 											</div>
 										))}
 									</div>
@@ -1524,10 +1578,10 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 							)}
 						</div>
 
-						{/* Right Column (Price and Contact) */}
-						<div className='lg:col-span-1'>
+						{/* Right Column (Desktop Only) */}
+						<div className='lg:col-span-1 hidden lg:block'>
 							{/* Title and Address (Desktop Only) */}
-							<div className='hidden lg:block mb-6'>
+							<div className='mb-6'>
 								<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100'>
 									<div className='flex items-center gap-2 mb-3'>
 										{/* Property Status Badge */}
@@ -1539,7 +1593,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 											{React.createElement(getStatusIcon(property.status), {
 												className: 'w-3 h-3 mr-1',
 											})}
-											{getStatusLabel(property.status)}
+											{getTranslatedStatus(property.status, language).label	}
 										</span>
 										{/* Listing Type Badge */}
 										<span
@@ -1585,7 +1639,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 								</div>
 							</div>
 
-							{/* Price Card with Currency Conversion */}
+							{/* Price Card with Currency Conversion (Desktop Only) */}
 							<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6'>
 								<CurrencyDisplay
 									amount={property.price}
@@ -1644,8 +1698,8 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 								</div>
 							</div>
 
-							{/* Enhanced Map Preview */}
-							<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100 hidden md:block'>
+							{/* Enhanced Map Preview (Desktop Only) */}
+							<div className='bg-white rounded-xl shadow-sm p-6 border border-gray-100'>
 								<h3 className='text-lg font-semibold mb-4 text-gray-900 flex items-center'>
 									<MapPin className='w-5 h-5 mr-2 text-blue-600' />
 									{t.location}

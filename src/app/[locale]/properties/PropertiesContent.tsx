@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import PropertyCard from '@/app/_components/PropertyCard'
 import PropertyFilter from '@/app/_components/PropertyFilter'
+import { getTranslatedFeature } from '@/utils/featureTranslations'
 import {
 	Property,
 	PropertyFilter as FilterType,
@@ -296,19 +297,7 @@ export default function PropertiesContent({
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
 					<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
 						{/* Left Controls */}
-						<div className='flex items-center space-x-4'>
-							{/* Mobile Filter Toggle */}
-							<button
-								onClick={() => setShowFilters(!showFilters)}
-								className='lg:hidden flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors border border-blue-200'
-							>
-								<SlidersHorizontal className='w-4 h-4 mr-2' />
-								{t('filters')}
-								{hasActiveFilters() && (
-									<span className='ml-2 w-2 h-2 bg-blue-500 rounded-full'></span>
-								)}
-							</button>
-						</div>
+
 					</div>
 				</div>
 			</div>
@@ -343,6 +332,7 @@ export default function PropertiesContent({
 							} transition-all duration-300 ease-in-out`}
 						>
 							<div className='bg-white rounded-2xl shadow-lg border border-gray-100 p-6'>
+								{/* Updated PropertyFilter with 3 filters per line */}
 								<PropertyFilter
 									onFilterChange={handleFilterChange}
 									initialFilter={filter}
@@ -391,17 +381,7 @@ export default function PropertiesContent({
 								<h3 className='text-xl font-semibold text-gray-900 mb-2'>
 									{t('noPropertiesFound')}
 								</h3>
-								<p className='text-gray-500 text-lg mb-4'>
-									{t('noPropertiesFound')}
-								</p>
-								<p className='text-gray-400 mb-6'>{t('tryAdjustingFilters')}</p>
-								<button
-									onClick={clearAllFilters}
-									className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl'
-								>
-									<X className='w-4 h-4 mr-2' />
-									{t('clearAllFilters')}
-								</button>
+
 							</div>
 						) : (
 							<>

@@ -248,512 +248,493 @@ export default function PropertyFilter({
 	)
 
 	return (
-		<div className='space-y-6'>
-			{/* Header */}
-			<div className='bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white'>
-				<div className='flex items-center mb-4'>
-					<div className='p-3 bg-white/20 rounded-xl mr-3 backdrop-blur-sm'>
-						<SlidersHorizontal className='w-6 h-6' />
-					</div>
-					<h2 className='text-2xl font-bold'>{t('filterProperties')}</h2>
-				</div>
-				<p className='text-blue-100'>
-					{t('refineSearch')} {t('toFindYourIdealProperty')}
-				</p>
-
-				{hasActiveFilters() && (
-					<div className='mt-4 flex items-center justify-between'>
-						<span className='text-sm text-blue-200'>
-							{
-								Object.keys(filter).filter(
-									key =>
-										key !== 'page' &&
-										key !== 'limit' &&
-										filter[key as keyof FilterType]
-								).length
-							}{' '}
-							{t('activeFilters')}
-						</span>
-						<button
-							onClick={clearFilter}
-							className='px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-white text-sm font-medium transition-colors backdrop-blur-sm'
-						>
-							{t('clearAll')}
-						</button>
-					</div>
-				)}
-			</div>
-
+		<div className='flex flex-wrap gap-6'>
 			{/* Property Type */}
-			<FilterSection
-				title={t('propertyType')}
-				sectionKey='propertyType'
-				icon={Home}
-				badge={filter.property_type ? '1' : undefined}
-			>
-				<div className='grid grid-cols-2 gap-3'>
-					{propertyTypes.map(({ type, icon: TypeIcon, label, color }) => (
-						<button
-							key={type}
-							onClick={() =>
-								handleFilterChange(
-									'property_type',
-									filter.property_type === type ? undefined : type
-								)
-							}
-							className={`group relative p-4 rounded-xl border-2 transition-all duration-200 text-left ${
-								filter.property_type === type
-									? `border-${color}-300 bg-${color}-50 shadow-md`
-									: 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-							}`}
-						>
-							<div
-								className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-colors ${
-									filter.property_type === type
-										? `bg-${color}-100`
-										: 'bg-gray-100 group-hover:bg-gray-200'
-								}`}
-							>
-								<TypeIcon
-									className={`w-5 h-5 ${
-										filter.property_type === type
-											? `text-${color}-600`
-											: 'text-gray-500'
-									}`}
-								/>
-							</div>
-							<span
-								className={`text-sm font-medium block ${
-									filter.property_type === type
-										? `text-${color}-700`
-										: 'text-gray-700'
-								}`}
-							>
-								{label}
-							</span>
-							{filter.property_type === type && (
-								<div className='absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
-									<span className='text-white text-xs'>✓</span>
-								</div>
-							)}
-						</button>
-					))}
-				</div>
-			</FilterSection>
-
-			{/* Listing Type */}
-			<FilterSection
-				title={t('listingType')}
-				sectionKey='listingType'
-				icon={Tag}
-				badge={filter.listing_type ? '1' : undefined}
-			>
-				<div className='space-y-3'>
-					{listingTypes.map(({ type, label, color, icon }) => (
-						<button
-							key={type}
-							onClick={() =>
-								handleFilterChange(
-									'listing_type',
-									filter.listing_type === type ? undefined : type
-								)
-							}
-							className={`w-full flex items-center p-3 rounded-xl border-2 transition-all duration-200 ${
-								filter.listing_type === type
-									? `border-${color}-300 bg-${color}-50 shadow-md`
-									: 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-							}`}
-						>
-							<span className='text-2xl mr-3'>{icon}</span>
-							<span
-								className={`font-medium ${
-									filter.listing_type === type
-										? `text-${color}-700`
-										: 'text-gray-700'
-								}`}
-							>
-								{label}
-							</span>
-							{filter.listing_type === type && (
-								<div className='ml-auto w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
-									<span className='text-white text-xs'>✓</span>
-								</div>
-							)}
-						</button>
-					))}
-				</div>
-			</FilterSection>
-
-			{/* Location */}
-			<FilterSection
-				title={t('location')}
-				sectionKey='location'
-				icon={MapPin}
-				badge={
-					filter.state_id || filter.city_id || filter.district_id
-						? '1'
-						: undefined
-				}
-			>
-				<div className='space-y-4'>
-					{/* State */}
-					<div className='relative'>
-						<label className='block text-sm font-semibold text-gray-700 mb-2'>
-							{t('stateProvince')}
-						</label>
-						<div className='relative'>
-							<MapPin className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-							<select
-								value={filter.state_id || ''}
-								onChange={e =>
+			<div className='w-full md:w-[calc(33.333%-16px)]'>
+				<FilterSection
+					title={t('propertyType')}
+					sectionKey='propertyType'
+					icon={Home}
+					badge={filter.property_type ? '1' : undefined}
+				>
+					<div className='grid grid-cols-2 gap-3'>
+						{propertyTypes.map(({ type, icon: TypeIcon, label, color }) => (
+							<button
+								key={type}
+								onClick={() =>
 									handleFilterChange(
-										'state_id',
-										e.target.value ? parseInt(e.target.value) : undefined
+										'property_type',
+										filter.property_type === type ? undefined : type
 									)
 								}
-								className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none'
+								className={`group relative p-4 rounded-xl border-2 transition-all duration-200 text-left ${
+									filter.property_type === type
+										? `border-${color}-300 bg-${color}-50 shadow-md`
+										: 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+								}`}
 							>
-								<option value=''>{t('allStates')}</option>
-								{states.map(state => (
-									<option key={state.id} value={state.id}>
-										{state.name}
-										{state.uses_districts && ' (Districts)'}
-									</option>
-								))}
-							</select>
-							<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-						</div>
-					</div>
-
-					{/* District Selection (for states that use districts like Yerevan) */}
-					{selectedState?.uses_districts && (
-						<div className='relative'>
-							<label className='block text-sm font-semibold text-gray-700 mb-2'>
-								{t('district')}
-							</label>
-							<div className='relative'>
-								<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-								<select
-									value={filter.district_id || ''}
-									onChange={e =>
-										handleFilterChange(
-											'district_id',
-											e.target.value ? parseInt(e.target.value) : undefined
-										)
-									}
-									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
-									disabled={!filter.state_id}
+								<div
+									className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-colors ${
+										filter.property_type === type
+											? `bg-${color}-100`
+											: 'bg-gray-100 group-hover:bg-gray-200'
+									}`}
 								>
-									<option value=''>{t('allDistricts')}</option>
-									{districts.map(district => (
-										<option key={district.id} value={district.id}>
-											{getTranslatedField(district, 'name', language)} 
-										</option>
-									))}
-								</select>
-								<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-							</div>
-						</div>
-					)}
-
-					{/* City Selection (for states that don't use districts) */}
-					{selectedState && !selectedState.uses_districts && (
-						<div className='relative'>
-							<label className='block text-sm font-semibold text-gray-700 mb-2'>
-								{t('city')}
-							</label>
-							<div className='relative'>
-								<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-								<select
-									value={filter.city_id || ''}
-									onChange={e =>
-										handleFilterChange(
-											'city_id',
-											e.target.value ? parseInt(e.target.value) : undefined
-										)
-									}
-									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
-									disabled={!filter.state_id}
+									<TypeIcon
+										className={`w-5 h-5 ${
+											filter.property_type === type
+												? `text-${color}-600`
+												: 'text-gray-500'
+										}`}
+									/>
+								</div>
+								<span
+									className={`text-sm font-medium block ${
+										filter.property_type === type
+											? `text-${color}-700`
+											: 'text-gray-700'
+									}`}
 								>
-									<option value=''>All Cities</option>
-									{cities.map(city => (
-										<option key={city.id} value={city.id}>
-											{city.name}
-										</option>
-									))}
-								</select>
-								<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-							</div>
-						</div>
-					)}
-				</div>
-			</FilterSection>
-
-			{/* Price Range */}
-			<FilterSection
-				title={t('priceRange')}
-				sectionKey='price'
-				icon={DollarSign}
-				badge={filter.min_price || filter.max_price ? '1' : undefined}
-			>
-				<div className='space-y-4'>
-					<div className='grid grid-cols-2 gap-3'>
-						<div className='relative'>
-							<label className='block text-xs font-semibold text-gray-700 mb-2'>
-								{t('minPrice')}
-							</label>
-							<div className='relative'>
-								<DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-								<input
-									type='number'
-									placeholder='0'
-									value={filter.min_price || ''}
-									onChange={e =>
-										handleFilterChange(
-											'min_price',
-											e.target.value ? parseFloat(e.target.value) : undefined
-										)
-									}
-									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500'
-								/>
-							</div>
-						</div>
-						<div className='relative'>
-							<label className='block text-xs font-semibold text-gray-700 mb-2'>
-								{t('maxPrice')}
-							</label>
-							<div className='relative'>
-								<DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-								<input
-									type='number'
-									placeholder={t('noLimit')}
-									value={filter.max_price || ''}
-									onChange={e =>
-										handleFilterChange(
-											'max_price',
-											e.target.value ? parseFloat(e.target.value) : undefined
-										)
-									}
-									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500'
-								/>
-							</div>
-						</div>
-					</div>
-
-					{/* Quick Price Ranges */}
-					<div className='grid grid-cols-2 gap-2'>
-						{[
-							{ label: t('under100K'), min: 0, max: 100000 },
-							{ label: t('100KK300K'), min: 100000, max: 300000 },
-							{ label: t('300KK500K'), min: 300000, max: 500000 },
-							{ label: t('over500K'), min: 500000, max: undefined },
-						].map((range, index) => (
-							<button
-								key={index}
-								onClick={() => {
-									handleFilterChange('min_price', range.min)
-									handleFilterChange('max_price', range.max)
-								}}
-								className='px-3 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-colors'
-							>
-								{range.label}
+									{label}
+								</span>
+								{filter.property_type === type && (
+									<div className='absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
+										<span className='text-white text-xs'>✓</span>
+									</div>
+								)}
 							</button>
 						))}
 					</div>
-				</div>
-			</FilterSection>
+				</FilterSection>
+			</div>
 
-			{/* Property Details */}
-			{(filter.property_type === 'house' ||
-				filter.property_type === 'apartment' ||
-				!filter.property_type) && (
+			{/* Listing Type */}
+			<div className='w-full md:w-[calc(33.333%-16px)]'>
 				<FilterSection
-					title={t('propertyDetails')}
-					sectionKey='details'
-					icon={Bed}
-					badge={filter.bedrooms || filter.bathrooms ? '1' : undefined}
+					title={t('listingType')}
+					sectionKey='listingType'
+					icon={Tag}
+					badge={filter.listing_type ? '1' : undefined}
+				>
+					<div className='space-y-3'>
+						{listingTypes.map(({ type, label, color, icon }) => (
+							<button
+								key={type}
+								onClick={() =>
+									handleFilterChange(
+										'listing_type',
+										filter.listing_type === type ? undefined : type
+									)
+								}
+								className={`w-full flex items-center p-3 rounded-xl border-2 transition-all duration-200 ${
+									filter.listing_type === type
+										? `border-${color}-300 bg-${color}-50 shadow-md`
+										: 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+								}`}
+							>
+								<span className='text-2xl mr-3'>{icon}</span>
+								<span
+									className={`font-medium ${
+										filter.listing_type === type
+											? `text-${color}-700`
+											: 'text-gray-700'
+									}`}
+								>
+									{label}
+								</span>
+								{filter.listing_type === type && (
+									<div className='ml-auto w-5 h-5 bg-green-500 rounded-full flex items-center justify-center'>
+										<span className='text-white text-xs'>✓</span>
+									</div>
+								)}
+							</button>
+						))}
+					</div>
+				</FilterSection>
+			</div>
+
+			{/* Property Status */}
+
+			{/* Location */}
+			<div className='w-full md:w-[calc(33.333%-16px)]'>
+				<FilterSection
+					title={t('location')}
+					sectionKey='location'
+					icon={MapPin}
+					badge={
+						filter.state_id || filter.city_id || filter.district_id
+							? '1'
+							: undefined
+					}
+				>
+					<div className='space-y-4'>
+						{/* State */}
+						<div className='relative'>
+							<label className='block text-sm font-semibold text-gray-700 mb-2'>
+								{t('stateProvince')}
+							</label>
+							<div className='relative'>
+								<MapPin className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+								<select
+									value={filter.state_id || ''}
+									onChange={e =>
+										handleFilterChange(
+											'state_id',
+											e.target.value ? parseInt(e.target.value) : undefined
+										)
+									}
+									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none'
+								>
+									<option value=''>{t('allStates')}</option>
+									{states.map(state => (
+										<option key={state.id} value={state.id}>
+											{state.name}
+											{state.uses_districts && ' (Districts)'}
+										</option>
+									))}
+								</select>
+								<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+							</div>
+						</div>
+
+						{/* District Selection (for states that use districts like Yerevan) */}
+						{selectedState?.uses_districts && (
+							<div className='relative'>
+								<label className='block text-sm font-semibold text-gray-700 mb-2'>
+									{t('district')}
+								</label>
+								<div className='relative'>
+									<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+									<select
+										value={filter.district_id || ''}
+										onChange={e =>
+											handleFilterChange(
+												'district_id',
+												e.target.value ? parseInt(e.target.value) : undefined
+											)
+										}
+										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
+										disabled={!filter.state_id}
+									>
+										<option value=''>{t('allDistricts')}</option>
+										{districts.map(district => (
+											<option key={district.id} value={district.id}>
+												{getTranslatedField(district, 'name', language)}
+											</option>
+										))}
+									</select>
+									<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+								</div>
+							</div>
+						)}
+
+						{/* City Selection (for states that don't use districts) */}
+						{selectedState && !selectedState.uses_districts && (
+							<div className='relative'>
+								<label className='block text-sm font-semibold text-gray-700 mb-2'>
+									{t('city')}
+								</label>
+								<div className='relative'>
+									<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+									<select
+										value={filter.city_id || ''}
+										onChange={e =>
+											handleFilterChange(
+												'city_id',
+												e.target.value ? parseInt(e.target.value) : undefined
+											)
+										}
+										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
+										disabled={!filter.state_id}
+									>
+										<option value=''>All Cities</option>
+										{cities.map(city => (
+											<option key={city.id} value={city.id}>
+												{city.name}
+											</option>
+										))}
+									</select>
+									<ChevronDown className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+								</div>
+							</div>
+						)}
+					</div>
+				</FilterSection>
+			</div>
+
+			{/* Price Range */}
+			<div className='w-full md:w-[calc(33.333%-16px)]'>
+				<FilterSection
+					title={t('priceRange')}
+					sectionKey='price'
+					icon={DollarSign}
+					badge={filter.min_price || filter.max_price ? '1' : undefined}
 				>
 					<div className='space-y-4'>
 						<div className='grid grid-cols-2 gap-3'>
 							<div className='relative'>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									{t('minBedrooms')}
+									{t('minPrice')}
 								</label>
 								<div className='relative'>
-									<Bed className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+									<DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 									<input
 										type='number'
-										placeholder='Any'
-										value={filter.bedrooms || ''}
+										placeholder='0'
+										value={filter.min_price || ''}
 										onChange={e =>
 											handleFilterChange(
-												'bedrooms',
-												e.target.value ? parseInt(e.target.value) : undefined
+												'min_price',
+												e.target.value ? parseFloat(e.target.value) : undefined
 											)
 										}
-										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-										min='0'
+										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500'
 									/>
 								</div>
 							</div>
 							<div className='relative'>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									{t('minBathrooms')}
+									{t('maxPrice')}
 								</label>
 								<div className='relative'>
-									<Bath className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+									<DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 									<input
 										type='number'
-										placeholder={t('any')}
-										value={filter.bathrooms || ''}
+										placeholder={t('noLimit')}
+										value={filter.max_price || ''}
 										onChange={e =>
 											handleFilterChange(
-												'bathrooms',
-												e.target.value ? parseInt(e.target.value) : undefined
+												'max_price',
+												e.target.value ? parseFloat(e.target.value) : undefined
 											)
 										}
-										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-										min='0'
-										step='0.5'
+										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500'
 									/>
 								</div>
 							</div>
 						</div>
 
-						{/* Quick bedroom/bathroom selectors */}
-						<div className='space-y-3'>
-							<div>
-								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									{t('bedrooms')}
-								</label>
-								<div className='flex gap-2'>
-									{[1, 2, 3, 4, 5].map(num => (
-										<button
-											key={num}
-											onClick={() =>
-												handleFilterChange(
-													'bedrooms',
-													filter.bedrooms === num ? undefined : num
-												)
-											}
-											className={`w-10 h-10 rounded-xl font-medium text-sm transition-colors ${
-												filter.bedrooms === num
-													? 'bg-blue-500 text-white'
-													: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
-											}`}
-										>
-											{num}
-										</button>
-									))}
-									<button
-										onClick={() =>
-											handleFilterChange(
-												'bedrooms',
-												filter.bedrooms === 6 ? undefined : 6
-											)
-										}
-										className={`px-3 h-10 rounded-xl font-medium text-sm transition-colors ${
-											filter.bedrooms === 6
-												? 'bg-blue-500 text-white'
-												: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
-										}`}
-									>
-										6+
-									</button>
-								</div>
-							</div>
-							<div>
-								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									{t('bathrooms')}
-								</label>
-								<div className='flex gap-2'>
-									{[1, 1.5, 2, 2.5, 3].map(num => (
-										<button
-											key={num}
-											onClick={() =>
-												handleFilterChange(
-													'bathrooms',
-													filter.bathrooms === num ? undefined : num
-												)
-											}
-											className={`h-10 px-3 rounded-xl font-medium text-sm transition-colors ${
-												filter.bathrooms === num
-													? 'bg-blue-500 text-white'
-													: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
-											}`}
-										>
-											{num}
-										</button>
-									))}
-									<button
-										onClick={() =>
-											handleFilterChange(
-												'bathrooms',
-												filter.bathrooms === 4 ? undefined : 4
-											)
-										}
-										className={`px-3 h-10 rounded-xl font-medium text-sm transition-colors ${
-											filter.bathrooms === 4
-												? 'bg-blue-500 text-white'
-												: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
-										}`}
-									>
-										4+
-									</button>
-								</div>
-							</div>
+						{/* Quick Price Ranges */}
+						<div className='grid grid-cols-2 gap-2'>
+							{[
+								{ label: t('under100K'), min: 0, max: 100000 },
+								{ label: t('100KK300K'), min: 100000, max: 300000 },
+								{ label: t('300KK500K'), min: 300000, max: 500000 },
+								{ label: t('over500K'), min: 500000, max: undefined },
+							].map((range, index) => (
+								<button
+									key={index}
+									onClick={() => {
+										handleFilterChange('min_price', range.min)
+										handleFilterChange('max_price', range.max)
+									}}
+									className='px-3 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-colors'
+								>
+									{range.label}
+								</button>
+							))}
 						</div>
 					</div>
 				</FilterSection>
-			)}
+			</div>
+
+			{/* Property Details */}
+			<div className='w-full md:w-[calc(33.333%-16px)]'>
+				{(filter.property_type === 'house' ||
+					filter.property_type === 'apartment' ||
+					!filter.property_type) && (
+					<FilterSection
+						title={t('propertyDetails')}
+						sectionKey='details'
+						icon={Bed}
+						badge={filter.bedrooms || filter.bathrooms ? '1' : undefined}
+					>
+						<div className='space-y-4'>
+							<div className='grid grid-cols-2 gap-3'>
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{t('minBedrooms')}
+									</label>
+									<div className='relative'>
+										<Bed className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+										<input
+											type='number'
+											placeholder='Any'
+											value={filter.bedrooms || ''}
+											onChange={e =>
+												handleFilterChange(
+													'bedrooms',
+													e.target.value ? parseInt(e.target.value) : undefined
+												)
+											}
+											className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+											min='0'
+										/>
+									</div>
+								</div>
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{t('minBathrooms')}
+									</label>
+									<div className='relative'>
+										<Bath className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+										<input
+											type='number'
+											placeholder={t('any')}
+											value={filter.bathrooms || ''}
+											onChange={e =>
+												handleFilterChange(
+													'bathrooms',
+													e.target.value ? parseInt(e.target.value) : undefined
+												)
+											}
+											className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+											min='0'
+											step='0.5'
+										/>
+									</div>
+								</div>
+							</div>
+
+							{/* Quick bedroom/bathroom selectors */}
+							<div className='space-y-3'>
+								<div>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{t('bedrooms')}
+									</label>
+									<div className='flex gap-2'>
+										{[1, 2, 3, 4, 5].map(num => (
+											<button
+												key={num}
+												onClick={() =>
+													handleFilterChange(
+														'bedrooms',
+														filter.bedrooms === num ? undefined : num
+													)
+												}
+												className={`w-10 h-10 rounded-xl font-medium text-sm transition-colors ${
+													filter.bedrooms === num
+														? 'bg-blue-500 text-white'
+														: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+												}`}
+											>
+												{num}
+											</button>
+										))}
+										<button
+											onClick={() =>
+												handleFilterChange(
+													'bedrooms',
+													filter.bedrooms === 6 ? undefined : 6
+												)
+											}
+											className={`px-3 h-10 rounded-xl font-medium text-sm transition-colors ${
+												filter.bedrooms === 6
+													? 'bg-blue-500 text-white'
+													: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+											}`}
+										>
+											6+
+										</button>
+									</div>
+								</div>
+								<div>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{t('bathrooms')}
+									</label>
+									<div className='flex gap-2'>
+										{[1, 1.5, 2, 2.5, 3].map(num => (
+											<button
+												key={num}
+												onClick={() =>
+													handleFilterChange(
+														'bathrooms',
+														filter.bathrooms === num ? undefined : num
+													)
+												}
+												className={`h-10 px-3 rounded-xl font-medium text-sm transition-colors ${
+													filter.bathrooms === num
+														? 'bg-blue-500 text-white'
+														: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+												}`}
+											>
+												{num}
+											</button>
+										))}
+										<button
+											onClick={() =>
+												handleFilterChange(
+													'bathrooms',
+													filter.bathrooms === 4 ? undefined : 4
+												)
+											}
+											className={`px-3 h-10 rounded-xl font-medium text-sm transition-colors ${
+												filter.bathrooms === 4
+													? 'bg-blue-500 text-white'
+													: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+											}`}
+										>
+											4+
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</FilterSection>
+				)}
+			</div>
+
+			{/* Property Status */}
 
 			{/* Features */}
-			<FilterSection
-				title={t('featuresAndAmenities')}
-				sectionKey='features'
-				icon={Star}
-				badge={filter.features?.length || undefined}
-			>
-				<div className='space-y-3'>
-					{features.length > 0 ? (
-						<div className='grid grid-cols-1 gap-2 max-h-48 overflow-y-auto'>
-							{features.map(feature => (
-								<label
-									key={feature.id}
-									className='group flex items-center p-3 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer'
-								>
-									<input
-										type='checkbox'
-										checked={filter.features?.includes(feature.id) || false}
-										onChange={e => {
-											const currentFeatures = filter.features || []
-											const newFeatures = e.target.checked
-												? [...currentFeatures, feature.id]
-												: currentFeatures.filter(id => id !== feature.id)
-											handleFilterChange(
-												'features',
-												newFeatures.length > 0 ? newFeatures : undefined
-											)
-										}}
-										className='w-4 h-4 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3'
-									/>
-									<span className='text-sm text-gray-700 group-hover:text-gray-900 font-medium'>
-										{feature.name}
-									</span>
-								</label>
-							))}
-						</div>
-					) : (
-						<div className='text-center py-8 text-gray-500'>
-							<Star className='w-8 h-8 mx-auto mb-2 text-gray-300' />
-							<p className='text-sm'>{t('noFeaturesAvailable')}</p>
-						</div>
-					)}
-				</div>
-			</FilterSection>
+			<div className='w-full md:w-[calc(33.333%-16px)]'>
+				<FilterSection
+					title={t('featuresAndAmenities')}
+					sectionKey='features'
+					icon={Star}
+					badge={filter.features?.length || undefined}
+				>
+					<div className='space-y-3'>
+						{features.length > 0 ? (
+							<div className='grid grid-cols-1 gap-2 max-h-48 overflow-y-auto'>
+								{features.map(feature => (
+									<label
+										key={feature.id}
+										className='group flex items-center p-3 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer'
+									>
+										<input
+											type='checkbox'
+											checked={filter.features?.includes(feature.id) || false}
+											onChange={e => {
+												const currentFeatures = filter.features || []
+												const newFeatures = e.target.checked
+													? [...currentFeatures, feature.id]
+													: currentFeatures.filter(id => id !== feature.id)
+												handleFilterChange(
+													'features',
+													newFeatures.length > 0 ? newFeatures : undefined
+												)
+											}}
+											className='w-4 h-4 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3'
+										/>
+										<span className='text-sm text-gray-700 group-hover:text-gray-900 font-medium'>
+											{feature.name}
+										</span>
+									</label>
+								))}
+							</div>
+						) : (
+							<div className='text-center py-8 text-gray-500'>
+								<Star className='w-8 h-8 mx-auto mb-2 text-gray-300' />
+								<p className='text-sm'>{t('noFeaturesAvailable')}</p>
+							</div>
+						)}
+					</div>
+				</FilterSection>
+			</div>
 
 			{/* Action Buttons */}
-			<div className='space-y-3'>
+			<div className='w-full md:w-[calc(33.333%-16px)] space-y-3'>
 				<button
 					onClick={() => onFilterChange(filter)}
 					className='w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'

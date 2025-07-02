@@ -772,42 +772,33 @@ export default function HomePage() {
 								href: `/${language}/properties?property_type=house`,
 								icon: Home,
 								title: t.houses,
-								description:
-									'Find your perfect family home with gardens and privacy',
 								color: 'blue',
 								gradient: 'from-blue-500 to-blue-600',
 								bgPattern: 'from-blue-50 to-blue-100',
-								count: '250+' + ' ' + t.availableProperties,
 							},
 							{
 								href: `/${language}/properties?property_type=apartment`,
 								icon: Building2,
 								title: t.apartments,
-								description: 'Modern living spaces in prime urban locations',
 								color: 'emerald',
 								gradient: 'from-emerald-500 to-emerald-600',
 								bgPattern: 'from-emerald-50 to-emerald-100',
-								count: '180+' + ' ' + t.availableProperties,
 							},
 							{
 								href: `/${language}/properties?property_type=commercial`,
 								icon: Landmark,
 								title: t.commercial,
-								description: 'Premium business and office spaces for growth',
 								color: 'purple',
 								gradient: 'from-purple-500 to-purple-600',
 								bgPattern: 'from-purple-50 to-purple-100',
-								count: '95+' + ' ' + t.availableProperties,
 							},
 							{
 								href: `/${language}/properties?property_type=land`,
 								icon: Trees,
 								title: t.land,
-								description: 'Build your dream project on prime real estate',
 								color: 'amber',
 								gradient: 'from-amber-500 to-amber-600',
 								bgPattern: 'from-amber-50 to-amber-100',
-								count: '120+' + ' ' + t.availableProperties,
 							},
 						].map((item, index) => (
 							<Link
@@ -826,14 +817,6 @@ export default function HomePage() {
 									<h3 className='text-2xl font-bold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors'>
 										{item.title}
 									</h3>
-									<p className='text-gray-600 mb-4 leading-relaxed group-hover:text-gray-700 transition-colors'>
-										{item.description}
-									</p>
-									<div
-										className={`inline-flex items-center px-4 py-2 bg-gradient-to-r ${item.gradient} text-white text-sm font-semibold rounded-full shadow-lg`}
-									>
-										{item.count}
-									</div>
 								</div>
 
 								{/* Hover arrow */}
