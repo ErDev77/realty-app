@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
 	PropertyFilter as FilterType,
 	PropertyType,
@@ -9,7 +9,6 @@ import {
 	City,
 	District,
 	PropertyFeature,
-	PropertyStatus,
 } from '@/types/property'
 import {
 	getStates,
@@ -17,9 +16,10 @@ import {
 	getDistrictsByState,
 	getPropertyFeatures,
 	getTranslatedField,
+	getTranslatedCityName,
+	getTranslatedStateName
 } from '@/services/propertyService'
 import {
-	SlidersHorizontal,
 	Home,
 	Building2,
 	Landmark,
@@ -35,9 +35,9 @@ import {
 	Filter,
 	Tag,
 } from 'lucide-react'
-import { stat } from 'fs'
-import { t } from '@/translations/translations'
+import { t, useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
+import { getTranslatedFeature } from '@/utils/featureTranslations'
 
 interface PropertyFilterProps {
 	onFilterChange: (filter: FilterType) => void
@@ -49,13 +49,64 @@ export default function PropertyFilter({
 	initialFilter = {},
 }: PropertyFilterProps) {
 	const { language } = useLanguage()
-	
+	const t = useTranslations()
 	const [states, setStates] = useState<State[]>([])
 	const [districts, setDistricts] = useState<District[]>([])
 	const [selectedState, setSelectedState] = useState<State | null>(null)
 	const [cities, setCities] = useState<City[]>([])
 	const [features, setFeatures] = useState<PropertyFeature[]>([])
 	const [filter, setFilter] = useState<FilterType>(initialFilter)
+	const [localPrices, setLocalPrices] = useState({
+		min: filter.min_price?.toString() || '',
+		max: filter.max_price?.toString() || '',
+	})
+
+	const debounce = useCallback((func: Function, delay: number) => {
+		let timeoutId: NodeJS.Timeout
+		return (...args: any[]) => {
+			clearTimeout(timeoutId)
+			timeoutId = setTimeout(() => func.apply(null, args), delay)
+		}
+	}, [])
+
+	// Debounced price update function
+	const debouncedPriceUpdate = useCallback(
+		debounce((minPrice: string, maxPrice: string) => {
+			const newFilter = { ...filter }
+			newFilter.min_price = minPrice ? parseFloat(minPrice) : undefined
+			newFilter.max_price = maxPrice ? parseFloat(maxPrice) : undefined
+			setFilter(newFilter)
+			onFilterChange(newFilter)
+		}, 800), // 800ms delay
+		[filter, onFilterChange]
+	)
+
+	// Handle price input changes
+	const handlePriceChange = (type: 'min' | 'max', value: string) => {
+		// Only allow numbers and empty string
+		if (value === '' || /^\d+$/.test(value)) {
+			setLocalPrices(prev => ({
+				...prev,
+				[type]: value,
+			}))
+
+			// Trigger debounced update
+			if (type === 'min') {
+				debouncedPriceUpdate(value, localPrices.max)
+			} else {
+				debouncedPriceUpdate(localPrices.min, value)
+			}
+		}
+	}
+
+	// Update local prices when filter changes externally
+	useEffect(() => {
+		setLocalPrices({
+			min: filter.min_price?.toString() || '',
+			max: filter.max_price?.toString() || '',
+		})
+	}, [filter.min_price, filter.max_price])
+	
 	const [expandedSections, setExpandedSections] = useState<{
 		[key: string]: boolean
 	}>({
@@ -177,15 +228,15 @@ export default function PropertyFilter({
 		label: string
 		color: string
 	}[] = [
-		{ type: 'house', icon: Home, label: 'Houses', color: 'blue' },
-		{ type: 'apartment', icon: Building2, label: 'Apartments', color: 'green' },
+		{ type: 'house', icon: Home, label: t.house, color: 'blue' },
+		{ type: 'apartment', icon: Building2, label: t.apartment, color: 'green' },
 		{
 			type: 'commercial',
 			icon: Landmark,
-			label: 'Commercial',
+			label: t.commercial,
 			color: 'purple',
 		},
-		{ type: 'land', icon: Trees, label: 'Land', color: 'orange' },
+		{ type: 'land', icon: Trees, label: t.land, color: 'orange' },
 	]
 
 	const listingTypes: {
@@ -194,9 +245,9 @@ export default function PropertyFilter({
 		color: string
 		icon: string
 	}[] = [
-		{ type: 'sale', label: 'For Sale', color: 'green', icon: '🏠' },
-		{ type: 'rent', label: 'For Rent', color: 'blue', icon: '🔑' },
-		{ type: 'daily_rent', label: 'Daily Rent', color: 'purple', icon: '📅' },
+		{ type: 'sale', label: t.forSale, color: 'green', icon: '🏠' },
+		{ type: 'rent', label: t.forRent, color: 'blue', icon: '🔑' },
+		{ type: 'daily_rent', label: t.forDailyRent, color: 'purple', icon: '📅' },
 	]
 
 	const FilterSection = ({
@@ -252,7 +303,7 @@ export default function PropertyFilter({
 			{/* Property Type */}
 			<div className='w-full md:w-[calc(33.333%-16px)]'>
 				<FilterSection
-					title={t('propertyType')}
+					title={t.propertyType}
 					sectionKey='propertyType'
 					icon={Home}
 					badge={filter.property_type ? '1' : undefined}
@@ -311,7 +362,7 @@ export default function PropertyFilter({
 			{/* Listing Type */}
 			<div className='w-full md:w-[calc(33.333%-16px)]'>
 				<FilterSection
-					title={t('listingType')}
+					title={t.listingType}
 					sectionKey='listingType'
 					icon={Tag}
 					badge={filter.listing_type ? '1' : undefined}
@@ -358,7 +409,7 @@ export default function PropertyFilter({
 			{/* Location */}
 			<div className='w-full md:w-[calc(33.333%-16px)]'>
 				<FilterSection
-					title={t('location')}
+					title={t.location}
 					sectionKey='location'
 					icon={MapPin}
 					badge={
@@ -371,25 +422,25 @@ export default function PropertyFilter({
 						{/* State */}
 						<div className='relative'>
 							<label className='block text-sm font-semibold text-gray-700 mb-2'>
-								{t('stateProvince')}
+								{t.stateProvince}
 							</label>
 							<div className='relative'>
 								<MapPin className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 								<select
 									value={filter.state_id || ''}
-									onChange={e =>
-										handleFilterChange(
-											'state_id',
-											e.target.value ? parseInt(e.target.value) : undefined
-										)
-									}
-									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none'
+									onChange={e => {
+										const stateId = e.target.value
+											? parseInt(e.target.value)
+											: undefined
+										handleFilterChange('state_id', stateId)
+									}}
+									className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer'
 								>
-									<option value=''>{t('allStates')}</option>
+									<option value=''>{t.allStates}</option>
 									{states.map(state => (
 										<option key={state.id} value={state.id}>
-											{state.name}
-											{state.uses_districts && ' (Districts)'}
+											{getTranslatedStateName(state.name, language)}
+											{state.uses_districts && ` (${t.districts})`}
 										</option>
 									))}
 								</select>
@@ -401,7 +452,7 @@ export default function PropertyFilter({
 						{selectedState?.uses_districts && (
 							<div className='relative'>
 								<label className='block text-sm font-semibold text-gray-700 mb-2'>
-									{t('district')}
+									{t.district}
 								</label>
 								<div className='relative'>
 									<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
@@ -416,7 +467,7 @@ export default function PropertyFilter({
 										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
 										disabled={!filter.state_id}
 									>
-										<option value=''>{t('allDistricts')}</option>
+										<option value=''>{t.allDistricts}</option>
 										{districts.map(district => (
 											<option key={district.id} value={district.id}>
 												{getTranslatedField(district, 'name', language)}
@@ -432,7 +483,7 @@ export default function PropertyFilter({
 						{selectedState && !selectedState.uses_districts && (
 							<div className='relative'>
 								<label className='block text-sm font-semibold text-gray-700 mb-2'>
-									{t('city')}
+									{t.city}
 								</label>
 								<div className='relative'>
 									<Building2 className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
@@ -447,10 +498,10 @@ export default function PropertyFilter({
 										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none disabled:bg-gray-50'
 										disabled={!filter.state_id}
 									>
-										<option value=''>All Cities</option>
+										<option value=''>{t.allCities}</option>
 										{cities.map(city => (
 											<option key={city.id} value={city.id}>
-												{city.name}
+												{getTranslatedCityName(city.name, language)}
 											</option>
 										))}
 									</select>
@@ -465,7 +516,7 @@ export default function PropertyFilter({
 			{/* Price Range */}
 			<div className='w-full md:w-[calc(33.333%-16px)]'>
 				<FilterSection
-					title={t('priceRange')}
+					title={t.priceRange}
 					sectionKey='price'
 					icon={DollarSign}
 					badge={filter.min_price || filter.max_price ? '1' : undefined}
@@ -474,41 +525,31 @@ export default function PropertyFilter({
 						<div className='grid grid-cols-2 gap-3'>
 							<div className='relative'>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									{t('minPrice')}
+									{t.minPrice}
 								</label>
 								<div className='relative'>
 									<DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 									<input
-										type='number'
+										type='text'
 										placeholder='0'
-										value={filter.min_price || ''}
-										onChange={e =>
-											handleFilterChange(
-												'min_price',
-												e.target.value ? parseFloat(e.target.value) : undefined
-											)
-										}
-										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500'
+										value={localPrices.min}
+										onChange={e => handlePriceChange('min', e.target.value)}
+										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
 									/>
 								</div>
 							</div>
 							<div className='relative'>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									{t('maxPrice')}
+									{t.maxPrice}
 								</label>
 								<div className='relative'>
 									<DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 									<input
-										type='number'
-										placeholder={t('noLimit')}
-										value={filter.max_price || ''}
-										onChange={e =>
-											handleFilterChange(
-												'max_price',
-												e.target.value ? parseFloat(e.target.value) : undefined
-											)
-										}
-										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500'
+										type='text'
+										placeholder={t.noLimit}
+										value={localPrices.max}
+										onChange={e => handlePriceChange('max', e.target.value)}
+										className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
 									/>
 								</div>
 							</div>
@@ -517,14 +558,18 @@ export default function PropertyFilter({
 						{/* Quick Price Ranges */}
 						<div className='grid grid-cols-2 gap-2'>
 							{[
-								{ label: t('under100K'), min: 0, max: 100000 },
-								{ label: t('100KK300K'), min: 100000, max: 300000 },
-								{ label: t('300KK500K'), min: 300000, max: 500000 },
-								{ label: t('over500K'), min: 500000, max: undefined },
+								{ label: t.under100K, min: 0, max: 100000 },
+								{ label: t['100KK300K'], min: 100000, max: 300000 },
+								{ label: t['300KK500K'], min: 300000, max: 500000 },
+								{ label: t.over500K, min: 500000, max: undefined },
 							].map((range, index) => (
 								<button
 									key={index}
 									onClick={() => {
+										setLocalPrices({
+											min: range.min.toString(),
+											max: range.max?.toString() || '',
+										})
 										handleFilterChange('min_price', range.min)
 										handleFilterChange('max_price', range.max)
 									}}
@@ -544,7 +589,7 @@ export default function PropertyFilter({
 					filter.property_type === 'apartment' ||
 					!filter.property_type) && (
 					<FilterSection
-						title={t('propertyDetails')}
+						title={t.propertyDetails}
 						sectionKey='details'
 						icon={Bed}
 						badge={filter.bedrooms || filter.bathrooms ? '1' : undefined}
@@ -553,13 +598,13 @@ export default function PropertyFilter({
 							<div className='grid grid-cols-2 gap-3'>
 								<div className='relative'>
 									<label className='block text-xs font-semibold text-gray-700 mb-2'>
-										{t('minBedrooms')}
+										{t.minBedrooms}
 									</label>
 									<div className='relative'>
 										<Bed className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 										<input
 											type='number'
-											placeholder='Any'
+											placeholder={t.any}
 											value={filter.bedrooms || ''}
 											onChange={e =>
 												handleFilterChange(
@@ -574,13 +619,13 @@ export default function PropertyFilter({
 								</div>
 								<div className='relative'>
 									<label className='block text-xs font-semibold text-gray-700 mb-2'>
-										{t('minBathrooms')}
+										{t.minBathrooms}
 									</label>
 									<div className='relative'>
 										<Bath className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 										<input
 											type='number'
-											placeholder={t('any')}
+											placeholder={t.any}
 											value={filter.bathrooms || ''}
 											onChange={e =>
 												handleFilterChange(
@@ -600,7 +645,7 @@ export default function PropertyFilter({
 							<div className='space-y-3'>
 								<div>
 									<label className='block text-xs font-semibold text-gray-700 mb-2'>
-										{t('bedrooms')}
+										{t.bedrooms}
 									</label>
 									<div className='flex gap-2'>
 										{[1, 2, 3, 4, 5].map(num => (
@@ -640,7 +685,7 @@ export default function PropertyFilter({
 								</div>
 								<div>
 									<label className='block text-xs font-semibold text-gray-700 mb-2'>
-										{t('bathrooms')}
+										{t.bathrooms}
 									</label>
 									<div className='flex gap-2'>
 										{[1, 1.5, 2, 2.5, 3].map(num => (
@@ -689,7 +734,7 @@ export default function PropertyFilter({
 			{/* Features */}
 			<div className='w-full md:w-[calc(33.333%-16px)]'>
 				<FilterSection
-					title={t('featuresAndAmenities')}
+					title={t.featuresAndAmenities}
 					sectionKey='features'
 					icon={Star}
 					badge={filter.features?.length || undefined}
@@ -718,7 +763,7 @@ export default function PropertyFilter({
 											className='w-4 h-4 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3'
 										/>
 										<span className='text-sm text-gray-700 group-hover:text-gray-900 font-medium'>
-											{feature.name}
+											{getTranslatedFeature(feature.name, language)}
 										</span>
 									</label>
 								))}
@@ -726,7 +771,7 @@ export default function PropertyFilter({
 						) : (
 							<div className='text-center py-8 text-gray-500'>
 								<Star className='w-8 h-8 mx-auto mb-2 text-gray-300' />
-								<p className='text-sm'>{t('noFeaturesAvailable')}</p>
+								<p className='text-sm'>{t.noFeaturesAvailable}</p>
 							</div>
 						)}
 					</div>
@@ -740,7 +785,7 @@ export default function PropertyFilter({
 					className='w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'
 				>
 					<Search className='w-5 h-5 mr-2' />
-					{t('applyFilters')}
+					{t.applyFilters}
 				</button>
 
 				{hasActiveFilters() && (
@@ -749,7 +794,7 @@ export default function PropertyFilter({
 						className='w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-2xl hover:bg-gray-200 transition-colors duration-200 font-medium flex items-center justify-center'
 					>
 						<X className='w-4 h-4 mr-2' />
-						{t('clearAllFilters')}
+						{t.clearAllFilters}
 					</button>
 				)}
 			</div>
@@ -759,12 +804,16 @@ export default function PropertyFilter({
 				<div className='bg-blue-50 border border-blue-200 rounded-2xl p-4'>
 					<h3 className='text-sm font-semibold text-blue-800 mb-2 flex items-center'>
 						<Filter className='w-4 h-4 mr-2' />
-						{t('activeFilters')}
+						{t.activeFilters}
 					</h3>
 					<div className='flex flex-wrap gap-2'>
 						{filter.property_type && (
 							<span className='inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full'>
-								{filter.property_type}
+								{
+									propertyTypes.find(pt => pt.type === filter.property_type)
+										?.label
+								}
+
 								<button
 									onClick={() => handleFilterChange('property_type', undefined)}
 									className='ml-2 hover:text-blue-600'
@@ -775,10 +824,60 @@ export default function PropertyFilter({
 						)}
 						{filter.listing_type && (
 							<span className='inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full'>
-								{filter.listing_type.replace('_', ' ')}
+								{
+									listingTypes.find(lt => lt.type === filter.listing_type)
+										?.label
+								}
 								<button
 									onClick={() => handleFilterChange('listing_type', undefined)}
 									className='ml-2 hover:text-green-600'
+								>
+									<X className='w-3 h-3' />
+								</button>
+							</span>
+						)}
+						{filter.state_id && (
+							<span className='inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full'>
+								{getTranslatedStateName(
+									states.find(s => s.id === filter.state_id)?.name || '',
+									language
+								)}
+								<button
+									onClick={() => {
+										handleFilterChange('state_id', undefined)
+										handleFilterChange('city_id', undefined)
+										handleFilterChange('district_id', undefined)
+									}}
+									className='ml-2 hover:text-purple-600'
+								>
+									<X className='w-3 h-3' />
+								</button>
+							</span>
+						)}
+						{filter.city_id && (
+							<span className='inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full'>
+								{getTranslatedCityName(
+									cities.find(c => c.id === filter.city_id)?.name || '',
+									language
+								)}
+								<button
+									onClick={() => handleFilterChange('city_id', undefined)}
+									className='ml-2 hover:text-indigo-600'
+								>
+									<X className='w-3 h-3' />
+								</button>
+							</span>
+						)}
+						{filter.district_id && (
+							<span className='inline-flex items-center px-3 py-1 bg-pink-100 text-pink-800 text-xs font-medium rounded-full'>
+								{getTranslatedField(
+									districts.find(d => d.id === filter.district_id) || {},
+									'name',
+									language
+								)}
+								<button
+									onClick={() => handleFilterChange('district_id', undefined)}
+									className='ml-2 hover:text-pink-600'
 								>
 									<X className='w-3 h-3' />
 								</button>

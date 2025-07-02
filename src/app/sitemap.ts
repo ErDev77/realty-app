@@ -4,6 +4,7 @@ import {
 	getStates,
 	getCitiesByState,
 } from '@/services/propertyService'
+import { Property } from '@/types/property'
 
 const SITE_URL = 'https://chancerealty.am'
 
@@ -57,11 +58,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	try {
 		// Get all properties for individual property pages
 		const properties = await getProperties({ limit: 1000 })
-		const propertyPages = properties.map(property => ({
+		const propertyPages = properties.map((property: Property) => ({
 			url: `${SITE_URL}/properties/${property.custom_id}`,
 			lastModified: new Date(property.updated_at),
 			changeFrequency: 'weekly' as const,
-			priority: property.featured ? 0.9 : 0.6,
 		}))
 
 		// Get location-based pages

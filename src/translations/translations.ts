@@ -1,8 +1,5 @@
 // src/translations/translations.ts
 
-import { mark } from "framer-motion/client"
-
-// src/translations/translations.ts - Enhanced with missing translations
 export const translations = {
 	hy: {
 		// Navigation
@@ -45,9 +42,9 @@ export const translations = {
 		sale: 'Վաճառք',
 		rentListing: 'Վարձակալություն',
 		dailyRentListing: 'Օրավարձ',
-		forSale: 'ՎԱՃԱՌՔ',
-		forRent: 'ՎԱՐՁԱԿԱԼՈՒԹՅՈՒՆ',
-		forDailyRent: 'ՕՐԱՎԱՐՁ',
+		forSale: 'Վաճառք',
+		forRent: 'Վարձակալություն',
+		forDailyRent: 'Օրավարձ',
 
 		// Property attributes
 		bedrooms: 'ննջ',
@@ -407,9 +404,9 @@ export const translations = {
 		sale: 'Sale',
 		rentListing: 'Rent',
 		dailyRentListing: 'Daily Rent',
-		forSale: 'FOR SALE',
-		forRent: 'FOR RENT',
-		forDailyRent: 'DAILY RENT',
+		forSale: 'For Sale',
+		forRent: 'For Rent',
+		forDailyRent: 'For Daily Rent',
 
 		// Property attributes
 		bedrooms: 'bed',
@@ -752,9 +749,9 @@ export const translations = {
 		sale: 'Продажа',
 		rentListing: 'Аренда',
 		dailyRentListing: 'Посуточная аренда',
-		forSale: 'ПРОДАЖА',
-		forRent: 'АРЕНДА',
-		forDailyRent: 'ПОСУТОЧНО',
+		forSale: 'Продажа',
+		forRent: 'Аренда',
+		forDailyRent: 'Посуточная аренда',
 
 		// Property attributes
 		bedrooms: 'спал',

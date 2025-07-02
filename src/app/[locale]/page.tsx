@@ -146,6 +146,42 @@ export default function HomePage() {
 		}
 	}
 
+	const getAttributeLabel = (key: string) => {
+		const labels: Record<string, Record<string, string>> = {
+			bedrooms: { hy: 'Ննջարաններ', ru: 'Спальни', en: 'Bedrooms' },
+			bathrooms: { hy: 'Լոգարաններ', ru: 'Ванные', en: 'Bathrooms' },
+			area_sqft: { hy: 'Մակերես', ru: 'Площадь', en: 'Area' },
+			lot_size_sqft: {
+				hy: 'Հողատարածքի չափ',
+				ru: 'Размер участка',
+				en: 'Lot Size',
+			},
+			floors: { hy: 'Հարկեր', ru: 'Этажи', en: 'Floors' },
+			floor: { hy: 'Հարկ', ru: 'Этаж', en: 'Floor' },
+			total_floors: {
+				hy: 'Ընդհանուր հարկեր',
+				ru: 'Всего этажей',
+				en: 'Total Floors',
+			},
+			ceiling_height: {
+				hy: 'Առաստաղի բարձրություն',
+				ru: 'Высота потолка',
+				en: 'Ceiling Height',
+			},
+			business_type: {
+				hy: 'Բիզնեսի տեսակ',
+				ru: 'Тип бизнеса',
+				en: 'Business Type',
+			},
+			area_acres: {
+				hy: 'Մակերես (մետրեր)',
+				ru: 'Площадь (метры)',
+				en: 'Area (meters)',
+			},
+		}
+		return labels[key]?.[language] || key
+	}	
+
 	const handleAdvancedSearch = (e: React.FormEvent) => {
 		e.preventDefault()
 		const params = new URLSearchParams()
@@ -220,13 +256,13 @@ export default function HomePage() {
 						{/* Bedrooms */}
 						<div className='relative group'>
 							<label className='block text-sm font-semibold text-gray-700 mb-3'>
-								Bedrooms
+								{getAttributeLabel('bedrooms')}
 							</label>
 							<div className='relative'>
 								<Bed className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
 								<input
 									type='number'
-									placeholder='Any'
+									placeholder={t.any}
 									value={advancedSearch.bedrooms}
 									onChange={e =>
 										setAdvancedSearch({
@@ -242,13 +278,13 @@ export default function HomePage() {
 						{/* Bathrooms */}
 						<div className='relative group'>
 							<label className='block text-sm font-semibold text-gray-700 mb-3'>
-								Bathrooms
+								{getAttributeLabel('bathrooms')}
 							</label>
 							<div className='relative'>
 								<Bath className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
 								<input
 									type='number'
-									placeholder='Any'
+									placeholder={t.any}
 									value={advancedSearch.bathrooms}
 									onChange={e =>
 										setAdvancedSearch({
@@ -437,7 +473,7 @@ export default function HomePage() {
 								{/* Listing Type */}
 								<div className='relative group'>
 									<label className='block text-sm font-semibold text-gray-700 mb-3'>
-										Listing Type
+										{t.listingType}
 									</label>
 									<div className='relative'>
 										<DollarSign className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
@@ -462,7 +498,7 @@ export default function HomePage() {
 
 								<div className='relative group'>
 									<label className='block text-sm font-semibold text-gray-700 mb-3'>
-										location
+										{t.location}
 									</label>
 									<div className='relative'>
 										<MapPin className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
@@ -496,7 +532,7 @@ export default function HomePage() {
 								{selectedState?.uses_districts && (
 									<div className='relative group'>
 										<label className='block text-sm font-semibold text-gray-700 mb-3'>
-											districts
+											{t.district}
 										</label>
 										<div className='relative'>
 											<Building2 className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
@@ -513,7 +549,7 @@ export default function HomePage() {
 												className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer disabled:bg-gray-50'
 												disabled={!advancedSearch.state_id}
 											>
-												<option value=''>all districts</option>
+												<option value=''>{t.allDistricts}</option>
 												{districts.map(district => (
 													<option key={district.id} value={district.id}>
 														{getTranslatedField(district, 'name', language)}
@@ -529,7 +565,7 @@ export default function HomePage() {
 								{selectedState && !selectedState.uses_districts && (
 									<div className='relative group'>
 										<label className='block text-sm font-semibold text-gray-700 mb-3'>
-											city
+											{t.city}
 										</label>
 										<div className='relative'>
 											<Building2 className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
@@ -561,7 +597,7 @@ export default function HomePage() {
 								{/* Min Price */}
 								<div className='relative group'>
 									<label className='block text-sm font-semibold text-gray-700 mb-3'>
-										Min Price
+										{t.minPrice}
 									</label>
 									<div className='relative'>
 										<DollarSign className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-green-500 transition-colors' />
@@ -583,13 +619,13 @@ export default function HomePage() {
 								{/* Max Price */}
 								<div className='relative group'>
 									<label className='block text-sm font-semibold text-gray-700 mb-3'>
-										Max Price
+										{t.maxPrice}
 									</label>
 									<div className='relative'>
 										<DollarSign className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors' />
 										<input
 											type='number'
-											placeholder='No limit'
+											placeholder={t.noLimit}
 											value={advancedSearch.max_price}
 											onChange={e =>
 												setAdvancedSearch({
@@ -613,7 +649,7 @@ export default function HomePage() {
 										{/* Min Area */}
 										<div className='relative group'>
 											<label className='block text-sm font-semibold text-gray-700 mb-3'>
-												Min Area (sqft)
+												{t.minArea}
 											</label>
 											<div className='relative'>
 												<Square className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-purple-500 transition-colors' />
@@ -635,13 +671,13 @@ export default function HomePage() {
 										{/* Max Area */}
 										<div className='relative group'>
 											<label className='block text-sm font-semibold text-gray-700 mb-3'>
-												Max Area (sqft)
+												{t.maxArea}
 											</label>
 											<div className='relative'>
 												<Square className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-purple-500 transition-colors' />
 												<input
 													type='number'
-													placeholder='No limit'
+													placeholder={t.noLimit}
 													value={advancedSearch.max_area}
 													onChange={e =>
 														setAdvancedSearch({
