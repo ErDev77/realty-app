@@ -129,7 +129,7 @@ export interface PropertyFilter {
 	listing_type?: ListingType
 	state_id?: number
 	city_id?: number
-	district_id?: number 
+	district_id?: number
 	min_price?: number
 	max_price?: number
 	bedrooms?: number
@@ -137,11 +137,18 @@ export interface PropertyFilter {
 	min_area?: number
 	max_area?: number
 	features?: number[]
-	status?: string  // Added status filter
+	status?: string // Added status filter
 	sort_by?: 'price' | 'created_at' | 'views'
 	sort_order?: 'asc' | 'desc'
 	page?: number
 	limit?: number
+	floors?: number
+	floor?: number
+	total_floors?: number
+	ceiling_height?: number
+	lot_size_sqft?: number
+	business_type?: string
+	area_acres?: number
 }
 
 // Extended property types with attributes

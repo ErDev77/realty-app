@@ -99,6 +99,16 @@ export default function PropertyFilter({
 		}
 	}
 
+	const [advancedFilters, setAdvancedFilters] = useState({
+		floors: '',
+		floor: '',
+		total_floors: '',
+		ceiling_height: '',
+		lot_size_sqft: '',
+		business_type: '',
+		area_acres: '',
+	})
+
 	// Update local prices when filter changes externally
 	useEffect(() => {
 		setLocalPrices({
@@ -592,139 +602,467 @@ export default function PropertyFilter({
 						title={t.propertyDetails}
 						sectionKey='details'
 						icon={Bed}
-						badge={filter.bedrooms || filter.bathrooms ? '1' : undefined}
+						badge={
+							filter.bedrooms ||
+							filter.bathrooms ||
+							filter.floors ||
+							filter.floor ||
+							filter.total_floors ||
+							filter.ceiling_height ||
+							filter.lot_size_sqft ||
+							filter.business_type ||
+							filter.area_acres
+								? '1'
+								: undefined
+						}
 					>
-						<div className='space-y-4'>
-							<div className='grid grid-cols-2 gap-3'>
-								<div className='relative'>
-									<label className='block text-xs font-semibold text-gray-700 mb-2'>
-										{t.minBedrooms}
-									</label>
+						{(filter.property_type === 'house' ||
+							filter.property_type === 'apartment' ||
+							!filter.property_type) && (
+							<div className='space-y-4'>
+								<div className='grid grid-cols-2 gap-3'>
 									<div className='relative'>
-										<Bed className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-										<input
-											type='number'
-											placeholder={t.any}
-											value={filter.bedrooms || ''}
-											onChange={e =>
-												handleFilterChange(
-													'bedrooms',
-													e.target.value ? parseInt(e.target.value) : undefined
-												)
-											}
-											className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-											min='0'
-										/>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{t.minBedrooms}
+										</label>
+										<div className='relative'>
+											<Bed className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+											<input
+												type='number'
+												placeholder={t.any}
+												value={filter.bedrooms || ''}
+												onChange={e =>
+													handleFilterChange(
+														'bedrooms',
+														e.target.value
+															? parseInt(e.target.value)
+															: undefined
+													)
+												}
+												className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+												min='0'
+											/>
+										</div>
+									</div>
+									<div className='relative'>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{t.minBathrooms}
+										</label>
+										<div className='relative'>
+											<Bath className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
+											<input
+												type='number'
+												placeholder={t.any}
+												value={filter.bathrooms || ''}
+												onChange={e =>
+													handleFilterChange(
+														'bathrooms',
+														e.target.value
+															? parseInt(e.target.value)
+															: undefined
+													)
+												}
+												className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+												min='0'
+												step='0.5'
+											/>
+										</div>
 									</div>
 								</div>
-								<div className='relative'>
-									<label className='block text-xs font-semibold text-gray-700 mb-2'>
-										{t.minBathrooms}
-									</label>
-									<div className='relative'>
-										<Bath className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-										<input
-											type='number'
-											placeholder={t.any}
-											value={filter.bathrooms || ''}
-											onChange={e =>
-												handleFilterChange(
-													'bathrooms',
-													e.target.value ? parseInt(e.target.value) : undefined
-												)
-											}
-											className='w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-											min='0'
-											step='0.5'
-										/>
-									</div>
-								</div>
-							</div>
 
-							{/* Quick bedroom/bathroom selectors */}
-							<div className='space-y-3'>
-								<div>
-									<label className='block text-xs font-semibold text-gray-700 mb-2'>
-										{t.bedrooms}
-									</label>
-									<div className='flex gap-2'>
-										{[1, 2, 3, 4, 5].map(num => (
+								{/* Quick bedroom/bathroom selectors */}
+								<div className='space-y-3'>
+									<div>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{t.bedrooms}
+										</label>
+										<div className='flex gap-2'>
+											{[1, 2, 3, 4, 5].map(num => (
+												<button
+													key={num}
+													onClick={() =>
+														handleFilterChange(
+															'bedrooms',
+															filter.bedrooms === num ? undefined : num
+														)
+													}
+													className={`w-10 h-10 rounded-xl font-medium text-sm transition-colors ${
+														filter.bedrooms === num
+															? 'bg-blue-500 text-white'
+															: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+													}`}
+												>
+													{num}
+												</button>
+											))}
 											<button
-												key={num}
 												onClick={() =>
 													handleFilterChange(
 														'bedrooms',
-														filter.bedrooms === num ? undefined : num
+														filter.bedrooms === 6 ? undefined : 6
 													)
 												}
-												className={`w-10 h-10 rounded-xl font-medium text-sm transition-colors ${
-													filter.bedrooms === num
+												className={`px-3 h-10 rounded-xl font-medium text-sm transition-colors ${
+													filter.bedrooms === 6
 														? 'bg-blue-500 text-white'
 														: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
 												}`}
 											>
-												{num}
+												6+
 											</button>
-										))}
-										<button
-											onClick={() =>
-												handleFilterChange(
-													'bedrooms',
-													filter.bedrooms === 6 ? undefined : 6
-												)
-											}
-											className={`px-3 h-10 rounded-xl font-medium text-sm transition-colors ${
-												filter.bedrooms === 6
-													? 'bg-blue-500 text-white'
-													: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
-											}`}
-										>
-											6+
-										</button>
+										</div>
 									</div>
-								</div>
-								<div>
-									<label className='block text-xs font-semibold text-gray-700 mb-2'>
-										{t.bathrooms}
-									</label>
-									<div className='flex gap-2'>
-										{[1, 1.5, 2, 2.5, 3].map(num => (
+									<div>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{t.bathrooms}
+										</label>
+										<div className='flex gap-2'>
+											{[1, 1.5, 2, 2.5, 3].map(num => (
+												<button
+													key={num}
+													onClick={() =>
+														handleFilterChange(
+															'bathrooms',
+															filter.bathrooms === num ? undefined : num
+														)
+													}
+													className={`h-10 px-3 rounded-xl font-medium text-sm transition-colors ${
+														filter.bathrooms === num
+															? 'bg-blue-500 text-white'
+															: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+													}`}
+												>
+													{num}
+												</button>
+											))}
 											<button
-												key={num}
 												onClick={() =>
 													handleFilterChange(
 														'bathrooms',
-														filter.bathrooms === num ? undefined : num
+														filter.bathrooms === 4 ? undefined : 4
 													)
 												}
-												className={`h-10 px-3 rounded-xl font-medium text-sm transition-colors ${
-													filter.bathrooms === num
+												className={`px-3 h-10 rounded-xl font-medium text-sm transition-colors ${
+													filter.bathrooms === 4
 														? 'bg-blue-500 text-white'
 														: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
 												}`}
 											>
-												{num}
+												4+
 											</button>
-										))}
-										<button
-											onClick={() =>
-												handleFilterChange(
-													'bathrooms',
-													filter.bathrooms === 4 ? undefined : 4
-												)
-											}
-											className={`px-3 h-10 rounded-xl font-medium text-sm transition-colors ${
-												filter.bathrooms === 4
-													? 'bg-blue-500 text-white'
-													: 'bg-gray-100 text-gray-700 hover:bg-blue-100'
-											}`}
-										>
-											4+
-										</button>
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
+						)}
+						{filter.property_type === 'house' && (
+							<div className='space-y-4 mt-4 pt-4 border-t border-gray-100'>
+								{/* Floors & Lot Size */}
+								<div className='grid grid-cols-2 gap-3'>
+									<div className='relative'>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{language === 'hy'
+												? 'Հարկեր'
+												: language === 'ru'
+												? 'Этажи'
+												: 'Floors'}
+										</label>
+										<input
+											type='number'
+											placeholder={t.any}
+											value={filter.floors || ''}
+											onChange={e =>
+												handleFilterChange(
+													'floors',
+													e.target.value ? parseInt(e.target.value) : undefined
+												)
+											}
+											className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+											min='1'
+										/>
+									</div>
+									<div className='relative'>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{language === 'hy'
+												? 'Հողատարածք (քառ.մ)'
+												: language === 'ru'
+												? 'Участок (кв.м)'
+												: 'Lot Size (sq ft)'}
+										</label>
+										<input
+											type='number'
+											placeholder={t.any}
+											value={filter.lot_size_sqft || ''}
+											onChange={e =>
+												handleFilterChange(
+													'lot_size_sqft',
+													e.target.value ? parseInt(e.target.value) : undefined
+												)
+											}
+											className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500'
+											min='0'
+										/>
+									</div>
+								</div>
+
+								{/* Ceiling Height */}
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{language === 'hy'
+											? 'Առաստաղի բարձրություն (մ)'
+											: language === 'ru'
+											? 'Высота потолка (м)'
+											: 'Ceiling Height (m)'}
+									</label>
+									<input
+										type='number'
+										placeholder={t.any}
+										value={filter.ceiling_height || ''}
+										onChange={e =>
+											handleFilterChange(
+												'ceiling_height',
+												e.target.value ? parseFloat(e.target.value) : undefined
+											)
+										}
+										className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+										min='2'
+										max='6'
+										step='0.1'
+									/>
+								</div>
+							</div>
+						)}
+
+						{/* Apartment Specific Fields */}
+						{filter.property_type === 'apartment' && (
+							<div className='space-y-4 mt-4 pt-4 border-t border-gray-100'>
+								{/* Floor & Total Floors */}
+								<div className='grid grid-cols-2 gap-3'>
+									<div className='relative'>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{language === 'hy'
+												? 'Հարկ'
+												: language === 'ru'
+												? 'Этаж'
+												: 'Floor'}
+										</label>
+										<input
+											type='number'
+											placeholder={t.any}
+											value={filter.floor || ''}
+											onChange={e =>
+												handleFilterChange(
+													'floor',
+													e.target.value ? parseInt(e.target.value) : undefined
+												)
+											}
+											className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+											min='1'
+										/>
+									</div>
+									<div className='relative'>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{language === 'hy'
+												? 'Ընդհանուր հարկեր'
+												: language === 'ru'
+												? 'Всего этажей'
+												: 'Total Floors'}
+										</label>
+										<input
+											type='number'
+											placeholder={t.any}
+											value={filter.total_floors || ''}
+											onChange={e =>
+												handleFilterChange(
+													'total_floors',
+													e.target.value ? parseInt(e.target.value) : undefined
+												)
+											}
+											className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+											min='1'
+										/>
+									</div>
+								</div>
+
+								{/* Ceiling Height */}
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{language === 'hy'
+											? 'Առաստաղի բարձրություն (մ)'
+											: language === 'ru'
+											? 'Высота потолка (м)'
+											: 'Ceiling Height (m)'}
+									</label>
+									<input
+										type='number'
+										placeholder={t.any}
+										value={filter.ceiling_height || ''}
+										onChange={e =>
+											handleFilterChange(
+												'ceiling_height',
+												e.target.value ? parseFloat(e.target.value) : undefined
+											)
+										}
+										className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+										min='2'
+										max='6'
+										step='0.1'
+									/>
+								</div>
+							</div>
+						)}
+
+						{/* Commercial Specific Fields */}
+						{filter.property_type === 'commercial' && (
+							<div className='space-y-4 mt-4 pt-4 border-t border-gray-100'>
+								{/* Business Type */}
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{language === 'hy'
+											? 'Բիզնեսի տեսակ'
+											: language === 'ru'
+											? 'Тип бизнеса'
+											: 'Business Type'}
+									</label>
+									<select
+										value={filter.business_type || ''}
+										onChange={e =>
+											handleFilterChange(
+												'business_type',
+												e.target.value || undefined
+											)
+										}
+										className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white'
+									>
+										<option value=''>{t.any}</option>
+										<option value='office'>
+											{language === 'hy'
+												? 'Գրասենյակ'
+												: language === 'ru'
+												? 'Офис'
+												: 'Office'}
+										</option>
+										<option value='retail'>
+											{language === 'hy'
+												? 'Խանութ'
+												: language === 'ru'
+												? 'Магазин'
+												: 'Retail'}
+										</option>
+										<option value='restaurant'>
+											{language === 'hy'
+												? 'Ռեստորան'
+												: language === 'ru'
+												? 'Ресторан'
+												: 'Restaurant'}
+										</option>
+										<option value='warehouse'>
+											{language === 'hy'
+												? 'Պահեստ'
+												: language === 'ru'
+												? 'Склад'
+												: 'Warehouse'}
+										</option>
+										<option value='factory'>
+											{language === 'hy'
+												? 'Գործարան'
+												: language === 'ru'
+												? 'Завод'
+												: 'Factory'}
+										</option>
+										<option value='hotel'>
+											{language === 'hy'
+												? 'Հյուրանոց'
+												: language === 'ru'
+												? 'Отель'
+												: 'Hotel'}
+										</option>
+									</select>
+								</div>
+
+								{/* Floors & Ceiling Height */}
+								<div className='grid grid-cols-2 gap-3'>
+									<div className='relative'>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{language === 'hy'
+												? 'Հարկեր'
+												: language === 'ru'
+												? 'Этажи'
+												: 'Floors'}
+										</label>
+										<input
+											type='number'
+											placeholder={t.any}
+											value={filter.floors || ''}
+											onChange={e =>
+												handleFilterChange(
+													'floors',
+													e.target.value ? parseInt(e.target.value) : undefined
+												)
+											}
+											className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+											min='1'
+										/>
+									</div>
+									<div className='relative'>
+										<label className='block text-xs font-semibold text-gray-700 mb-2'>
+											{language === 'hy'
+												? 'Առաստաղի բարձրություն (մ)'
+												: language === 'ru'
+												? 'Высота потолка (м)'
+												: 'Ceiling Height (m)'}
+										</label>
+										<input
+											type='number'
+											placeholder={t.any}
+											value={filter.ceiling_height || ''}
+											onChange={e =>
+												handleFilterChange(
+													'ceiling_height',
+													e.target.value
+														? parseFloat(e.target.value)
+														: undefined
+												)
+											}
+											className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+											min='2'
+											max='10'
+											step='0.1'
+										/>
+									</div>
+								</div>
+							</div>
+						)}
+
+						{/* Land Specific Fields */}
+						{filter.property_type === 'land' && (
+							<div className='space-y-4 mt-4 pt-4 border-t border-gray-100'>
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{language === 'hy'
+											? 'Մակերես (ակր)'
+											: language === 'ru'
+											? 'Площадь (акры)'
+											: 'Area (acres)'}
+									</label>
+									<input
+										type='number'
+										placeholder={t.any}
+										value={filter.area_acres || ''}
+										onChange={e =>
+											handleFilterChange(
+												'area_acres',
+												e.target.value ? parseFloat(e.target.value) : undefined
+											)
+										}
+										className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500'
+										min='0'
+										step='0.1'
+									/>
+								</div>
+							</div>
+						)}
+						{/* Advanced Filters */}
 					</FilterSection>
 				)}
 			</div>
