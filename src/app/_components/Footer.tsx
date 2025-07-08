@@ -214,12 +214,11 @@ const Footer = () => {
 						</h3>
 						<ul className='space-y-3'>
 							{[
+								{ label: t.buy, href: `/${language}/properties?property_type=buy` },
+								{ label: t.rent, href: `/${language}/properties?property_type=rent` },
 								{ label: t.about, href: `/${language}/about` },
-								{ label: t.services, href: `/${language}/services` },
 								{ label: t.contact, href: `/${language}/contact` },
-								{ label: t.blog, href: `/${language}/blog` },
-								{ label: t.terms, href: `/${language}/terms` },
-								{ label: t.privacy, href: `/${language}/privacy` },
+
 							].map((link, index) => (
 								<li key={index}>
 									<Link
