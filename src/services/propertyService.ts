@@ -532,7 +532,7 @@ export function getTranslatedStateName(
 // Replace the getTranslatedField function:
 
 export function getTranslatedField(
-	obj: any,
+	obj: Record<string, string | undefined>,
 	fieldName: string,
 	language: 'hy' | 'en' | 'ru' = 'hy'
 ): string {
@@ -557,7 +557,7 @@ export function getTranslatedField(
 }
 // Export helper to check if translation exists
 export function hasTranslation(
-	obj: any,
+	obj: Record<string, string | undefined>,
 	fieldName: string,
 	language: 'hy' | 'en' | 'ru'
 ): boolean {

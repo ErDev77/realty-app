@@ -102,19 +102,7 @@ export const metadata: Metadata = {
 	},
 }
 
-// Helper function to extract locale from pathname
-function getLocaleFromPathname(pathname?: string): string {
-	if (!pathname) return 'hy'
 
-	const segments = pathname.split('/')
-	const locale = segments[1]
-
-	if (['hy', 'en', 'ru'].includes(locale)) {
-		return locale
-	}
-
-	return 'hy' // default locale
-}
 
 export default function RootLayout({
 	children,

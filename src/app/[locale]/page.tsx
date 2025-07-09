@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import PropertyCard from '../_components/PropertyCard'
 import { Property, PropertyType, ListingType, State, City, District } from '@/types/property'
-import { getCitiesByState, getDistrictsByState, getFeaturedProperties, getRecentProperties, getStates, getTranslatedCityName, getTranslatedField, getTranslatedStateName } from '@/services/propertyService'
+import { getCitiesByState, getDistrictsByState, getRecentProperties, getStates, getTranslatedCityName, getTranslatedField, getTranslatedStateName } from '@/services/propertyService'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import {
@@ -111,17 +111,6 @@ export default function HomePage() {
 			setDistricts([])
 		}
 	}, [advancedSearch.state_id, states])
-
-	// Add these fetch functions
-	const fetchStates = async () => {
-		try {
-			const data = await getStates()
-			setStates(data || [])
-		} catch (error) {
-			console.error('Error fetching states:', error)
-			setStates([])
-		}
-	}
 
 	const fetchCities = async (stateId: number) => {
 		try {

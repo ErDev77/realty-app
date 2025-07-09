@@ -68,7 +68,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
 	try {
 		// ✅ FIX: Properly await params
-		const { id, locale } = await params
+		const { id } = await params
 		property = await getPropertyByCustomId(id)
 	} catch (error) {
 		console.error('Error fetching property:', error)

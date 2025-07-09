@@ -167,7 +167,7 @@ class CurrencyService {
 
 		try {
 			return new Intl.NumberFormat(config.locale, config.options).format(amount)
-		} catch (error) {
+		} catch {
 			// Fallback formatting if Intl fails
 			const symbols: Record<string, string> = {
 				USD: '$',

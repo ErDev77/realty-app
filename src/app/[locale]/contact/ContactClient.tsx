@@ -15,8 +15,6 @@ import {
 	CheckCircle,
 	Star,
 	ArrowRight,
-	Globe,
-	Calendar,
 	HeadphonesIcon,
 	Shield,
 	Zap,

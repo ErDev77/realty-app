@@ -1106,11 +1106,17 @@ export function t(key: string, language?: 'hy' | 'en' | 'ru'): string {
 		})()
 
 	const keys = key.split('.')
-	let value: any = translations[lang]
+	let value: unknown = translations[lang]
 
 	for (const k of keys) {
-		value = value?.[k]
+		if (value && typeof value === 'object' && k in value) {
+			value = (value as Record<string, unknown>)[k]
+		} else {
+			value = undefined
+			break
+		}
 	}
 
-	return value || key
+	return typeof value === 'string' ? value : key
 }
+  

@@ -1,7 +1,8 @@
 // Add this to src/utils/statusTranslations.ts
+import { PropertyStatus } from '@/types/property';
 import { CheckCircle, Clock, XCircle, Pause, AlertCircle } from 'lucide-react'
 export function getTranslatedStatus(
-	status: any,
+	status: PropertyStatus,
 	language: 'hy' | 'en' | 'ru'
 ): { label: string; icon: any } {
 

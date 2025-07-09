@@ -21,12 +21,11 @@ import {
 	MapPin,
 	HeartHandshake,
 } from 'lucide-react'
-import { useLanguage } from '@/context/LanguageContext'
 import { useTranslations } from '@/translations/translations'
+import Link from 'next/link'
 
 const AboutClient = () => {
 	const t = useTranslations()
-	const { language } = useLanguage()
 	const [activeTab, setActiveTab] = useState('mission')
 
 	const stats = [
@@ -303,24 +302,21 @@ const AboutClient = () => {
 							{
 								icon: HeartHandshake,
 								title: t.personalizedService,
-								description:
-									t.personalizedServiceDescription,
+								description: t.personalizedServiceDescription,
 								color: 'red',
 								stats: '24/7 customer support',
 							},
 							{
 								icon: TrendingUp,
 								title: t.marketLeadership,
-								description:
-									t.marketLeadershipDescription,
+								description: t.marketLeadershipDescription,
 								color: 'purple',
 								stats: '#1 in Yerevan',
 							},
 							{
 								icon: Globe,
 								title: t.technologyDriven,
-								description:
-									t.technologyDrivenDescription,
+								description: t.technologyDrivenDescription,
 								color: 'indigo',
 								stats: 'Digital-first approach',
 							},
@@ -362,7 +358,7 @@ const AboutClient = () => {
 									Our Modern Office
 								</h2>
 								<p className='text-xl text-gray-600 mb-6 leading-relaxed'>
-									Located in the heart of Yerevan's business district, our
+									Located in the heart of Yerevan&#39;s business district, our
 									modern office is equipped with the latest technology and
 									designed to provide the best experience for our clients and
 									team.
@@ -384,20 +380,20 @@ const AboutClient = () => {
 								</div>
 
 								<div className='flex space-x-4'>
-									<a
+									<Link
 										href='/contact'
 										className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold'
 									>
 										<MapPin className='w-4 h-4 mr-2' />
 										Visit Our Office
-									</a>
-									<a
+									</Link>
+									<Link
 										href='tel:+37400000000'
 										className='inline-flex items-center px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-semibold'
 									>
 										<Phone className='w-4 h-4 mr-2' />
 										Call Us
-									</a>
+									</Link>
 								</div>
 							</div>
 

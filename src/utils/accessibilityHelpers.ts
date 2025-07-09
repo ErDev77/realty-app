@@ -1,4 +1,3 @@
-import { translations } from "@/translations/translations"
 import { formatPrice } from "./formatters"
 
 // src/utils/accessibilityHelpers.ts - Accessibility improvements
@@ -7,7 +6,6 @@ export function generateAriaLabel(
 	data: any,
 	language: 'hy' | 'en' | 'ru' = 'hy'
 ): string {
-	const t = translations[language]
 
 	switch (element) {
 		case 'propertyCard':

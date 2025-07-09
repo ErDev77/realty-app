@@ -2,9 +2,7 @@
 
 import {
 	Facebook,
-	Home,
 	Instagram,
-	Linkedin,
 	Mail,
 	MapPin,
 	Phone,

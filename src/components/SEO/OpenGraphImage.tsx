@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { ImageResponse } from 'next/og'
 
 interface OpenGraphImageProps {
@@ -62,7 +63,7 @@ export default function generateOGImage({
 				>
 					{/* Property Image */}
 					{image && (
-						<img
+						<Image
 							src={image}
 							alt='Property'
 							style={{

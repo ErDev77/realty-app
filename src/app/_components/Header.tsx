@@ -1,7 +1,7 @@
 'use client'
 
 import LanguageSwitcher from '@/components/Translations/LanguageSwitcher'
-import { Heart, User, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -194,7 +194,6 @@ const Header = () => {
 
 					<nav className='hidden lg:flex items-center space-x-1'>
 						{navItems.map(item => {
-							const isActive = pathname.startsWith(item.href)
 							return (
 								<div
 									key={item.label}

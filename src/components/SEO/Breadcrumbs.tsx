@@ -43,7 +43,7 @@ export default function Breadcrumbs({
 					<span className='sr-only'>Home</span>
 				</Link>
 
-				{items.map((item, index) => (
+				{items.map((item) => (
 					<div key={item.url} className='flex items-center'>
 						<ChevronRight className='w-4 h-4 mx-2 text-gray-400' />
 						{item.current ? (

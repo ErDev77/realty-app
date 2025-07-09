@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import PropertyCard from '@/app/_components/PropertyCard'
 import PropertyFilter from '@/app/_components/PropertyFilter'
-import { getTranslatedFeature } from '@/utils/featureTranslations'
 import {
 	Property,
 	PropertyFilter as FilterType,
@@ -32,6 +31,7 @@ import {
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import { t } from '@/translations/translations'
+import Image from 'next/image'
 
 type PropertyCardProps = {
 	property?: Property
@@ -41,10 +41,6 @@ type PropertyCardProps = {
 }
 
 export default function PropertiesContent({
-	property,
-	onFavoriteClick,
-	isFavorited = false,
-	variant = 'default',
 }: PropertyCardProps) {
 	const { language } = useLanguage()
 
@@ -136,7 +132,7 @@ export default function PropertiesContent({
 
 	useEffect(() => {
 		fetchProperties()
-	}, [currentPage, filter, sortBy, sortOrder])
+	}, [currentPage, filter, sortBy, sortOrder, fetchProperties])
 
 	const handleFilterChange = (newFilter: FilterType) => {
 		setFilter(newFilter)
@@ -157,12 +153,6 @@ export default function PropertiesContent({
 		setCurrentPage(1)
 	}
 
-	const clearAllFilters = () => {
-		setFilter({ page: 1, limit: 12 })
-		setCurrentPage(1)
-		setSortBy('created_at')
-		setSortOrder('desc')
-	}
 
 	const hasActiveFilters = () => {
 		return Object.keys(filter).some(
@@ -455,8 +445,8 @@ export default function PropertiesContent({
 																	key={`${sort.key}-${order.key}`}
 																	onClick={() =>
 																		handleSortChange(
-																			sort.key as any,
-																			order.key as any
+																			sort.key as 'created_at' | 'price' | 'views',
+																			order.key as 'asc' | 'desc'
 																		)
 																	}
 																	className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${
@@ -529,10 +519,12 @@ export default function PropertiesContent({
 													<div className='flex flex-col md:flex-row'>
 														<div className='md:w-1/3 h-48 md:h-auto relative'>
 															{property.images && property.images.length > 0 ? (
-																<img
+																<Image
 																	src={property.images[0].url}
 																	alt={property.title}
 																	className='w-full h-full object-cover'
+																	width={500}
+																	height={300}
 																/>
 															) : (
 																<div className='w-full h-full bg-gray-200 flex items-center justify-center'>

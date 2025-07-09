@@ -35,7 +35,7 @@ import {
 	Filter,
 	Tag,
 } from 'lucide-react'
-import { t, useTranslations } from '@/translations/translations'
+import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import { getTranslatedFeature } from '@/utils/featureTranslations'
 
@@ -88,7 +88,7 @@ export default function PropertyFilter({
 	)
 
 	// Handle price input changes
-	const handlePriceChange = (type: 'min' | 'max', value: string) => {
+	const handlePriceChange = useCallback((type: 'min' | 'max', value: string) => {
 		// Only allow numbers and empty string
 		if (value === '' || /^\d+$/.test(value)) {
 			setLocalPrices(prev => ({
@@ -103,17 +103,8 @@ export default function PropertyFilter({
 				debouncedPriceUpdate(localPrices.min, value)
 			}
 		}
-	}
+	}, [localPrices.max, localPrices.min, debouncedPriceUpdate])
 
-	const [advancedFilters, setAdvancedFilters] = useState({
-		floors: '',
-		floor: '',
-		total_floors: '',
-		ceiling_height: '',
-		lot_size_sqft: '',
-		business_type: '',
-		area_acres: '',
-	})
 
 	// Update local prices when filter changes externally
 	useEffect(() => {

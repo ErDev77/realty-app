@@ -1,7 +1,7 @@
 // PropertyCard.tsx - Enhanced status and property type with icons and non-automatic slider
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -23,7 +23,7 @@ import {
 	AlertCircle,
 	Pause,
 } from 'lucide-react'
-import { Property } from '@/types/property'
+import { Property, PropertyStatus } from '@/types/property'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import {
@@ -104,7 +104,7 @@ export default function PropertyCard({
 	}
 
 	// Get status info with icons and colors
-	const getStatusInfo = (status: any) => {
+	const getStatusInfo = (status: PropertyStatus) => {
 		const statusStr =
 			typeof status === 'object' ? status?.name || 'active' : String(status)
 

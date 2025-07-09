@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { Globe, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
+import Image from 'next/image'
 
 export type Language = 'hy' | 'en' | 'ru'
 
@@ -47,7 +48,7 @@ export default function LanguageSwitcher() {
 				className='flex items-center space-x-2 px-3 py-2 rounded-4xl hover:bg-gray-100 transition-colors text-gray-700'
 				aria-label='Change language'
 			>
-				<img
+				<Image
 					src={getFlagUrl(currentLanguage.flag)}
 					alt={currentLang}
 					className='w-6 h-4 rounded-sm object-cover'
@@ -75,7 +76,7 @@ export default function LanguageSwitcher() {
 									language.code === currentLang ? 'bg-blue-50' : ''
 								}`}
 							>
-								<img
+								<Image
 									src={getFlagUrl(language.flag)}
 									alt={language.code}
 									className='w-6 h-4 rounded-sm object-cover'

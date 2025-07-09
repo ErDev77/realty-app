@@ -26,7 +26,6 @@ import {
 	Check,
 	X,
 	Share2,
-	Heart,
 	Loader2,
 	Mail,
 	ChevronLeft,
@@ -35,10 +34,8 @@ import {
 	Eye,
 	Info,
 	Copy,
-	Printer,
 	FileText,
 	Play,
-	ArrowUp,
 	RefreshCw,
 	Globe,
 	TrendingUp,
@@ -55,12 +52,12 @@ import {
 import { RxHeight } from 'react-icons/rx'
 
 import Link from 'next/link'
-import { t, useTranslations } from '@/translations/translations'
+import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import React from 'react'
 
 interface PropertyDetailClientProps {
-	property: any
+	property: Property
 }
 
 const YandexMap = ({
@@ -228,7 +225,7 @@ const YandexMap = ({
 				}
 			}
 		}
-	}, [latitude, longitude, address, title, isPopup, mapId])
+	}, [latitude, longitude, address, title, isPopup, mapId, mapInstance])
 
 	const handleGetDirections = () => {
 		const yandexUrl = `https://yandex.com/maps/?rtext=~${latitude},${longitude}&rtt=auto`
@@ -499,7 +496,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	const [selectedImage, setSelectedImage] = useState(0)
 	const [showFullGallery, setShowFullGallery] = useState(false)
 	const [showMapPopup, setShowMapPopup] = useState(false)
-	const [saved, setSaved] = useState(false)
 	const [showShareOptions, setShowShareOptions] = useState(false)
 
 	const getImageUrl = useCallback((path: string) => {
@@ -540,9 +536,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		)
 	}, [property?.images])
 
-	const toggleSaved = useCallback(() => {
-		setSaved(prev => !prev)
-	}, [])
 
 	const copyLinkToClipboard = useCallback(() => {
 		navigator.clipboard.writeText(window.location.href)
@@ -550,10 +543,6 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		setShowShareOptions(false)
 	}, [])
 
-	const printPage = useCallback(() => {
-		window.print()
-		setShowShareOptions(false)
-	}, [])
 
 	// Enhanced translation functions
 	const getPropertyTypeLabel = (type: string) => {
@@ -644,7 +633,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	}
 
 
-	const getStatusIcon = (status: string | any) => {
+	const getStatusIcon = (status: string | PropertyStatus) => {
 		const statusStr =
 			typeof status === 'object' ? status?.name || 'active' : String(status)
 
@@ -1042,7 +1031,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		)
 	}
 
-	const propertyTypeIcons: Record<string, any> = {
+	const propertyTypeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 		house: Home,
 		apartment: Building2,
 		commercial: Landmark,
@@ -1058,7 +1047,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		default: 'bg-gray-100 text-gray-800 border-gray-200',
 	}
 
-	const getStatusColor = (status: PropertyStatus | string | any) => {
+	const getStatusColor = (status: PropertyStatus | string ) => {
 		const statusStr =
 			typeof status === 'object' ? status?.name || 'active' : String(status)
 
