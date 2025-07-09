@@ -147,6 +147,7 @@ export interface PropertyFilter {
 	total_floors?: number
 	ceiling_height?: number
 	lot_size_sqft?: number
+	area_sqft?: number
 	business_type?: string
 	area_acres?: number
 }

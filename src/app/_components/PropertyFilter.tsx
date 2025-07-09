@@ -682,15 +682,15 @@ export default function PropertyFilter({
 									</div>
 								</div>
 							</div>
-
 						</div>
 					)}
 
 					{/* House Specific Fields */}
 					{isPropertyType('house') && (
 						<div className='space-y-4 mt-4 pt-4 border-t border-gray-100'>
-							{/* Floors & Lot Size */}
+							{/* Floors, Lot Size, Area, Ceiling Height */}
 							<div className='grid grid-cols-2 gap-3'>
+								{/* Floors */}
 								<div className='relative'>
 									<label className='block text-xs font-semibold text-gray-700 mb-2'>
 										{language === 'hy'
@@ -713,12 +713,14 @@ export default function PropertyFilter({
 										min='1'
 									/>
 								</div>
+
+								{/* Lot Size */}
 								<div className='relative'>
 									<label className='block text-xs font-semibold text-gray-700 mb-2'>
 										{language === 'hy'
-											? 'Հողատարածք (քառ.մ)'
+											? 'Հողատարածքի մակերես (քառ.մ)'
 											: language === 'ru'
-											? 'Участок (кв.м)'
+											? 'Площадь участка (кв.м)'
 											: 'Lot Size (sq ft)'}
 									</label>
 									<input
@@ -735,32 +737,56 @@ export default function PropertyFilter({
 										min='0'
 									/>
 								</div>
-							</div>
 
-							{/* Ceiling Height */}
-							<div className='relative'>
-								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									{language === 'hy'
-										? 'Առաստաղի բարձրություն (մ)'
-										: language === 'ru'
-										? 'Высота потолка (м)'
-										: 'Ceiling Height (m)'}
-								</label>
-								<input
-									type='number'
-									placeholder={t.any}
-									value={filter.ceiling_height || ''}
-									onChange={e =>
-										handleFilterChange(
-											'ceiling_height',
-											e.target.value ? parseFloat(e.target.value) : undefined
-										)
-									}
-									className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
-									min='2'
-									max='6'
-									step='0.1'
-								/>
+								{/* Area */}
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{language === 'hy'
+											? 'Մակերես (քառ.մ)'
+											: language === 'ru'
+											? 'Площадь (кв.м)'
+											: 'Area (sq ft)'}
+									</label>
+									<input
+										type='number'
+										placeholder={t.any}
+										value={filter.area_sqft || ''}
+										onChange={e =>
+											handleFilterChange(
+												'area_sqft',
+												e.target.value ? parseInt(e.target.value) : undefined
+											)
+										}
+										className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500'
+										min='0'
+									/>
+								</div>
+
+								{/* Ceiling Height */}
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{language === 'hy'
+											? 'Առաստաղի բարձրություն (մ)'
+											: language === 'ru'
+											? 'Высота потолка (м)'
+											: 'Ceiling Height (m)'}
+									</label>
+									<input
+										type='number'
+										placeholder={t.any}
+										value={filter.ceiling_height || ''}
+										onChange={e =>
+											handleFilterChange(
+												'ceiling_height',
+												e.target.value ? parseFloat(e.target.value) : undefined
+											)
+										}
+										className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+										min='2'
+										max='6'
+										step='0.1'
+									/>
+								</div>
 							</div>
 						</div>
 					)}
@@ -768,8 +794,9 @@ export default function PropertyFilter({
 					{/* Apartment Specific Fields */}
 					{isPropertyType('apartment') && (
 						<div className='space-y-4 mt-4 pt-4 border-t border-gray-100'>
-							{/* Floor & Total Floors */}
+							{/* Floor, Total Floors, Ceiling Height, Area */}
 							<div className='grid grid-cols-2 gap-3'>
+								{/* Floor */}
 								<div className='relative'>
 									<label className='block text-xs font-semibold text-gray-700 mb-2'>
 										{language === 'hy'
@@ -792,6 +819,8 @@ export default function PropertyFilter({
 										min='1'
 									/>
 								</div>
+
+								{/* Total Floors */}
 								<div className='relative'>
 									<label className='block text-xs font-semibold text-gray-700 mb-2'>
 										{language === 'hy'
@@ -814,32 +843,56 @@ export default function PropertyFilter({
 										min='1'
 									/>
 								</div>
-							</div>
 
-							{/* Ceiling Height */}
-							<div className='relative'>
-								<label className='block text-xs font-semibold text-gray-700 mb-2'>
-									{language === 'hy'
-										? 'Առաստաղի բարձրություն (մ)'
-										: language === 'ru'
-										? 'Высота потолка (м)'
-										: 'Ceiling Height (m)'}
-								</label>
-								<input
-									type='number'
-									placeholder={t.any}
-									value={filter.ceiling_height || ''}
-									onChange={e =>
-										handleFilterChange(
-											'ceiling_height',
-											e.target.value ? parseFloat(e.target.value) : undefined
-										)
-									}
-									className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
-									min='2'
-									max='6'
-									step='0.1'
-								/>
+								{/* Ceiling Height */}
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{language === 'hy'
+											? 'Առաստաղի բարձրություն (մ)'
+											: language === 'ru'
+											? 'Высота потолка (м)'
+											: 'Ceiling Height (m)'}
+									</label>
+									<input
+										type='number'
+										placeholder={t.any}
+										value={filter.ceiling_height || ''}
+										onChange={e =>
+											handleFilterChange(
+												'ceiling_height',
+												e.target.value ? parseFloat(e.target.value) : undefined
+											)
+										}
+										className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+										min='2'
+										max='6'
+										step='0.1'
+									/>
+								</div>
+
+								{/* Area */}
+								<div className='relative'>
+									<label className='block text-xs font-semibold text-gray-700 mb-2'>
+										{language === 'hy'
+											? 'Մակերես (քառ.մ)'
+											: language === 'ru'
+											? 'Площадь (кв.м)'
+											: 'Area (sq ft)'}
+									</label>
+									<input
+										type='number'
+										placeholder={t.any}
+										value={filter.area_sqft || ''}
+										onChange={e =>
+											handleFilterChange(
+												'area_sqft',
+												e.target.value ? parseFloat(e.target.value) : undefined
+											)
+										}
+										className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+										min='0'
+									/>
+								</div>
 							</div>
 						</div>
 					)}
@@ -991,7 +1044,6 @@ export default function PropertyFilter({
 					{/* Land Specific Fields */}
 					{isPropertyType('land') && (
 						<div className='space-y-4 mt-4 pt-4 border-t border-gray-100'>
-
 							{/* Land Area in Square Meters (Alternative) */}
 							<div className='relative'>
 								<label className='block text-xs font-semibold text-gray-700 mb-2'>

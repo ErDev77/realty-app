@@ -29,7 +29,6 @@ import {
 export default function HomePage() {
 	const t = useTranslations()
 	const { language } = useLanguage()
-	const [featuredProperties, setFeaturedProperties] = useState<Property[]>([])
 	const [recentProperties, setRecentProperties] = useState<Property[]>([])
 	const [loading, setLoading] = useState(true)
 	const [showAdvancedSearch, setShowAdvancedSearch] = useState(false)
@@ -53,20 +52,25 @@ export default function HomePage() {
 		state_id: undefined as number | undefined,
 		city_id: undefined as number | undefined,
 		district_id: undefined as number | undefined,
+		floors: '',
+		floor: '',
+		total_floors: '',
+		ceiling_height: '',
+		lot_size_sqft: '',
+		business_type: '',
+		area_acres: '',
+		features: [] as number[],
 	})
 
 	useEffect(() => {
 		const fetchProperties = async () => {
 			try {
-				const [featured, recent] = await Promise.all([
-					getFeaturedProperties(),
+				const [ recent] = await Promise.all([
 					getRecentProperties(8),
 				])
-				setFeaturedProperties(featured || [])
 				setRecentProperties(recent || [])
 			} catch (error) {
 				console.error('Error fetching properties:', error)
-				setFeaturedProperties([])
 				setRecentProperties([])
 			} finally {
 				setLoading(false)
@@ -186,18 +190,57 @@ export default function HomePage() {
 		e.preventDefault()
 		const params = new URLSearchParams()
 
-		if (selectedPropertyType) params.append('property_type', selectedPropertyType)
-		if (advancedSearch.listing_type) params.append('listing_type', advancedSearch.listing_type)
-		if (advancedSearch.location) params.append('location', advancedSearch.location)
-		if (advancedSearch.min_price) params.append('min_price', advancedSearch.min_price)
-		if (advancedSearch.max_price) params.append('max_price', advancedSearch.max_price)
-		if (advancedSearch.bedrooms) params.append('bedrooms', advancedSearch.bedrooms)
-		if (advancedSearch.bathrooms) params.append('bathrooms', advancedSearch.bathrooms)
-		if (advancedSearch.min_area) params.append('min_area', advancedSearch.min_area)
-		if (advancedSearch.max_area) params.append('max_area', advancedSearch.max_area)
+		// Basic filters
+		if (selectedPropertyType)
+			params.append('property_type', selectedPropertyType)
+		if (advancedSearch.listing_type)
+			params.append('listing_type', advancedSearch.listing_type)
+		if (advancedSearch.location)
+			params.append('location', advancedSearch.location)
+		if (advancedSearch.min_price)
+			params.append('min_price', advancedSearch.min_price)
+		if (advancedSearch.max_price)
+			params.append('max_price', advancedSearch.max_price)
+		if (advancedSearch.bedrooms)
+			params.append('bedrooms', advancedSearch.bedrooms)
+		if (advancedSearch.bathrooms)
+			params.append('bathrooms', advancedSearch.bathrooms)
+		if (advancedSearch.min_area)
+			params.append('min_area', advancedSearch.min_area)
+		if (advancedSearch.max_area)
+			params.append('max_area', advancedSearch.max_area)
 
+		// Location filters
+		if (advancedSearch.state_id)
+			params.append('state_id', advancedSearch.state_id.toString())
+		if (advancedSearch.city_id)
+			params.append('city_id', advancedSearch.city_id.toString())
+		if (advancedSearch.district_id)
+			params.append('district_id', advancedSearch.district_id.toString())
+
+		// Property type specific filters
+		if (advancedSearch.floors) params.append('floors', advancedSearch.floors)
+		if (advancedSearch.floor) params.append('floor', advancedSearch.floor)
+		if (advancedSearch.total_floors)
+			params.append('total_floors', advancedSearch.total_floors)
+		if (advancedSearch.ceiling_height)
+			params.append('ceiling_height', advancedSearch.ceiling_height)
+		if (advancedSearch.lot_size_sqft)
+			params.append('lot_size_sqft', advancedSearch.lot_size_sqft)
+		if (advancedSearch.business_type)
+			params.append('business_type', advancedSearch.business_type)
+		if (advancedSearch.area_acres)
+			params.append('area_acres', advancedSearch.area_acres)
+
+		// Features
+		if (advancedSearch.features.length > 0) {
+			params.append('features', advancedSearch.features.join(','))
+		}
+
+		// Navigate to properties page with all filters
 		window.location.href = `/${language}/properties?${params.toString()}`
 	}
+
 
 	const clearAdvancedSearch = () => {
 		setSelectedPropertyType('')
@@ -213,6 +256,14 @@ export default function HomePage() {
 			state_id: undefined,
 			city_id: undefined,
 			district_id: undefined,
+			floors: '',
+			floor: '',
+			total_floors: '',
+			ceiling_height: '',
+			lot_size_sqft: '',
+			business_type: '',
+			area_acres: '',
+			features: [],
 		})
 	}
 
@@ -250,58 +301,431 @@ export default function HomePage() {
 	const getPropertyTypeFields = () => {
 		switch (selectedPropertyType) {
 			case 'house':
-			case 'apartment':
 				return (
 					<>
-						{/* Bedrooms */}
-						<div className='relative group'>
-							<label className='block text-sm font-semibold text-gray-700 mb-3'>
-								{getAttributeLabel('bedrooms')}
-							</label>
+						{/* Bedrooms & Bathrooms */}
+						<div className='col-span-2 grid grid-cols-2 gap-4'>
+							<div className='relative group'>
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('bedrooms')}
+								</label>
+								<div className='relative'>
+									<Bed className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+									<input
+										type='number'
+										placeholder={t.any}
+										value={advancedSearch.bedrooms}
+										onChange={e =>
+											setAdvancedSearch({
+												...advancedSearch,
+												bedrooms: e.target.value,
+											})
+										}
+										className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+									/>
+								</div>
+							</div>
+
+							<div className='relative group'>
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('bathrooms')}
+								</label>
+								<div className='relative'>
+									<Bath className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+									<input
+										type='number'
+										placeholder={t.any}
+										value={advancedSearch.bathrooms}
+										onChange={e =>
+											setAdvancedSearch({
+												...advancedSearch,
+												bathrooms: e.target.value,
+											})
+										}
+										className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+									/>
+								</div>
+							</div>
+						</div>
+
+						{/* Floors & Lot Size */}
+						<div className='col-span-2 grid grid-cols-2 gap-4'>
 							<div className='relative'>
-								<Bed className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('floors')}
+								</label>
 								<input
 									type='number'
 									placeholder={t.any}
-									value={advancedSearch.bedrooms}
+									value={advancedSearch.floors}
 									onChange={e =>
 										setAdvancedSearch({
 											...advancedSearch,
-											bedrooms: e.target.value,
+											floors: e.target.value,
 										})
 									}
-									className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+									className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+									min='1'
+								/>
+							</div>
+							<div className='relative'>
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('lot_size_sqft')}
+								</label>
+								<input
+									type='number'
+									placeholder={t.any}
+									value={advancedSearch.lot_size_sqft}
+									onChange={e =>
+										setAdvancedSearch({
+											...advancedSearch,
+											lot_size_sqft: e.target.value,
+										})
+									}
+									className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500'
+									min='0'
 								/>
 							</div>
 						</div>
 
-						{/* Bathrooms */}
-						<div className='relative group'>
+						{/* Ceiling Height */}
+						<div className='relative'>
 							<label className='block text-sm font-semibold text-gray-700 mb-3'>
-								{getAttributeLabel('bathrooms')}
+								{getAttributeLabel('ceiling_height')}
 							</label>
+							<input
+								type='number'
+								placeholder={t.any}
+								value={advancedSearch.ceiling_height}
+								onChange={e =>
+									setAdvancedSearch({
+										...advancedSearch,
+										ceiling_height: e.target.value,
+									})
+								}
+								className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+								min='2'
+								max='6'
+								step='0.1'
+							/>
+						</div>
+					</>
+				)
+
+			case 'apartment':
+				return (
+					<>
+						{/* Bedrooms & Bathrooms */}
+						<div className='col-span-2 grid grid-cols-2 gap-4'>
+							<div className='relative group'>
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('bedrooms')}
+								</label>
+								<div className='relative'>
+									<Bed className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+									<input
+										type='number'
+										placeholder={t.any}
+										value={advancedSearch.bedrooms}
+										onChange={e =>
+											setAdvancedSearch({
+												...advancedSearch,
+												bedrooms: e.target.value,
+											})
+										}
+										className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+									/>
+								</div>
+							</div>
+
+							<div className='relative group'>
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('bathrooms')}
+								</label>
+								<div className='relative'>
+									<Bath className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+									<input
+										type='number'
+										placeholder={t.any}
+										value={advancedSearch.bathrooms}
+										onChange={e =>
+											setAdvancedSearch({
+												...advancedSearch,
+												bathrooms: e.target.value,
+											})
+										}
+										className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+									/>
+								</div>
+							</div>
+						</div>
+
+						{/* Floor & Total Floors */}
+						<div className='col-span-2 grid grid-cols-2 gap-4'>
 							<div className='relative'>
-								<Bath className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors' />
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('floor')}
+								</label>
 								<input
 									type='number'
 									placeholder={t.any}
-									value={advancedSearch.bathrooms}
+									value={advancedSearch.floor}
 									onChange={e =>
 										setAdvancedSearch({
 											...advancedSearch,
-											bathrooms: e.target.value,
+											floor: e.target.value,
 										})
 									}
-									className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+									className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+									min='1'
+								/>
+							</div>
+							<div className='relative'>
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('total_floors')}
+								</label>
+								<input
+									type='number'
+									placeholder={t.any}
+									value={advancedSearch.total_floors}
+									onChange={e =>
+										setAdvancedSearch({
+											...advancedSearch,
+											total_floors: e.target.value,
+										})
+									}
+									className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+									min='1'
+								/>
+							</div>
+						</div>
+
+						{/* Ceiling Height */}
+						<div className='relative'>
+							<label className='block text-sm font-semibold text-gray-700 mb-3'>
+								{getAttributeLabel('ceiling_height')}
+							</label>
+							<input
+								type='number'
+								placeholder={t.any}
+								value={advancedSearch.ceiling_height}
+								onChange={e =>
+									setAdvancedSearch({
+										...advancedSearch,
+										ceiling_height: e.target.value,
+									})
+								}
+								className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+								min='2'
+								max='6'
+								step='0.1'
+							/>
+						</div>
+					</>
+				)
+
+			case 'commercial':
+				return (
+					<>
+						{/* Business Type */}
+						<div className='relative'>
+							<label className='block text-sm font-semibold text-gray-700 mb-3'>
+								{getAttributeLabel('business_type')}
+							</label>
+							<select
+								value={advancedSearch.business_type}
+								onChange={e =>
+									setAdvancedSearch({
+										...advancedSearch,
+										business_type: e.target.value,
+									})
+								}
+								className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white'
+							>
+								<option value=''>{t.any}</option>
+								<option value='office'>
+									{language === 'hy'
+										? 'Գրասենյակ'
+										: language === 'ru'
+										? 'Офис'
+										: 'Office'}
+								</option>
+								<option value='retail'>
+									{language === 'hy'
+										? 'Խանութ'
+										: language === 'ru'
+										? 'Магазин'
+										: 'Retail'}
+								</option>
+								<option value='restaurant'>
+									{language === 'hy'
+										? 'Ռեստորան'
+										: language === 'ru'
+										? 'Ресторан'
+										: 'Restaurant'}
+								</option>
+								<option value='warehouse'>
+									{language === 'hy'
+										? 'Պահեստ'
+										: language === 'ru'
+										? 'Склад'
+										: 'Warehouse'}
+								</option>
+								<option value='factory'>
+									{language === 'hy'
+										? 'Գործարան'
+										: language === 'ru'
+										? 'Завод'
+										: 'Factory'}
+								</option>
+								<option value='hotel'>
+									{language === 'hy'
+										? 'Հյուրանոց'
+										: language === 'ru'
+										? 'Отель'
+										: 'Hotel'}
+								</option>
+							</select>
+						</div>
+
+						{/* Floors & Ceiling Height */}
+						<div className='col-span-2 grid grid-cols-2 gap-4'>
+							<div className='relative'>
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('floors')}
+								</label>
+								<input
+									type='number'
+									placeholder={t.any}
+									value={advancedSearch.floors}
+									onChange={e =>
+										setAdvancedSearch({
+											...advancedSearch,
+											floors: e.target.value,
+										})
+									}
+									className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+									min='1'
+								/>
+							</div>
+							<div className='relative'>
+								<label className='block text-sm font-semibold text-gray-700 mb-3'>
+									{getAttributeLabel('ceiling_height')}
+								</label>
+								<input
+									type='number'
+									placeholder={t.any}
+									value={advancedSearch.ceiling_height}
+									onChange={e =>
+										setAdvancedSearch({
+											...advancedSearch,
+											ceiling_height: e.target.value,
+										})
+									}
+									className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+									min='2'
+									max='10'
+									step='0.1'
 								/>
 							</div>
 						</div>
 					</>
 				)
 
-			case 'commercial':
 			case 'land':
-				return null
+				return (
+					<>
+						{/* Land Area */}
+						<div className='relative'>
+							<label className='block text-sm font-semibold text-gray-700 mb-3'>
+								{getAttributeLabel('area_acres')}
+							</label>
+							<input
+								type='number'
+								placeholder={t.any}
+								value={advancedSearch.area_acres}
+								onChange={e =>
+									setAdvancedSearch({
+										...advancedSearch,
+										area_acres: e.target.value,
+									})
+								}
+								className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500'
+								min='0'
+							/>
+						</div>
+
+						{/* Quick Land Size Buttons */}
+						<div className='col-span-2'>
+							<label className='block text-sm font-semibold text-gray-700 mb-3'>
+								{language === 'hy'
+									? 'Արագ ընտրություն'
+									: language === 'ru'
+									? 'Быстрый выбор'
+									: 'Quick Selection'}
+							</label>
+							<div className='grid grid-cols-2 gap-2'>
+								{[
+									{
+										label:
+											language === 'hy'
+												? 'Մինչև 1000 քմ'
+												: language === 'ru'
+												? 'До 1000 кв.м'
+												: 'Under 1000 sq m',
+										min: 0,
+										max: 1000,
+									},
+									{
+										label:
+											language === 'hy'
+												? '1000-5000 քմ'
+												: language === 'ru'
+												? '1000-5000 кв.м'
+												: '1000-5000 sq m',
+										min: 1000,
+										max: 5000,
+									},
+									{
+										label:
+											language === 'hy'
+												? '5000-10000 քմ'
+												: language === 'ru'
+												? '5000-10000 кв.м'
+												: '5000-10000 sq m',
+										min: 5000,
+										max: 10000,
+									},
+									{
+										label:
+											language === 'hy'
+												? 'Ավելի քան 10000 քմ'
+												: language === 'ru'
+												? 'Свыше 10000 кв.м'
+												: 'Over 10000 sq m',
+										min: 10000,
+										max: undefined,
+									},
+								].map((range, index) => (
+									<button
+										key={index}
+										type='button'
+										onClick={() => {
+											setAdvancedSearch(prev => ({
+												...prev,
+												min_area: range.min.toString(),
+												max_area: range.max?.toString() || '',
+											}))
+										}}
+										className='px-3  py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-green-100 hover:text-green-700 rounded-lg transition-colors'
+									>
+										{range.label}
+									</button>
+								))}
+							</div>
+						</div>
+					</>
+				)
 
 			default:
 				return null
@@ -309,18 +733,29 @@ export default function HomePage() {
 	}
 
 	const hasActiveFilters = () => {
-		 		return (
-		 			selectedPropertyType ||
-		 			advancedSearch.listing_type ||
-		 			advancedSearch.location ||
-		 			advancedSearch.min_price ||
-		 			advancedSearch.max_price ||
-		 			advancedSearch.bedrooms ||
-		 			advancedSearch.bathrooms ||
-		 			advancedSearch.min_area ||
-		 			advancedSearch.max_area
-		 		)
-		 	}
+		return (
+			selectedPropertyType ||
+			advancedSearch.listing_type ||
+			advancedSearch.location ||
+			advancedSearch.min_price ||
+			advancedSearch.max_price ||
+			advancedSearch.bedrooms ||
+			advancedSearch.bathrooms ||
+			advancedSearch.min_area ||
+			advancedSearch.max_area ||
+			advancedSearch.state_id ||
+			advancedSearch.city_id ||
+			advancedSearch.district_id ||
+			advancedSearch.floors ||
+			advancedSearch.floor ||
+			advancedSearch.total_floors ||
+			advancedSearch.ceiling_height ||
+			advancedSearch.lot_size_sqft ||
+			advancedSearch.business_type ||
+			advancedSearch.area_acres ||
+			advancedSearch.features.length > 0
+		)
+	}
 	
 
 
@@ -467,7 +902,6 @@ export default function HomePage() {
 					</div>
 
 					<form onSubmit={handleAdvancedSearch} className='max-w-7xl mx-auto'>
-						{/* Advanced search form content here */}
 						<div className='bg-white rounded-3xl shadow-xl border border-gray-100 p-8 mb-8'>
 							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'>
 								{/* Listing Type */}
@@ -485,7 +919,7 @@ export default function HomePage() {
 													listing_type: e.target.value as ListingType | '',
 												})
 											}
-											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer'
+											className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer'
 										>
 											<option value=''>{t.anyType}</option>
 											<option value='sale'>{t.forSale}</option>
@@ -496,6 +930,7 @@ export default function HomePage() {
 									</div>
 								</div>
 
+								{/* Location - State */}
 								<div className='relative group'>
 									<label className='block text-sm font-semibold text-gray-700 mb-3'>
 										{t.location}
@@ -511,11 +946,11 @@ export default function HomePage() {
 												setAdvancedSearch({
 													...advancedSearch,
 													state_id: stateId,
-													city_id: undefined, // Reset city when state changes
-													district_id: undefined, // Reset district when state changes
+													city_id: undefined,
+													district_id: undefined,
 												})
 											}}
-											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer'
+											className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer'
 										>
 											<option value=''>{t.allStates}</option>
 											{states.map(state => (
@@ -546,7 +981,7 @@ export default function HomePage() {
 															: undefined,
 													})
 												}
-												className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer disabled:bg-gray-50'
+												className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer disabled:bg-gray-50'
 												disabled={!advancedSearch.state_id}
 											>
 												<option value=''>{t.allDistricts}</option>
@@ -579,7 +1014,7 @@ export default function HomePage() {
 															: undefined,
 													})
 												}
-												className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer disabled:bg-gray-50'
+												className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm appearance-none cursor-pointer disabled:bg-gray-50'
 												disabled={!advancedSearch.state_id}
 											>
 												<option value=''>{t.allCities}</option>
@@ -611,7 +1046,7 @@ export default function HomePage() {
 													min_price: e.target.value,
 												})
 											}
-											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+											className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
 										/>
 									</div>
 								</div>
@@ -633,18 +1068,16 @@ export default function HomePage() {
 													max_price: e.target.value,
 												})
 											}
-											className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+											className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
 										/>
 									</div>
 								</div>
 
-								{/* Custom property type fields */}
-								{getPropertyTypeFields()}
-
-								{/* Area fields if applicable */}
+								{/* Area fields */}
 								{(selectedPropertyType === 'house' ||
 									selectedPropertyType === 'apartment' ||
-									selectedPropertyType === 'commercial') && (
+									selectedPropertyType === 'commercial' ||
+									!selectedPropertyType) && (
 									<>
 										{/* Min Area */}
 										<div className='relative group'>
@@ -663,7 +1096,7 @@ export default function HomePage() {
 															min_area: e.target.value,
 														})
 													}
-													className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+													className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
 												/>
 											</div>
 										</div>
@@ -685,16 +1118,19 @@ export default function HomePage() {
 															max_area: e.target.value,
 														})
 													}
-													className='w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
+													className='w-full text-gray-600 pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-300 transition-all duration-200 bg-white shadow-sm'
 												/>
 											</div>
 										</div>
 									</>
 								)}
+
+								{/* Property type specific fields */}
+								{getPropertyTypeFields()}
 							</div>
 						</div>
 
-						<div className='flex justify-center space-x-4'>
+						<div className='flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4'>
 							<button
 								type='button'
 								onClick={clearAdvancedSearch}
