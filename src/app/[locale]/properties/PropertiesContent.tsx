@@ -1,7 +1,7 @@
 // src/app/properties/PropertiesContent.tsx
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import PropertyCard from '@/app/_components/PropertyCard'
 import PropertyFilter from '@/app/_components/PropertyFilter'

@@ -67,13 +67,18 @@ export default function PropertyFilter({
 		max: filter.max_price?.toString() || '',
 	})
 
-	const debounce = useCallback((func: Function, delay: number) => {
-		let timeoutId: NodeJS.Timeout
-		return (...args: unknown[]) => {
-			clearTimeout(timeoutId)
-			timeoutId = setTimeout(() => func.apply(null, args), delay)
-		}
-	}, [])
+	const debounce = useCallback(
+		(func: (...args: any[]) => void, delay: number) => {
+			let timeoutId: NodeJS.Timeout
+			return (...args: any[]) => {
+				clearTimeout(timeoutId)
+				timeoutId = setTimeout(() => func(...args), delay)
+			}
+		},
+		[]
+	)
+	  
+	  
 
 	// Debounced price update function
 	const debouncedPriceUpdate = useCallback(
@@ -233,7 +238,7 @@ export default function PropertyFilter({
 	}
 
 	const getTranslatedDistrictName = (
-		district: any,
+		district: unknown | string | Record<string, undefined>,
 		language: string
 	): string => {
 		if (!district) return ''
@@ -251,7 +256,10 @@ export default function PropertyFilter({
 		}
 
 		// Fallback to name property or empty string
-		return district.name || ''
+		if (typeof district === 'object' && district !== null && 'name' in district) {
+			return (district as { name?: string }).name || ''
+		}
+		return ''
 	}
 
 	// Define property types with explicit typing

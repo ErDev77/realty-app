@@ -179,7 +179,7 @@ export default function PropertyCard({
 	}
 
 	const getTranslatedDistrictName = (
-		district: any,
+		district: unknown | string | Record<string, undefined>,
 		language: string
 	): string => {
 		if (!district) return ''
@@ -190,14 +190,17 @@ export default function PropertyCard({
 		// If it has the expected structure, use getTranslatedField
 		if (district && typeof district === 'object' && 'name' in district) {
 			return getTranslatedField(
-				district as Record<string, any>,
+				district as Record<string, undefined>,
 				'name',
 				language as 'hy' | 'en' | 'ru'
 			)
 		}
 
 		// Fallback to name property or empty string
-		return district.name || ''
+		if (district && typeof district === 'object' && 'name' in district) {
+			return (district as { name?: string }).name || ''
+		}
+		return ''
 	}
 	// Get property type and status info
 	const propertyTypeInfo = getPropertyTypeInfo(property.property_type)

@@ -3,7 +3,7 @@
 
 declare global {
 	interface Window {
-		ymaps: typeof ymaps
+		ymaps: ymaps.YMapsApi
 		gtag: (...args: unknown[]) => void
 	}
 }
@@ -108,8 +108,8 @@ declare namespace ymaps {
 		iconImageSize?: number[]
 		iconImageOffset?: number[]
 		iconShape?: object
-		iconLayout?: string | Function
-		iconContentLayout?: string | Function
+		iconLayout?: string | ((...args: any[]) => unknown)
+		iconContentLayout?: string | ((...args: any[]) => unknown)
 		iconCaptionMaxWidth?: number
 		balloonCloseButton?: boolean
 		balloonMaxWidth?: number
@@ -165,13 +165,13 @@ declare namespace ymaps {
 	class EventManager {
 		add(
 			event: string,
-			handler: Function,
+			handler: (...args: any[]) => unknown,
 			context?: object,
 			priority?: number
 		): EventManager
 		remove(
 			event: string,
-			handler: Function,
+			handler: (...args: any[]) => unknown,
 			context?: object,
 			priority?: number
 		): EventManager
@@ -342,7 +342,7 @@ declare namespace ymaps {
 			template: string,
 			overrides?: object,
 			staticMethods?: object
-		): Function
+		): (...args: any[]) => unknown
 	}
 
 	// Utilities
@@ -414,7 +414,7 @@ declare namespace ymaps {
 declare global {
 	interface Window {
 		// Google Analytics
-		dataLayer: unknowna[]
+		dataLayer: unknown[]
 
 		// File System API (for reading uploaded files)
 		fs?: {

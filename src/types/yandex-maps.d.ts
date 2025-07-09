@@ -1,4 +1,5 @@
-// src/types/yandex-maps.d.ts - Enhanced and optimized
+// src/types/yandex-maps.d.ts - Enhanced and typed, no explicit any
+
 declare global {
 	interface Window {
 		ymaps: YMaps
@@ -26,22 +27,22 @@ interface YMaps {
 
 	control: {
 		FullscreenControl: {
-			new (parameters?: any): YControl
+			new (parameters?: object): YControl
 		}
 		ZoomControl: {
-			new (parameters?: any): YControl
+			new (parameters?: object): YControl
 		}
 		TypeSelector: {
-			new (parameters?: any): YControl
+			new (parameters?: object): YControl
 		}
 		GeolocationControl: {
-			new (parameters?: any): YControl
+			new (parameters?: object): YControl
 		}
 		RouteButtonControl: {
-			new (parameters?: any): YControl
+			new (parameters?: object): YControl
 		}
 		TrafficControl: {
-			new (parameters?: any): YControl
+			new (parameters?: object): YControl
 		}
 	}
 
@@ -78,9 +79,9 @@ interface YMap {
 	getCenter(): number[]
 	getZoom(): number
 	getBounds(): number[][]
-	setCenter(center: number[], zoom?: number, options?: any): Promise<void>
-	setZoom(zoom: number, options?: any): Promise<void>
-	setBounds(bounds: number[][], options?: any): Promise<void>
+	setCenter(center: number[], zoom?: number, options?: object): Promise<void>
+	setZoom(zoom: number, options?: object): Promise<void>
+	setBounds(bounds: number[][], options?: object): Promise<void>
 	destroy(): void
 	getContainer(): HTMLElement
 }
@@ -137,13 +138,13 @@ interface YPlacemark {
 	balloon: YBalloon
 	hint: YHint
 
-	getOverlay(): Promise<any>
-	getOverlaySync(): any
+	getOverlay(): Promise<unknown>
+	getOverlaySync(): unknown | null
 }
 
 interface YGeoObjectCollection {
-	add(object: YPlacemark | any): YGeoObjectCollection
-	remove(object: YPlacemark | any): YGeoObjectCollection
+	add(object: YPlacemark | unknown): YGeoObjectCollection
+	remove(object: YPlacemark | unknown): YGeoObjectCollection
 	removeAll(): YGeoObjectCollection
 	getLength(): number
 	getBounds(): number[][] | null
@@ -151,9 +152,9 @@ interface YGeoObjectCollection {
 }
 
 interface YControlCollection {
-	add(control: string | any, options?: any): YControlCollection
-	remove(control: string | any): YControlCollection
-	get(index: number | string): any
+	add(control: string | unknown, options?: object): YControlCollection
+	remove(control: string | unknown): YControlCollection
+	get(index: number | string): unknown | null
 }
 
 interface YControl {
@@ -165,16 +166,20 @@ interface YControl {
 interface YEventManager {
 	add(
 		event: string,
-		handler: Function,
-		context?: any,
+		handler: (...args: unknown[]) => unknown,
+		context?: object,
 		priority?: number
 	): YEventManager
-	remove(event: string, handler: Function, context?: any): YEventManager
-	fire(event: string, eventObject?: any): YEventManager
+	remove(
+		event: string,
+		handler: (...args: unknown[]) => unknown,
+		context?: object
+	): YEventManager
+	fire(event: string, eventObject?: object): YEventManager
 }
 
 interface YBehaviorManager {
-	get(name: string): any
+	get(name: string): unknown
 	isEnabled(name: string): boolean
 	enable(name: string | string[]): YBehaviorManager
 	disable(name: string | string[]): YBehaviorManager
@@ -188,19 +193,19 @@ interface YGeometry {
 }
 
 interface YDataManager {
-	get(property: string, defaultValue?: any): any
-	set(property: string | any, value?: any): YDataManager
+	get(property: string, defaultValue?: unknown): unknown
+	set(property: string | object, value?: unknown): YDataManager
 	unset(property: string): YDataManager
-	setAll(data?: any): YDataManager
-	getAll(): any
+	setAll(data?: unknown): YDataManager
+	getAll(): unknown
 }
 
 interface YOptionManager {
-	get(option: string, defaultValue?: any): any
-	set(option: string | any, value?: any): YOptionManager
+	get(option: string, defaultValue?: unknown): unknown
+	set(option: string | object, value?: unknown): YOptionManager
 	unset(option: string): YOptionManager
-	setAll(options?: any): YOptionManager
-	getAll(): any
+	setAll(options?: unknown): YOptionManager
+	getAll(): unknown
 	getParent(): YOptionManager | null
 	setParent(parent: YOptionManager): YOptionManager
 }
@@ -209,29 +214,29 @@ interface YBalloon {
 	autoPan(): Promise<YBalloon>
 	close(force?: boolean): Promise<YBalloon>
 	destroy(): void
-	getData(): any
+	getData(): unknown
 	getOptions(): YOptionManager | null
-	getOverlay(): Promise<any>
-	getOverlaySync(): any
+	getOverlay(): Promise<unknown>
+	getOverlaySync(): unknown | null
 	getPosition(): number[] | null
 	isOpen(): boolean
-	open(objectId?: any, anchorPixelPosition?: boolean): Promise<YBalloon>
-	setData(data: any): Promise<YBalloon>
-	setOptions(options: any): Promise<YBalloon>
+	open(objectId?: unknown, anchorPixelPosition?: boolean): Promise<YBalloon>
+	setData(data: unknown): Promise<YBalloon>
+	setOptions(options: unknown): Promise<YBalloon>
 	setPosition(position: number[]): Promise<YBalloon>
 }
 
 interface YHint {
 	destroy(): void
-	getData(): any
+	getData(): unknown
 	getOptions(): YOptionManager | null
-	getOverlay(): Promise<any>
-	getOverlaySync(): any
+	getOverlay(): Promise<unknown>
+	getOverlaySync(): unknown | null
 	getPosition(): number[] | null
 	isOpen(): boolean
-	open(objectId?: any, anchorPixelPosition?: boolean): Promise<YHint>
-	setData(data: any): Promise<YHint>
-	setOptions(options: any): Promise<YHint>
+	open(objectId?: unknown, anchorPixelPosition?: boolean): Promise<YHint>
+	setData(data: unknown): Promise<YHint>
+	setOptions(options: unknown): Promise<YHint>
 	setPosition(position: number[]): Promise<YHint>
 }
 
@@ -262,7 +267,7 @@ interface YGeocodeResult {
 }
 
 interface YIterator {
-	getNext(): any
+	getNext(): unknown | null
 }
 
 // Export for module usage
