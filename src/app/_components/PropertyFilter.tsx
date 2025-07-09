@@ -232,6 +232,28 @@ export default function PropertyFilter({
 		)
 	}
 
+	const getTranslatedDistrictName = (
+		district: any,
+		language: string
+	): string => {
+		if (!district) return ''
+
+		// If it's already a string, return it
+		if (typeof district === 'string') return district
+
+		// If it has the expected structure, use getTranslatedField
+		if (district && typeof district === 'object' && 'name' in district) {
+			return getTranslatedField(
+				district as Record<string, any>,
+				'name',
+				language as 'hy' | 'en' | 'ru'
+			)
+		}
+
+		// Fallback to name property or empty string
+		return district.name || ''
+	}
+
 	// Define property types with explicit typing
 	const propertyTypes: {
 		type: PropertyType
@@ -496,7 +518,7 @@ export default function PropertyFilter({
 										<option value=''>{t.allDistricts}</option>
 										{districts.map(district => (
 											<option key={district.id} value={district.id}>
-												{getTranslatedField(district, 'name', language)}
+												{getTranslatedDistrictName(district, language)}
 											</option>
 										))}
 									</select>
@@ -1272,9 +1294,8 @@ export default function PropertyFilter({
 						)}
 						{filter.district_id && (
 							<span className='inline-flex items-center px-3 py-1 bg-pink-100 text-pink-800 text-xs font-medium rounded-full'>
-								{getTranslatedField(
+								{getTranslatedDistrictName(
 									districts.find(d => d.id === filter.district_id) || {},
-									'name',
 									language
 								)}
 								<button

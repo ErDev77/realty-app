@@ -104,7 +104,7 @@ export const seoHelpers = {
 
 		let currentPath = `/${language}`
 
-		segments.slice(1).forEach((segment, index) => {
+		segments.slice(1).forEach((segment) => {
 			currentPath += `/${segment}`
 
 			const label =
