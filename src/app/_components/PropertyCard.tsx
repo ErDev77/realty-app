@@ -292,17 +292,23 @@ export default function PropertyCard({
 			)
 		}
 
-		// Fallback to name property or empty string
-		if (
-			typeof district === 'object' &&
-			district !== null &&
-			'name' in district &&
-			typeof (district as { name?: unknown }).name === 'string'
-		) {
-			return (district as { name: string }).name
-		} else {
-			return ''
+		// ✅ FIX: Handle the case where district has name_hy, name_en, name_ru properties
+		if (typeof district === 'object' && district !== null) {
+			const districtObj = district as Record<string, unknown>
+
+			// Try language-specific name first
+			const langKey = `name_${language}` as keyof typeof districtObj
+			if (langKey in districtObj && typeof districtObj[langKey] === 'string') {
+				return districtObj[langKey] as string
+			}
+
+			// Fall back to 'name' property
+			if ('name' in districtObj && typeof districtObj.name === 'string') {
+				return districtObj.name
+			}
 		}
+
+		return ''
 	}
 
 	// Enhanced video handling function
@@ -671,25 +677,38 @@ export default function PropertyCard({
 					<div className='flex items-center text-gray-600 mb-4'>
 						<MapPin className='w-4 h-4 mr-2 text-blue-500 flex-shrink-0' />
 						<div className='text-sm truncate'>
-							{property.state
-								? property.district
-									? `${getTranslatedDistrictName(
+							{(() => {
+								// ✅ FIX: Proper district/city/state rendering logic
+								if (property.state) {
+									if (property.district) {
+										// Show district + state for states that use districts (like Yerevan)
+										const districtName = getTranslatedDistrictName(
 											property.district,
 											language
-									  )}, ${getTranslatedStateName(
+										)
+										const stateName = getTranslatedStateName(
 											property.state.name,
 											language
-									  )}`
-									: property.city
-									? `${getTranslatedCityName(
+										)
+										return `${districtName}, ${stateName}`
+									} else if (property.city) {
+										// Show city + state for states that use cities
+										const cityName = getTranslatedCityName(
 											property.city.name,
 											language
-									  )}, ${getTranslatedStateName(
+										)
+										const stateName = getTranslatedStateName(
 											property.state.name,
 											language
-									  )}`
-									: getTranslatedStateName(property.state.name, language)
-								: ''}
+										)
+										return `${cityName}, ${stateName}`
+									} else {
+										// Just show state
+										return getTranslatedStateName(property.state.name, language)
+									}
+								}
+								return ''
+							})()}
 						</div>
 					</div>
 

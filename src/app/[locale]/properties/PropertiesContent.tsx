@@ -1,7 +1,7 @@
 // src/app/properties/PropertiesContent.tsx
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import PropertyCard from '@/app/_components/PropertyCard'
 import PropertyFilter from '@/app/_components/PropertyFilter'
@@ -83,6 +83,20 @@ export default function PropertiesContent({
 		return initialFilter
 	})
 
+	useEffect(() => {
+		setCurrentPage(1) // Reset to first page when filter changes
+		fetchProperties()
+	}, [
+		filter.property_type,
+		filter.listing_type,
+		filter.state_id,
+		filter.city_id,
+		filter.district_id,
+		filter.min_price,
+		filter.max_price,
+	])
+	
+
 	
 
 	const fetchProperties = useCallback(async () => {
@@ -130,6 +144,10 @@ export default function PropertiesContent({
 		}
 	}, [currentPage, filter, sortBy, sortOrder])
 
+	useEffect(() => {
+		fetchProperties()
+	}, [fetchProperties])
+
 
 
 	const handleFilterChange = (newFilter: FilterType) => {
@@ -150,6 +168,9 @@ export default function PropertiesContent({
 		setSortOrder(newSortOrder)
 		setCurrentPage(1)
 	}
+	useEffect(() => {
+		fetchProperties()
+	}, [currentPage, sortBy, sortOrder])
 
 
 	const hasActiveFilters = () => {
