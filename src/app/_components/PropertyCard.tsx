@@ -178,6 +178,27 @@ export default function PropertyCard({
 		}
 	}
 
+	const getTranslatedDistrictName = (
+		district: any,
+		language: string
+	): string => {
+		if (!district) return ''
+
+		// If it's already a string, return it
+		if (typeof district === 'string') return district
+
+		// If it has the expected structure, use getTranslatedField
+		if (district && typeof district === 'object' && 'name' in district) {
+			return getTranslatedField(
+				district as Record<string, any>,
+				'name',
+				language as 'hy' | 'en' | 'ru'
+			)
+		}
+
+		// Fallback to name property or empty string
+		return district.name || ''
+	}
 	// Get property type and status info
 	const propertyTypeInfo = getPropertyTypeInfo(property.property_type)
 	const statusInfo = getStatusInfo(property.status)
@@ -437,9 +458,8 @@ export default function PropertyCard({
 						<div className='text-sm truncate'>
 							{property.state
 								? property.district
-									? `${getTranslatedField(
+									? `${getTranslatedDistrictName(
 											property.district,
-											'name',
 											language
 									  )}, ${getTranslatedStateName(
 											property.state.name,

@@ -4,12 +4,14 @@
 declare global {
 	interface Window {
 		ymaps: typeof ymaps
-		gtag: (...args: any[]) => void
+		gtag: (...args: unknown[]) => void
 	}
 }
 
 // Yandex Maps API v2.1 TypeScript declarations
 declare namespace ymaps {
+	type YMapsApi = typeof ymaps
+
 	// Main API
 	function ready(callback?: () => void): Promise<void>
 
@@ -140,8 +142,8 @@ declare namespace ymaps {
 
 	// Collections and Managers
 	class GeoObjectCollection {
-		add(object: Placemark | any): GeoObjectCollection
-		remove(object: Placemark | any): GeoObjectCollection
+		add(object: Placemark | unknown): GeoObjectCollection
+		remove(object: Placemark | unknown): GeoObjectCollection
 		removeAll(): GeoObjectCollection
 		getIterator(): Iterator
 		getLength(): number
@@ -153,8 +155,8 @@ declare namespace ymaps {
 	}
 
 	class ControlCollection {
-		add(control: string | any, options?: object): ControlCollection
-		remove(control: string | any): ControlCollection
+		add(control: string | unknown, options?: object): ControlCollection
+		remove(control: string | unknown): ControlCollection
 		get(index: number | string): object | null
 		getIterator(): Iterator
 		getLength(): number
@@ -186,16 +188,16 @@ declare namespace ymaps {
 
 	// Data and Option Managers
 	class DataManager {
-		get(property: string, defaultValue?: any): any
-		set(property: string | object, value?: any): DataManager
+		get(property: string, defaultValue?: unknown): unknown
+		set(property: string | object, value?: unknown): DataManager
 		unset(property: string): DataManager
 		setAll(): DataManager
 		getAll(): object
 	}
 
 	class OptionManager {
-		get(option: string, defaultValue?: any): any
-		set(option: string | object, value?: any): OptionManager
+		get(option: string, defaultValue?: unknown): unknown
+		set(option: string | object, value?: unknown): OptionManager
 		unset(option: string): OptionManager
 		setAll(): OptionManager
 		getAll(): object
@@ -349,7 +351,7 @@ declare namespace ymaps {
 			class Rectangle {
 				constructor(coordinates: number[][], fillRule?: string)
 				contains(position: number[]): boolean
-				equals(geometry: any): boolean
+				equals(geometry: unknown): boolean
 				getBounds(): number[][] | null
 				getCoordinates(): number[][]
 				getLength(): number
@@ -361,7 +363,7 @@ declare namespace ymaps {
 			class Polygon {
 				constructor(coordinates: number[][][], fillRule?: string)
 				contains(position: number[]): boolean
-				equals(geometry: any): boolean
+				equals(geometry: unknown): boolean
 				getBounds(): number[][] | null
 				getCoordinates(): number[][][]
 				getLength(): number
@@ -393,8 +395,8 @@ declare namespace ymaps {
 
 	interface Event {
 		allowMapEvent(): void
-		callMethod(name: string): any
-		get(name: string): any
+		callMethod(name: string): unknown
+		get(name: string): unknown
 		getSourceEvent(): Event | null
 		isDefaultPrevented(): boolean
 		isImmediatePropagationStopped(): boolean
@@ -412,7 +414,7 @@ declare namespace ymaps {
 declare global {
 	interface Window {
 		// Google Analytics
-		dataLayer: any[]
+		dataLayer: unknowna[]
 
 		// File System API (for reading uploaded files)
 		fs?: {

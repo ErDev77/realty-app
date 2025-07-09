@@ -4,14 +4,16 @@ import { CheckCircle, Clock, XCircle, Pause, AlertCircle } from 'lucide-react'
 export function getTranslatedStatus(
 	status: PropertyStatus,
 	language: 'hy' | 'en' | 'ru'
-): { label: string; icon: any } {
-
+): { label: string; icon: React.ComponentType<{ className?: string }> } {
 	const statusStr =
 		typeof status === 'object' ? status?.name || 'active' : String(status)
 
 	const statusTranslations: Record<
 		string,
-		Record<string, { label: string; icon: any }>
+		Record<
+			string,
+			{ label: string; icon: React.ComponentType<{ className?: string }> }
+		>
 	> = {
 		active: {
 			hy: { label: 'Ակտիվ', icon: CheckCircle },

@@ -1,7 +1,7 @@
 // src/app/properties/PropertiesContent.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import PropertyCard from '@/app/_components/PropertyCard'
 import PropertyFilter from '@/app/_components/PropertyFilter'
@@ -85,7 +85,7 @@ export default function PropertiesContent({
 
 	
 
-	const fetchProperties = async () => {
+	const fetchProperties = useCallback(async () => {
 		setLoading(true)
 		setError(null)
 
@@ -128,11 +128,9 @@ export default function PropertiesContent({
 		} finally {
 			setLoading(false)
 		}
-	}
+	}, [currentPage, filter, sortBy, sortOrder])
 
-	useEffect(() => {
-		fetchProperties()
-	}, [currentPage, filter, sortBy, sortOrder, fetchProperties])
+
 
 	const handleFilterChange = (newFilter: FilterType) => {
 		setFilter(newFilter)

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
 					>
 						{/* Property Image */}
 						{image && (
-							<img
+							<Image
 								src={image}
 								alt='Property'
 								style={{

@@ -69,7 +69,7 @@ export default function PropertyFilter({
 
 	const debounce = useCallback((func: Function, delay: number) => {
 		let timeoutId: NodeJS.Timeout
-		return (...args: any[]) => {
+		return (...args: unknown[]) => {
 			clearTimeout(timeoutId)
 			timeoutId = setTimeout(() => func.apply(null, args), delay)
 		}
@@ -83,27 +83,31 @@ export default function PropertyFilter({
 			newFilter.max_price = maxPrice ? parseFloat(maxPrice) : undefined
 			setFilter(newFilter)
 			onFilterChange(newFilter)
-		}, 800), // 800ms delay
+		}, 800),
 		[filter, onFilterChange]
 	)
+	
 
 	// Handle price input changes
-	const handlePriceChange = useCallback((type: 'min' | 'max', value: string) => {
-		// Only allow numbers and empty string
-		if (value === '' || /^\d+$/.test(value)) {
-			setLocalPrices(prev => ({
-				...prev,
-				[type]: value,
-			}))
+	const handlePriceChange = useCallback(
+		(type: 'min' | 'max', value: string) => {
+			// Only allow numbers and empty string
+			if (value === '' || /^\d+$/.test(value)) {
+				setLocalPrices(prev => ({
+					...prev,
+					[type]: value,
+				}))
 
-			// Trigger debounced update
-			if (type === 'min') {
-				debouncedPriceUpdate(value, localPrices.max)
-			} else {
-				debouncedPriceUpdate(localPrices.min, value)
+				// Trigger debounced update
+				if (type === 'min') {
+					debouncedPriceUpdate(value, localPrices.max)
+				} else {
+					debouncedPriceUpdate(localPrices.min, value)
+				}
 			}
-		}
-	}, [localPrices.max, localPrices.min, debouncedPriceUpdate])
+		},
+		[localPrices.max, localPrices.min, debouncedPriceUpdate]
+	)
 
 
 	// Update local prices when filter changes externally
@@ -231,7 +235,7 @@ export default function PropertyFilter({
 	// Define property types with explicit typing
 	const propertyTypes: {
 		type: PropertyType
-		icon: any
+		icon: React.ComponentType<{ className?: string }>
 		label: string
 		color: string
 	}[] = [
@@ -271,7 +275,7 @@ export default function PropertyFilter({
 	}: {
 		title: string
 		sectionKey: string
-		icon: any
+		icon: React.ComponentType<{ className?: string }>
 		children: React.ReactNode
 		badge?: number | string
 	}) => (

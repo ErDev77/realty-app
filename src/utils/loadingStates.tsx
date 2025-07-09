@@ -1,6 +1,7 @@
 // src/utils/loadingStates.ts - Loading states with translations
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { translations } from '../translations/translations'
+import { JSX } from 'react'
 
 export function getLoadingMessages(language: 'hy' | 'en' | 'ru') {
 	const messages = {
@@ -31,25 +32,25 @@ export function createLoadingComponent(language: 'hy' | 'en' | 'ru') {
 	const messages = getLoadingMessages(language)
 	let currentIndex = 0
 
-	// return {
-	// 	getMessage: () => {
-	// 		const message = messages[currentIndex]
-	// 		currentIndex = (currentIndex + 1) % messages.length
-	// 		return message
-	// 	},
+	return {
+		getMessage: () => {
+			const message = messages[currentIndex]
+			currentIndex = (currentIndex + 1) % messages.length
+			return message
+		},
 
-	// 	component: () => (
-	// 		<div className='flex flex-col items-center justify-center h-64'>
-	// 			<div className='relative'>
-	// 				<div className='animate-spin rounded-full h-16 w-16 border-4 border-blue-200'></div>
-	// 				<div className='animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 absolute top-0 left-0'></div>
-	// 			</div>
-	// 			<p className='mt-4 text-gray-600 font-medium animate-pulse'>
-	// 				{messages[0]}
-	// 			</p>
-	// 		</div>
-	// 	),
-	// }
+		component: (): JSX.Element => (
+			<div className='flex flex-col items-center justify-center h-64'>
+				<div className='relative'>
+					<div className='animate-spin rounded-full h-16 w-16 border-4 border-blue-200'></div>
+					<div className='animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 absolute top-0 left-0'></div>
+				</div>
+				<p className='mt-4 text-gray-600 font-medium animate-pulse'>
+					{messages[0]}
+				</p>
+			</div>
+		),
+	}
 }
 
 // Performance monitoring
@@ -61,7 +62,7 @@ export const performanceMetrics = {
 		console.log(`${name} took ${end - start} milliseconds`)
 	},
 
-	measureAsync: async (name: string, fn: () => Promise<any>) => {
+	measureAsync: async (name: string, fn: () => Promise<unknown>) => {
 		const start = performance.now()
 		const result = await fn()
 		const end = performance.now()
@@ -81,7 +82,8 @@ export const performanceMetrics = {
 			// Track First Input Delay
 			new PerformanceObserver(list => {
 				for (const entry of list.getEntries()) {
-					console.log('FID:', (entry as any).processingStart - entry.startTime)
+					const timing = entry as PerformanceEventTiming
+					console.log('FID:', timing.processingStart - timing.startTime)
 				}
 			}).observe({ entryTypes: ['first-input'] })
 		}

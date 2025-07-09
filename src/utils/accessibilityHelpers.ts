@@ -3,36 +3,47 @@ import { formatPrice } from "./formatters"
 // src/utils/accessibilityHelpers.ts - Accessibility improvements
 export function generateAriaLabel(
 	element: 'propertyCard' | 'navigationLink' | 'contactButton',
-	data: any,
+	data: Record<string, unknown>,
 	language: 'hy' | 'en' | 'ru' = 'hy'
 ): string {
-
 	switch (element) {
-		case 'propertyCard':
-			return `${data.title}, ${formatPrice(
-				data.price,
-				data.listing_type,
-				data.currency,
+		case 'propertyCard': {
+			const propertyData = data as {
+				title: string
+				price: number
+				listing_type: string
+				currency: string
+				city?: { name: string }
+			}
+			return `${propertyData.title}, ${formatPrice(
+				propertyData.price,
+				propertyData.listing_type,
+				propertyData.currency,
 				language
-			)}, ${data.city?.name}`
+			)}, ${propertyData.city?.name}`
+		}
 
-		case 'navigationLink':
+		case 'navigationLink': {
+			const navData = data as { label: string }
 			return `${
 				language === 'hy'
 					? 'Անցնել'
 					: language === 'ru'
 					? 'Перейти к'
 					: 'Navigate to'
-			} ${data.label}`
+			} ${navData.label}`
+		}
 
-		case 'contactButton':
+		case 'contactButton': {
+			const contactData = data as { method: string }
 			return `${
 				language === 'hy'
 					? 'Կապվել'
 					: language === 'ru'
 					? 'Связаться'
 					: 'Contact'
-			} ${data.method}`
+			} ${contactData.method}`
+		}
 
 		default:
 			return ''

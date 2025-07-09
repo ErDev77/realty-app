@@ -27,11 +27,10 @@ export function useCurrencyConversion(
 	fromCurrency = 'USD',
 	options: UseCurrencyConversionOptions = {}
 ) {
-	// ✅ FIX: Memoize options to prevent dependency changes
 	const memoizedOptions = useMemo(
 		() => ({
 			autoFetch: true,
-			refreshInterval: 30 * 60 * 1000, // 30 minutes
+			refreshInterval: 30 * 60 * 1000,
 			targetCurrencies: ['RUB', 'AMD'],
 			...options,
 		}),

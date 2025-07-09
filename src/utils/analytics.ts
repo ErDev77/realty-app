@@ -2,7 +2,7 @@ export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID
 
 declare global {
 	interface Window {
-		gtag: (...args: any[]) => void
+		gtag: (...args: unknown[]) => void
 	}
 }
 
@@ -47,7 +47,6 @@ export const trackPropertyView = (propertyId: string, propertyType: string) => {
 // Search tracking
 export const trackSearch = (
 	searchTerm: string,
-	filters: Record<string, any>
 ) => {
 	event({
 		action: 'search',

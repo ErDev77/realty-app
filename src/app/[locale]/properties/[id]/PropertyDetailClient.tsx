@@ -55,6 +55,7 @@ import Link from 'next/link'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import React from 'react'
+import ymaps from 'yandex-maps'
 
 interface PropertyDetailClientProps {
 	property: Property
@@ -77,7 +78,7 @@ const YandexMap = ({
 }) => {
 	const [mapLoaded, setMapLoaded] = useState(false)
 	const [mapError, setMapError] = useState(false)
-	const [mapInstance, setMapInstance] = useState<any>(null)
+	const [mapInstance, setMapInstance] = useState<ymaps.Map | null>(null)
 
 	const mapId = isPopup ? 'yandex-map-popup' : 'yandex-map'
 	const mapHeight = isPopup ? 'h-[500px]' : 'h-64'
@@ -206,7 +207,7 @@ const YandexMap = ({
 					map.controls.add(trafficControl)
 				}
 
-				setMapInstance(map)
+				setMapInstance(map as unknown as ymaps.Map)
 				setMapLoaded(true)
 			} catch (error) {
 				console.error('Error initializing Yandex Map:', error)
@@ -570,6 +571,28 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 			default:
 				return type
 		}
+	}
+
+	const getTranslatedDistrictName = (
+		district: any,
+		language: string
+	): string => {
+		if (!district) return ''
+
+		// If it's already a string, return it
+		if (typeof district === 'string') return district
+
+		// If it has the expected structure, use getTranslatedField
+		if (district && typeof district === 'object' && 'name' in district) {
+			return getTranslatedField(
+				district as Record<string, any>,
+				'name',
+				language as 'hy' | 'en' | 'ru'
+			)
+		}
+
+		// Fallback to name property or empty string
+		return district.name || ''
 	}
 
 	const handleShare = async () => {
@@ -1408,9 +1431,8 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 										<span className='text-sm'>
 											{property.state
 												? property.district
-													? `${getTranslatedField(
+													? `${getTranslatedDistrictName(
 															property.district,
-															'name',
 															language
 													  )}, ${getTranslatedStateName(
 															property.state.name,
@@ -1620,9 +1642,8 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 										<span>
 											{property.state
 												? property.district
-													? `${getTranslatedField(
+													? `${getTranslatedDistrictName(
 															property.district,
-															'name',
 															language
 													  )}, ${getTranslatedStateName(
 															property.state.name,
