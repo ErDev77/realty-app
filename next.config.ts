@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+	typescript: {
+		// Enable type checking during build
+		ignoreBuildErrors: false,
+	},
 	images: {
 		formats: ['image/webp', 'image/avif'],
 		domains: [
