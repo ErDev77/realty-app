@@ -68,9 +68,9 @@ export default function PropertyFilter({
 	})
 
 	const debounce = useCallback(
-		(func: (...args: any[]) => void, delay: number) => {
+		(func: (...args: unknown[]) => void, delay: number) => {
 			let timeoutId: NodeJS.Timeout
-			return (...args: any[]) => {
+			return (...args: unknown[]) => {
 				clearTimeout(timeoutId)
 				timeoutId = setTimeout(() => func(...args), delay)
 			}
@@ -249,7 +249,7 @@ export default function PropertyFilter({
 		// If it has the expected structure, use getTranslatedField
 		if (district && typeof district === 'object' && 'name' in district) {
 			return getTranslatedField(
-				district as Record<string, any>,
+				district as Record<string, undefined>,
 				'name',
 				language as 'hy' | 'en' | 'ru'
 			)

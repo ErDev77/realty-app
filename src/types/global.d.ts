@@ -108,8 +108,8 @@ declare namespace ymaps {
 		iconImageSize?: number[]
 		iconImageOffset?: number[]
 		iconShape?: object
-		iconLayout?: string | ((...args: any[]) => unknown)
-		iconContentLayout?: string | ((...args: any[]) => unknown)
+		iconLayout?: string | ((...args: unknown[]) => unknown)
+		iconContentLayout?: string | ((...args: unknown[]) => unknown)
 		iconCaptionMaxWidth?: number
 		balloonCloseButton?: boolean
 		balloonMaxWidth?: number
@@ -165,13 +165,13 @@ declare namespace ymaps {
 	class EventManager {
 		add(
 			event: string,
-			handler: (...args: any[]) => unknown,
+			handler: (...args: unknown[]) => unknown,
 			context?: object,
 			priority?: number
 		): EventManager
 		remove(
 			event: string,
-			handler: (...args: any[]) => unknown,
+			handler: (...args: unknown[]) => unknown,
 			context?: object,
 			priority?: number
 		): EventManager
@@ -342,7 +342,7 @@ declare namespace ymaps {
 			template: string,
 			overrides?: object,
 			staticMethods?: object
-		): (...args: any[]) => unknown
+		): (...args: unknown[]) => unknown
 	}
 
 	// Utilities

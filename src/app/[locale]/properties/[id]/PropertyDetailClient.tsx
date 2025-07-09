@@ -574,7 +574,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 	}
 
 	const getTranslatedDistrictName = (
-		district: unknown | string | Record<string, any>,
+		district: unknown | string | Record<string, undefined>,
 		language: string
 	): string => {
 		if (!district) return ''
@@ -592,7 +592,17 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		}
 
 		// Fallback to name property or empty string
-		return typeof (district as any).name === 'string' ? (district as any).name : ''
+		if (
+			typeof district === 'object' &&
+			district !== null &&
+			'name' in district &&
+			typeof (district as { name?: unknown }).name === 'string'
+		) {
+			return (district as { name: string }).name
+		} else {
+			return ''
+		}
+		  
 	}
 
 	const handleShare = async () => {
