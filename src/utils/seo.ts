@@ -20,12 +20,24 @@ export const generatePropertyMetadata = (property: Property) => {
 			property.property_type === 'house' ||
 			property.property_type === 'apartment'
 		) {
+			// Эти типы точно имеют bedrooms и bathrooms
 			title += ` - ${property.attributes.bedrooms} Bed, ${property.attributes.bathrooms} Bath`
-		}
-		if (property.attributes.area_sqft) {
-			title += ` - ${property.attributes.area_sqft.toLocaleString()} sq ft`
+			if ('area_sqft' in property.attributes) {
+				title += ` - ${property.attributes.area_sqft.toLocaleString()} sq ft`
+			}
+		} else if (property.property_type === 'commercial') {
+			// У commercial нет bedrooms/bathrooms, но есть area_sqft
+			if ('area_sqft' in property.attributes) {
+				title += ` - ${property.attributes.area_sqft.toLocaleString()} sq ft`
+			}
+		} else if (property.property_type === 'land') {
+			if ('area_acres' in property.attributes) {
+				title += ` - ${property.attributes.area_acres.toLocaleString()} acres`
+			}
 		}
 	}
+	  
+	  
 
 	title += ` in ${property.city?.name}, Armenia - ${price}`
 
@@ -34,10 +46,13 @@ export const generatePropertyMetadata = (property: Property) => {
 		`${propertyType} for ${property.listing_type} in ${property.city?.name}, ${
 			property.state?.name
 		}. ${
-			'attributes' in property && property.attributes.bedrooms
+			'attributes' in property &&
+			(property.property_type === 'house' ||
+				property.property_type === 'apartment')
 				? `${property.attributes.bedrooms} bedrooms, ${property.attributes.bathrooms} bathrooms.`
 				: ''
 		} Price: ${price}. Contact Chance Realty for more details.`
+
 
 	const keywords = [
 		property.property_type,
