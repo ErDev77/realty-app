@@ -531,6 +531,8 @@ export function getTranslatedStateName(
 // In src/services/propertyService.ts
 // Replace the getTranslatedField function:
 
+
+
 export function getTranslatedField(
 	obj: Record<string, string | undefined>,
 	fieldName: string,

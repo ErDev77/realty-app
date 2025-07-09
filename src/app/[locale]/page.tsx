@@ -745,6 +745,38 @@ export default function HomePage() {
 			advancedSearch.features.length > 0
 		)
 	}
+
+		const getTranslatedDistrictName = (
+			district: unknown | string | Record<string, undefined>,
+			language: string
+		): string => {
+			if (!district) return ''
+	
+			// If it's already a string, return it
+			if (typeof district === 'string') return district
+	
+			// If it has the expected structure, use getTranslatedField
+			if (district && typeof district === 'object' && 'name' in district) {
+				return getTranslatedField(
+					district as Record<string, undefined>,
+					'name',
+					language as 'hy' | 'en' | 'ru'
+				)
+			}
+	
+			// Fallback to name property or empty string
+			if (
+				typeof district === 'object' &&
+				district !== null &&
+				'name' in district &&
+				typeof (district as { name?: unknown }).name === 'string'
+			) {
+				return (district as { name: string }).name
+			} else {
+				return ''
+			}
+			  
+		}
 	
 
 
@@ -976,7 +1008,7 @@ export default function HomePage() {
 												<option value=''>{t.allDistricts}</option>
 												{districts.map(district => (
 													<option key={district.id} value={district.id}>
-														{getTranslatedField(district, 'name', language)}
+														{getTranslatedDistrictName(district, language)}
 													</option>
 												))}
 											</select>
