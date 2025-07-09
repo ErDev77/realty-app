@@ -78,11 +78,10 @@ export const generatePropertySchema = (property: Property) => {
 			price: property.price,
 			priceCurrency: property.currency || 'USD',
 			availability:
-				property.status &&
-				'name' in property.status &&
-				property.status.name === 'available'
-					? 'https://schema.org/InStock'
-					: 'https://schema.org/OutOfStock',
+  property.status?.name === 'available'
+    ? 'https://schema.org/InStock'
+    : 'https://schema.org/OutOfStock',
+
 			priceSpecification: {
 				'@type': 'PriceSpecification',
 				price: property.price,

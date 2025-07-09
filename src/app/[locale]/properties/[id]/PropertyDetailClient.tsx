@@ -83,6 +83,8 @@ const YandexMap = ({
 	const mapId = isPopup ? 'yandex-map-popup' : 'yandex-map'
 	const mapHeight = isPopup ? 'h-[500px]' : 'h-64'
 
+	// Replace the useEffect in YandexMap component (around line 60-170) with this fixed version:
+
 	useEffect(() => {
 		const loadYandexMaps = () => {
 			if (window.ymaps) {
@@ -118,8 +120,10 @@ const YandexMap = ({
 
 		const initMap = () => {
 			try {
+				// Clean up existing map instance
 				if (mapInstance) {
 					mapInstance.destroy()
+					setMapInstance(null)
 				}
 
 				const mapElement = document.getElementById(mapId)
@@ -156,25 +160,25 @@ const YandexMap = ({
 					[latitude, longitude],
 					{
 						balloonContent: `
-							<div style="padding: 12px; max-width: 300px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-								<h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #1f2937;">${title}</h3>
-								<p style="margin: 0 0 12px 0; color: #6b7280; font-size: 14px; line-height: 1.4;">${address}</p>
-								<div style="display: flex; gap: 8px; flex-wrap: wrap;">
-									<a href="https://yandex.com/maps/?pt=${longitude},${latitude}&z=16&l=map" 
-									   target="_blank" 
-									   rel="noopener noreferrer"
-									   style="display: inline-flex; align-items: center; gap: 4px; color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 500; padding: 4px 8px; background: #eff6ff; border-radius: 4px; transition: background-color 0.2s;">
-										🗺️ Open in Yandex Maps
-									</a>
-									<a href="https://maps.google.com/?q=${latitude},${longitude}" 
-									   target="_blank" 
-									   rel="noopener noreferrer"
-									   style="display: inline-flex; align-items: center; gap: 4px; color: #059669; text-decoration: none; font-size: 13px; font-weight: 500; padding: 4px 8px; background: #ecfdf5; border-radius: 4px; transition: background-color 0.2s;">
-										🌍 Open in Google Maps
-									</a>
-								</div>
+						<div style="padding: 12px; max-width: 300px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+							<h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #1f2937;">${title}</h3>
+							<p style="margin: 0 0 12px 0; color: #6b7280; font-size: 14px; line-height: 1.4;">${address}</p>
+							<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+								<a href="https://yandex.com/maps/?pt=${longitude},${latitude}&z=16&l=map" 
+								   target="_blank" 
+								   rel="noopener noreferrer"
+								   style="display: inline-flex; align-items: center; gap: 4px; color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 500; padding: 4px 8px; background: #eff6ff; border-radius: 4px; transition: background-color 0.2s;">
+									🗺️ Open in Yandex Maps
+								</a>
+								<a href="https://maps.google.com/?q=${latitude},${longitude}" 
+								   target="_blank" 
+								   rel="noopener noreferrer"
+								   style="display: inline-flex; align-items: center; gap: 4px; color: #059669; text-decoration: none; font-size: 13px; font-weight: 500; padding: 4px 8px; background: #ecfdf5; border-radius: 4px; transition: background-color 0.2s;">
+									🌍 Open in Google Maps
+								</a>
 							</div>
-						`,
+						</div>
+					`,
 						hintContent: title,
 						iconCaption: title,
 					},
@@ -226,7 +230,20 @@ const YandexMap = ({
 				}
 			}
 		}
-	}, [latitude, longitude, address, title, isPopup, mapId, mapInstance])
+	}, [latitude, longitude, address, title, isPopup, mapId]) // REMOVED mapInstance from dependencies
+
+	// Also, you might want to create a separate useEffect for cleanup only:
+	useEffect(() => {
+		return () => {
+			if (mapInstance) {
+				try {
+					mapInstance.destroy()
+				} catch (error) {
+					console.error('Error destroying map:', error)
+				}
+			}
+		}
+	}, []) 
 
 	const handleGetDirections = () => {
 		const yandexUrl = `https://yandex.com/maps/?rtext=~${latitude},${longitude}&rtt=auto`
@@ -350,7 +367,7 @@ const YandexMap = ({
 	)
 }
 
-const API_BASE_URL = 'http://localhost:3000'
+const API_BASE_URL = 'https://realty-app-admin.vercel.app'
 
 function CurrencyDisplay({
 	amount,
@@ -1251,14 +1268,14 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 					<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
 						{/* Left Column (Images and Details) */}
 						<div className='lg:col-span-2'>
-							{/* Image Gallery */}
+							{/* Enhanced Image Gallery */}
 							<div className='bg-gray-900 rounded-lg overflow-hidden mb-6'>
 								<div className='relative h-[50vh] md:h-[60vh]'>
 									{property.images && property.images.length > 0 ? (
 										<>
 											{property.images[selectedImage].type === 'image' ? (
 												<div
-													className='relative w-full h-full cursor-pointer'
+													className='relative w-full h-full cursor-pointer group'
 													onClick={handleImageClick}
 												>
 													<Image
@@ -1270,13 +1287,19 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 														className='object-cover transition-all duration-700 group-hover:scale-110'
 														priority
 													/>
+													{/* Tap to view indicator for mobile */}
+													<div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center'>
+														<div className='opacity-0 group-hover:opacity-100 transition-opacity md:hidden bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium'>
+															Tap to view gallery
+														</div>
+													</div>
 												</div>
 											) : property.images[selectedImage].type === 'video' ? (
 												<div
-													className='w-full h-full bg-black flex items-center justify-center cursor-pointer relative'
+													className='w-full h-full bg-black flex items-center justify-center cursor-pointer relative group'
 													onClick={handleImageClick}
 												>
-													{/* Video thumbnail */}
+													{/* Video thumbnail with enhanced preview */}
 													{property.images[selectedImage].thumbnail_url ? (
 														<>
 															<Image
@@ -1287,10 +1310,15 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 																fill
 																className='object-cover'
 															/>
-															<div className='absolute inset-0 bg-black/30 flex items-center justify-center z-10'>
-																<div className='w-20 h-20 bg-white/90 rounded-full flex items-center justify-center'>
+															<div className='absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center z-10'>
+																<div className='bg-white/90 rounded-full p-4 group-hover:scale-110 transition-transform shadow-lg'>
 																	<Play className='w-10 h-10 text-gray-800 ml-1' />
 																</div>
+															</div>
+
+															{/* HD indicator */}
+															<div className='absolute top-4 left-4 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold'>
+																HD VIDEO
 															</div>
 														</>
 													) : (
@@ -1302,55 +1330,106 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 																className='w-full h-full object-contain'
 																muted
 																preload='metadata'
+																poster={`${getImageUrl(
+																	property.images[selectedImage].url
+																)}#t=1`}
 															>
 																Your browser does not support the video tag.
 															</video>
-															<div className='absolute inset-0 bg-black/30 flex items-center justify-center z-10'>
-																<div className='w-20 h-20 bg-white/90 rounded-full flex items-center justify-center'>
+															<div className='absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center z-10'>
+																<div className='bg-white/90 rounded-full p-4 group-hover:scale-110 transition-transform shadow-lg'>
 																	<Play className='w-10 h-10 text-gray-800 ml-1' />
 																</div>
 															</div>
+															{/* Video indicator for no thumbnail */}
+															<div className='absolute top-4 left-4 bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold'>
+																VIDEO
+															</div>
 														</>
 													)}
+													{/* Tap to play indicator for mobile */}
+													<div className='absolute bottom-16 left-1/2 transform -translate-x-1/2 md:hidden opacity-70'>
+														<div className='bg-black/60 text-white px-3 py-1 rounded-full text-xs'>
+															Tap to play
+														</div>
+													</div>
 												</div>
 											) : (
-												<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
+												<div
+													className='w-full h-full bg-gray-300 flex items-center justify-center cursor-pointer'
+													onClick={handleImageClick}
+												>
 													<span className='text-gray-500'>
 														Unsupported media type
 													</span>
 												</div>
 											)}
-											<div className='absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-30'></div>
 
-											{/* Navigation arrows */}
+											{/* Enhanced gradient overlay */}
+											<div className='absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50 pointer-events-none'></div>
+
+											{/* Enhanced Navigation arrows - larger for mobile */}
 											<button
-												onClick={prevImage}
-												className='absolute left-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-gray-800 shadow-lg transition-all'
+												onClick={e => {
+													e.stopPropagation()
+													prevImage()
+												}}
+												className='absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/80 hover:bg-white text-gray-800 shadow-lg transition-all z-20 touch-manipulation'
 												aria-label='Previous image'
 											>
-												<ChevronLeft className='w-6 h-6' />
+												<ChevronLeft className='w-6 h-6 md:w-6 md:h-6' />
 											</button>
 											<button
-												onClick={nextImage}
-												className='absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-gray-800 shadow-lg transition-all'
+												onClick={e => {
+													e.stopPropagation()
+													nextImage()
+												}}
+												className='absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/80 hover:bg-white text-gray-800 shadow-lg transition-all z-20 touch-manipulation'
 												aria-label='Next image'
 											>
-												<ChevronRight className='w-6 h-6' />
+												<ChevronRight className='w-6 h-6 md:w-6 md:h-6' />
 											</button>
 
-											{/* Image counter */}
-											<div className='absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm'>
-												{selectedImage + 1} / {property.images.length}
+											{/* Enhanced image counter */}
+											<div className='absolute bottom-4 right-4 bg-black/70 text-white px-3 py-2 rounded-full text-sm font-medium backdrop-blur-sm'>
+												<span className='font-bold'>{selectedImage + 1}</span>
+												<span className='mx-1 opacity-70'>/</span>
+												<span>{property.images.length}</span>
 											</div>
 
-											{/* View all button */}
+											{/* Enhanced View all button */}
 											{property.images.length > 1 && (
 												<button
-													onClick={() => setShowFullGallery(true)}
-													className='absolute bottom-4 left-4 bg-white text-gray-800 px-4 py-2 rounded-lg font-medium shadow-lg hover:bg-blue-50 transition-colors'
+													onClick={e => {
+														e.stopPropagation()
+														setShowFullGallery(true)
+													}}
+													className='absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-lg font-medium shadow-lg hover:bg-white transition-all duration-200 flex items-center space-x-2'
 												>
-													View all media
+													<svg
+														className='w-4 h-4'
+														fill='none'
+														stroke='currentColor'
+														viewBox='0 0 24 24'
+													>
+														<path
+															strokeLinecap='round'
+															strokeLinejoin='round'
+															strokeWidth={2}
+															d='M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z'
+														/>
+													</svg>
+													<span>View all media</span>
 												</button>
+											)}
+
+											{/* Mobile swipe indicator */}
+											{property.images.length > 1 && (
+												<div className='absolute bottom-16 left-1/2 transform -translate-x-1/2 md:hidden'>
+													<div className='bg-black/50 text-white px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm animate-pulse'>
+														← Swipe for more →
+													</div>
+												</div>
 											)}
 										</>
 									) : (
@@ -1360,50 +1439,106 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									)}
 								</div>
 
+								{/* Enhanced thumbnail strip - improved for mobile */}
 								{property.images && property.images.length > 1 && (
-									<div className='hidden md:flex overflow-x-auto py-4 px-4 gap-2 bg-white'>
-										{property.images.map((media, index) => (
-											<button
-												key={media.id}
-												onClick={() => setSelectedImage(index)}
-												className={`relative w-24 h-16 flex-shrink-0 rounded-md overflow-hidden transition-all ${
-													selectedImage === index
-														? 'ring-2 ring-blue-500 scale-105'
-														: 'opacity-70 hover:opacity-100'
-												}`}
-											>
-												{media.type === 'image' ? (
-													<Image
-														src={getImageUrl(media.url)}
-														alt={`${property.title} - ${index + 1}`}
-														fill
-														className='object-cover'
-													/>
-												) : media.type === 'video' ? (
-													<div className='w-full h-full bg-gray-800 flex items-center justify-center relative'>
-														<Play className='w-8 h-8 text-white absolute z-10' />
-														{media.thumbnail_url ? (
+									<div className='bg-white'>
+										{/* Mobile thumbnail strip */}
+										<div className='md:hidden overflow-x-auto py-3 px-4'>
+											<div className='flex gap-2 pb-1'>
+												{property.images.map((media, index) => (
+													<button
+														key={media.id}
+														onClick={() => setSelectedImage(index)}
+														className={`relative w-16 h-12 flex-shrink-0 rounded-md overflow-hidden transition-all touch-manipulation ${
+															selectedImage === index
+																? 'ring-2 ring-blue-500 scale-105'
+																: 'opacity-70 hover:opacity-100'
+														}`}
+													>
+														{media.type === 'image' ? (
 															<Image
-																src={getImageUrl(media.thumbnail_url)}
-																alt={`Video thumbnail ${index + 1}`}
+																src={getImageUrl(media.url)}
+																alt={`${property.title} - ${index + 1}`}
 																fill
-																className='object-cover opacity-70'
+																className='object-cover'
 															/>
+														) : media.type === 'video' ? (
+															<div className='w-full h-full bg-gray-800 flex items-center justify-center relative'>
+																<Play className='w-4 h-4 text-white absolute z-10' />
+																{media.thumbnail_url ? (
+																	<Image
+																		src={getImageUrl(media.thumbnail_url)}
+																		alt={`Video thumbnail ${index + 1}`}
+																		fill
+																		className='object-cover opacity-70'
+																	/>
+																) : (
+																	<div className='w-full h-full bg-gray-700 flex items-center justify-center'>
+																		<span className='text-xs text-white font-bold'>
+																			VID
+																		</span>
+																	</div>
+																)}
+															</div>
 														) : (
-															<div className='w-full h-full bg-gray-700 flex items-center justify-center'>
-																<span className='text-xs text-white'>
-																	Video
+															<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
+																<span className='text-xs text-gray-500'>
+																	FILE
 																</span>
 															</div>
 														)}
-													</div>
-												) : (
-													<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
-														<span className='text-xs text-gray-500'>File</span>
-													</div>
-												)}
-											</button>
-										))}
+													</button>
+												))}
+											</div>
+										</div>
+
+										{/* Desktop thumbnail strip */}
+										<div className='hidden md:flex overflow-x-auto py-4 px-4 gap-2'>
+											{property.images.map((media, index) => (
+												<button
+													key={media.id}
+													onClick={() => setSelectedImage(index)}
+													className={`relative w-24 h-16 flex-shrink-0 rounded-md overflow-hidden transition-all ${
+														selectedImage === index
+															? 'ring-2 ring-blue-500 scale-105'
+															: 'opacity-70 hover:opacity-100'
+													}`}
+												>
+													{media.type === 'image' ? (
+														<Image
+															src={getImageUrl(media.url)}
+															alt={`${property.title} - ${index + 1}`}
+															fill
+															className='object-cover'
+														/>
+													) : media.type === 'video' ? (
+														<div className='w-full h-full bg-gray-800 flex items-center justify-center relative'>
+															<Play className='w-6 h-6 text-white absolute z-10' />
+															{media.thumbnail_url ? (
+																<Image
+																	src={getImageUrl(media.thumbnail_url)}
+																	alt={`Video thumbnail ${index + 1}`}
+																	fill
+																	className='object-cover opacity-70'
+																/>
+															) : (
+																<div className='w-full h-full bg-gray-700 flex items-center justify-center'>
+																	<span className='text-xs text-white'>
+																		Video
+																	</span>
+																</div>
+															)}
+														</div>
+													) : (
+														<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
+															<span className='text-xs text-gray-500'>
+																File
+															</span>
+														</div>
+													)}
+												</button>
+											))}
+										</div>
 									</div>
 								)}
 							</div>
@@ -1788,68 +1923,106 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 				</div>
 			</div>
 
-			{/* Full Gallery Modal */}
+			{/* Enhanced Full Gallery Modal with better mobile support */}
 			{showFullGallery && property.images && (
 				<div className='fixed inset-0 bg-black z-50 overflow-y-auto'>
-					<div className='flex items-center justify-between p-4 bg-black bg-opacity-75 sticky top-0 z-10'>
-						<h3 className='text-xl font-medium text-white'>
-							All Media ({property.images.length})
-						</h3>
+					{/* Enhanced header */}
+					<div className='flex items-center justify-between p-4 bg-black/90 backdrop-blur-sm sticky top-0 z-10 border-b border-gray-800'>
+						<div className='flex items-center space-x-3'>
+							<h3 className='text-xl font-medium text-white'>All Media</h3>
+							<span className='bg-white/20 text-white px-2 py-1 rounded-full text-sm'>
+								{property.images.length} items
+							</span>
+						</div>
 						<button
 							onClick={() => setShowFullGallery(false)}
-							className='text-white hover:text-gray-300 p-2'
+							className='text-white hover:text-gray-300 p-2 rounded-full hover:bg-white/10 transition-colors'
 							aria-label='Close gallery'
 						>
 							<X className='w-6 h-6' />
 						</button>
 					</div>
 
-					<div className='max-w-5xl mx-auto p-4 space-y-4'>
+					{/* Enhanced media grid */}
+					<div className='max-w-6xl mx-auto p-4 space-y-6'>
 						{property.images.map((media, index) => (
 							<div
 								key={media.id}
-								className='bg-gray-900 rounded-lg overflow-hidden'
+								className='bg-gray-900 rounded-2xl overflow-hidden shadow-2xl'
 							>
-								<div className='relative h-[70vh]'>
+								{/* Media counter */}
+								<div className='bg-gray-800 px-4 py-2 flex items-center justify-between'>
+									<span className='text-white text-sm font-medium'>
+										{index + 1} of {property.images.length}
+									</span>
+									{media.type === 'video' && (
+										<span className='bg-red-500 text-white px-2 py-1 rounded text-xs font-bold'>
+											VIDEO
+										</span>
+									)}
+								</div>
+
+								<div className='relative'>
 									{media.type === 'image' ? (
-										<Image
-											src={getImageUrl(media.url)}
-											alt={`${property.title} - ${index + 1}`}
-											fill
-											className='object-contain'
-											priority={index === 0}
-										/>
+										<div className='relative h-[60vh] md:h-[70vh]'>
+											<Image
+												src={getImageUrl(media.url)}
+												alt={`${property.title} - ${index + 1}`}
+												fill
+												className='object-contain'
+												priority={index === 0}
+											/>
+										</div>
 									) : media.type === 'video' ? (
-										<div className='w-full h-full flex items-center justify-center p-4'>
+										<div className='relative h-[60vh] md:h-[70vh] flex items-center justify-center p-4'>
 											<video
 												src={getImageUrl(media.url)}
 												controls
-												className='max-w-full max-h-full object-contain'
+												className='max-w-full max-h-full object-contain rounded-lg'
 												poster={
 													media.thumbnail_url
 														? getImageUrl(media.thumbnail_url)
 														: undefined
 												}
-												style={{ maxHeight: '100%', maxWidth: '100%' }}
+												preload='metadata'
 											>
 												Your browser does not support the video tag.
 											</video>
 										</div>
 									) : (
-										<div className='w-full h-full bg-gray-300 flex items-center justify-center'>
-											<span className='text-gray-500'>
-												Unsupported media type
-											</span>
+										<div className='h-[60vh] bg-gray-300 flex items-center justify-center'>
+											<div className='text-center'>
+												<FileText className='w-16 h-16 text-gray-500 mx-auto mb-2' />
+												<span className='text-gray-500'>
+													Unsupported media type
+												</span>
+											</div>
 										</div>
 									)}
 								</div>
+
+								{/* Media caption */}
 								{media.caption && (
-									<div className='p-3 bg-black bg-opacity-75 text-white'>
-										<p>{media.caption}</p>
+									<div className='bg-gray-800 p-4 border-t border-gray-700'>
+										<p className='text-white text-sm leading-relaxed'>
+											{media.caption}
+										</p>
 									</div>
 								)}
 							</div>
 						))}
+					</div>
+
+					{/* Bottom navigation for mobile */}
+					<div className='md:hidden fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm p-4 border-t border-gray-800'>
+						<div className='flex items-center justify-center space-x-4'>
+							<button
+								onClick={() => setShowFullGallery(false)}
+								className='bg-white/20 text-white px-6 py-3 rounded-full font-medium hover:bg-white/30 transition-colors'
+							>
+								Close Gallery
+							</button>
+						</div>
 					</div>
 				</div>
 			)}

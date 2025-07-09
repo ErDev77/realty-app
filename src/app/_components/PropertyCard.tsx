@@ -1,7 +1,7 @@
-// PropertyCard.tsx - Enhanced status and property type with icons and non-automatic slider
+// PropertyCard.tsx - Complete enhanced version with touch slider and video thumbnails
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -53,12 +53,27 @@ export default function PropertyCard({
 	// State for manual image slider
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [isHovering, setIsHovering] = useState(false)
+	const [isDragging, setIsDragging] = useState(false)
+	const [startX, setStartX] = useState(0)
+	const [currentX, setCurrentX] = useState(0)
+	const [translateX, setTranslateX] = useState(0)
+	const [thumbnailLoaded, setThumbnailLoaded] = useState(false)
+	const [thumbnailError, setThumbnailError] = useState(false)
+	const sliderRef = useRef<HTMLDivElement>(null)
+	const videoRef = useRef<HTMLVideoElement>(null)
 
 	// Function to get full image URL
 	const getImageUrl = (path?: string) => {
 		if (!path) return '/api/placeholder/400/300'
 		if (path.startsWith('http')) return path
 		return `${API_BASE_URL}${path}`
+	}
+
+	// Helper function to format video duration
+	const formatDuration = (seconds: number) => {
+		const mins = Math.floor(seconds / 60)
+		const secs = Math.floor(seconds % 60)
+		return `${mins}:${secs.toString().padStart(2, '0')}`
 	}
 
 	// Get property type in current language with icons
@@ -178,6 +193,100 @@ export default function PropertyCard({
 		}
 	}
 
+	// Touch/Mouse handlers for drag functionality
+	const handleStart = (clientX: number) => {
+		if (!property.images || property.images.length <= 1) return
+		setIsDragging(true)
+		setStartX(clientX)
+		setCurrentX(clientX)
+	}
+
+	const handleMove = (clientX: number) => {
+		if (!isDragging || !property.images || property.images.length <= 1) return
+
+		const deltaX = clientX - startX
+		setCurrentX(clientX)
+		setTranslateX(deltaX)
+	}
+
+	const handleEnd = () => {
+		if (!isDragging || !property.images || property.images.length <= 1) return
+
+		setIsDragging(false)
+		const deltaX = currentX - startX
+		const threshold = 50 // Minimum distance to trigger slide
+
+		if (Math.abs(deltaX) > threshold) {
+			if (deltaX > 0) {
+				prevImage()
+			} else {
+				nextImage()
+			}
+		}
+
+		setTranslateX(0)
+	}
+
+	// Mouse events
+	const handleMouseDown = (e: React.MouseEvent) => {
+		e.preventDefault()
+		handleStart(e.clientX)
+	}
+
+	const handleMouseMove = (e: React.MouseEvent) => {
+		handleMove(e.clientX)
+	}
+
+	const handleMouseUp = () => {
+		handleEnd()
+	}
+
+	// Touch events
+	const handleTouchStart = (e: React.TouchEvent) => {
+		handleStart(e.touches[0].clientX)
+	}
+
+	const handleTouchMove = (e: React.TouchEvent) => {
+		e.preventDefault()
+		handleMove(e.touches[0].clientX)
+	}
+
+	const handleTouchEnd = () => {
+		handleEnd()
+	}
+
+	// Add global mouse events when dragging
+	useEffect(() => {
+		if (isDragging) {
+			const handleGlobalMouseMove = (e: MouseEvent) => handleMove(e.clientX)
+			const handleGlobalMouseUp = () => handleEnd()
+
+			document.addEventListener('mousemove', handleGlobalMouseMove)
+			document.addEventListener('mouseup', handleGlobalMouseUp)
+
+			return () => {
+				document.removeEventListener('mousemove', handleGlobalMouseMove)
+				document.removeEventListener('mouseup', handleGlobalMouseUp)
+			}
+		}
+	}, [isDragging, startX, currentX])
+
+	// Debug video thumbnails
+	useEffect(() => {
+		if (property.images) {
+			property.images.forEach((media, index) => {
+				if (media.type === 'video') {
+					console.log(`Video ${index}:`, {
+						id: media.id,
+						url: media.url,
+						thumbnail_url: media.thumbnail_url,
+						hasThumb: !!media.thumbnail_url,
+					})
+				}
+			})
+		}
+	}, [property])
+
 	const getTranslatedDistrictName = (
 		district: unknown | string | Record<string, undefined>,
 		language: string
@@ -197,11 +306,119 @@ export default function PropertyCard({
 		}
 
 		// Fallback to name property or empty string
-		if (district && typeof district === 'object' && 'name' in district) {
-			return (district as { name?: string }).name || ''
+		if (
+			typeof district === 'object' &&
+			district !== null &&
+			'name' in district &&
+			typeof (district as { name?: unknown }).name === 'string'
+		) {
+			return (district as { name: string }).name
+		} else {
+			return ''
 		}
-		return ''
 	}
+
+	// Enhanced video handling function
+	const handleVideoLoad = () => {
+		// Try to seek to 1 second for a better thumbnail frame
+		if (videoRef.current) {
+			videoRef.current.currentTime = 1
+		}
+	}
+
+	const renderMediaItem = (media: any, index: number) => {
+		if (media.type === 'video') {
+			return (
+				<div key={media.id || index} className='relative w-full h-full'>
+					{media.thumbnail_url && !thumbnailError ? (
+						<>
+							<Image
+								src={getImageUrl(media.thumbnail_url)}
+								alt={`${property.title} - Video ${index + 1}`}
+								fill
+								className='object-cover'
+								priority={index === 0 && variant === 'featured'}
+								onLoad={() => setThumbnailLoaded(true)}
+								onError={() => setThumbnailError(true)}
+							/>
+							{!thumbnailLoaded && (
+								<div className='absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center'>
+									<div className='text-gray-400 text-sm'>
+										Loading preview...
+									</div>
+								</div>
+							)}
+						</>
+					) : (
+						<>
+							{/* Fallback: Use video element with poster */}
+							<video
+								ref={videoRef}
+								className='w-full h-full object-cover'
+								preload='metadata'
+								muted
+								playsInline
+								onLoadedData={handleVideoLoad}
+								poster={`${getImageUrl(media.url)}#t=1`}
+							>
+								<source src={getImageUrl(media.url)} type='video/mp4' />
+							</video>
+
+							{/* Fallback loading state */}
+							<div className='absolute inset-0 bg-gray-200 flex items-center justify-center'>
+								<div className='text-center'>
+									<div className='w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2'>
+										<Play className='w-8 h-8 text-gray-500' />
+									</div>
+									<div className='text-gray-500 text-sm'>Video Preview</div>
+								</div>
+							</div>
+						</>
+					)}
+
+					{/* Play button overlay */}
+					<div className='absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors'>
+						<div className='bg-black/70 rounded-full p-4 backdrop-blur-sm hover:scale-110 transition-transform'>
+							<Play className='w-8 h-8 text-white ml-1' />
+						</div>
+					</div>
+
+					{/* Video indicators */}
+					<div className='absolute top-2 left-2 flex gap-2'>
+						{media.thumbnail_url && !thumbnailError ? (
+							<span className='bg-green-500 text-white px-2 py-1 rounded text-xs font-medium'>
+								HD Preview
+							</span>
+						) : (
+							<span className='bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium'>
+								Video
+							</span>
+						)}
+					</div>
+
+					{/* Duration if available */}
+					{media.duration && (
+						<div className='absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium'>
+							{formatDuration(media.duration)}
+						</div>
+					)}
+				</div>
+			)
+		} else {
+			// Regular image
+			return (
+				<Image
+					key={media.id || index}
+					src={getImageUrl(media.url)}
+					alt={`${property.title} - ${index + 1}`}
+					fill
+					className='object-cover'
+					priority={index === 0 && variant === 'featured'}
+				/>
+			)
+		}
+	}
+
 	// Get property type and status info
 	const propertyTypeInfo = getPropertyTypeInfo(property.property_type)
 	const statusInfo = getStatusInfo(property.status)
@@ -303,33 +520,39 @@ export default function PropertyCard({
 	return (
 		<Link href={`/${language}/properties/${property.custom_id}`}>
 			<div className='group bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 transform hover:-translate-y-2'>
-				{/* Image Section with Manual Slider */}
+				{/* Image Section with Touch/Drag Slider */}
 				<div
-					className='relative h-64 overflow-hidden'
+					ref={sliderRef}
+					className='relative h-64 overflow-hidden select-none'
 					onMouseEnter={() => setIsHovering(true)}
 					onMouseLeave={() => setIsHovering(false)}
+					onMouseDown={handleMouseDown}
+					onTouchStart={handleTouchStart}
+					onTouchMove={handleTouchMove}
+					onTouchEnd={handleTouchEnd}
+					style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
 				>
 					{property.images && property.images.length > 0 ? (
 						<>
-							<Image
-								src={getImageUrl(property.images[currentImageIndex]?.url)}
-								alt={property.title}
-								fill
-								className='object-cover transition-all duration-500 group-hover:scale-110'
-								priority={variant === 'featured'}
-							/>
+							{/* Image Container with drag transform */}
+							<div
+								className={`relative w-full h-full transition-all duration-500 group-hover:scale-110 ${
+									isDragging ? '' : 'transition-transform'
+								}`}
+								style={{
+									transform: isDragging
+										? `translateX(${translateX}px)`
+										: 'none',
+								}}
+							>
+								{renderMediaItem(
+									property.images[currentImageIndex],
+									currentImageIndex
+								)}
+							</div>
 
-							{/* Image/Video Type Indicator */}
-							{property.images[currentImageIndex]?.type === 'video' && (
-								<div className='absolute inset-0 flex items-center justify-center bg-black/20'>
-									<div className='w-16 h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm'>
-										<Play className='w-8 h-8 text-white ml-1' />
-									</div>
-								</div>
-							)}
-
-							{/* Manual Navigation Controls */}
-							{property.images.length > 1 && isHovering && (
+							{/* Desktop Navigation Controls */}
+							{property.images.length > 1 && isHovering && !isDragging && (
 								<>
 									<button
 										onClick={e => {
@@ -379,6 +602,15 @@ export default function PropertyCard({
 							{property.images.length > 1 && (
 								<div className='absolute top-3 right-3 bg-black/70 text-white px-2 py-1 rounded-lg text-xs font-medium backdrop-blur-sm'>
 									{currentImageIndex + 1}/{property.images.length}
+								</div>
+							)}
+
+							{/* Drag Indicator for Mobile */}
+							{property.images.length > 1 && (
+								<div className='absolute bottom-1 left-1/2 transform -translate-x-1/2 md:hidden'>
+									<div className='bg-black/50 text-white px-2 py-1 rounded text-xs'>
+										← Swipe →
+									</div>
 								</div>
 							)}
 						</>

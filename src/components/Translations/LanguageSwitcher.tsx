@@ -45,14 +45,17 @@ export default function LanguageSwitcher() {
 		<div className='relative'>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className='flex items-center space-x-2 px-3 py-2 rounded-4xl hover:bg-gray-100 transition-colors text-gray-700'
+				className='flex items-center space-x-2 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-700'
 				aria-label='Change language'
 			>
 				<Image
 					src={getFlagUrl(currentLanguage.flag)}
 					alt={currentLang}
+					width={40}
+					height={30}
 					className='w-6 h-4 rounded-sm object-cover'
 				/>
+
 				<ChevronDown
 					className={`w-3 h-3 transition-transform ${
 						isOpen ? 'rotate-180' : ''
@@ -67,7 +70,7 @@ export default function LanguageSwitcher() {
 						onClick={() => setIsOpen(false)}
 					/>
 
-					<div className='absolute top-full right-0 mt-2 w-20 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50'>
+					<div className='absolute top-full left-0 mt-2 w-20 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50'>
 						{languages.map(language => (
 							<button
 								key={language.code}
@@ -79,8 +82,11 @@ export default function LanguageSwitcher() {
 								<Image
 									src={getFlagUrl(language.flag)}
 									alt={language.code}
+									width={40}
+									height={30}
 									className='w-6 h-4 rounded-sm object-cover'
 								/>
+
 								{language.code === currentLang && (
 									<span className='text-blue-600 font-bold text-sm'>✓</span>
 								)}

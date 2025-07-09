@@ -141,6 +141,13 @@ const Header = () => {
 		}
 	}
 
+	const getMobileNavItemClass = (href: string) => {
+		const isActive = pathname.startsWith(href)
+		return isActive
+			? 'text-blue-600 bg-blue-50'
+			: 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+	}
+
 	return (
 		<header
 			className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -300,27 +307,19 @@ const Header = () => {
 			>
 				<div className='bg-white border-t border-gray-100 shadow-2xl'>
 					<div className='container mx-auto px-4 py-6 space-y-2'>
-						<div className='pb-4 mb-4 border-b border-gray-100'>
+						<div className='pb-4 mb-4 border-b border-gray-100 flex justify-start'>
 							<LanguageSwitcher />
 						</div>
 						{navItems.map((item, index) => {
 							const isActive = pathname.startsWith(item.href)
-							const baseClass =
-								'block px-4 py-3 rounded-xl transition-all duration-200 font-medium'
-							const activeClass = isScrolled
-								? 'text-blue-600 bg-blue-50'
-								: 'text-white bg-white/10'
-							const inactiveClass = isScrolled
-								? 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-								: 'text-white hover:text-blue-400 hover:bg-white/10'
 
 							return (
 								<div key={item.label} className='space-y-2'>
 									<Link
 										href={item.href}
-										className={`${baseClass} ${
-											isActive ? activeClass : inactiveClass
-										}`}
+										className={`block px-4 py-3 rounded-xl transition-all duration-200 font-medium ${getMobileNavItemClass(
+											item.href
+										)}`}
 										onClick={() => setIsMenuOpen(false)}
 										style={{ animationDelay: `${index * 100}ms` }}
 									>
@@ -339,12 +338,8 @@ const Header = () => {
 														href={dropdownItem.href}
 														className={`block px-4 py-2 text-sm rounded-lg transition-colors duration-200 ${
 															isSubActive
-																? isScrolled
-																	? 'text-blue-600 bg-blue-50'
-																	: 'text-white bg-white/10'
-																: isScrolled
-																? 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-																: 'text-white hover:text-blue-400 hover:bg-white/10'
+																? 'text-blue-600 bg-blue-50'
+																: 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
 														}`}
 														onClick={() => setIsMenuOpen(false)}
 														style={{
