@@ -31,7 +31,6 @@ export const generateMetaKeywords = (property: Property): string[] => {
 		'Chance Realty',
 	]
 
-	// Add property-specific keywords
 	if ('attributes' in property) {
 		if (
 			property.property_type === 'house' ||
@@ -43,12 +42,25 @@ export const generateMetaKeywords = (property: Property): string[] => {
 			)
 		}
 
-		if (property.attributes.area_sqft) {
-			keywords.push(`${property.attributes.area_sqft} sqft`)
+		if (
+			property.property_type === 'house' ||
+			property.property_type === 'apartment' ||
+			property.property_type === 'commercial'
+		) {
+			if ('area_sqft' in property.attributes && property.attributes.area_sqft) {
+				keywords.push(`${property.attributes.area_sqft} sqft`)
+			}
+		}
+
+		if (
+			property.property_type === 'land' &&
+			'area_acres' in property.attributes &&
+			property.attributes.area_acres
+		) {
+			keywords.push(`${property.attributes.area_acres} acres`)
 		}
 	}
 
-	// Add listing type variations
 	switch (property.listing_type) {
 		case 'sale':
 			keywords.push('for sale', 'buy', 'purchase')
@@ -71,7 +83,7 @@ export const generateImageAlt = (
 	const propertyType =
 		property.property_type.charAt(0).toUpperCase() +
 		property.property_type.slice(1)
-	const location = `${property.city?.name}, ${property.state?.name}`
+	const location = `${property.city?.name ?? ''}, ${property.state?.name ?? ''}`
 
 	let alt = `${propertyType} for ${property.listing_type} in ${location}`
 

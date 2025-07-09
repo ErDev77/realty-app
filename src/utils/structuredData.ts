@@ -78,7 +78,9 @@ export const generatePropertySchema = (property: Property) => {
 			price: property.price,
 			priceCurrency: property.currency || 'USD',
 			availability:
-				property.status === 'available'
+				property.status &&
+				'name' in property.status &&
+				property.status.name === 'available'
 					? 'https://schema.org/InStock'
 					: 'https://schema.org/OutOfStock',
 			priceSpecification: {
@@ -96,38 +98,50 @@ export const generatePropertySchema = (property: Property) => {
 				url: 'https://chancerealty.am',
 			},
 		},
-		floorSize:
-			'attributes' in property
-				? {
-						'@type': 'QuantitativeValue',
-						value:
-							property.attributes.area_sqft || property.attributes.area_acres,
-						unitCode: property.property_type === 'land' ? 'ACR' : 'FTK',
-				  }
-				: undefined,
 	}
 
-	// Add property-specific attributes
+	// Type-guarded floorSize per type
+	let floorSize
 	if (
 		property.property_type === 'house' ||
 		property.property_type === 'apartment'
 	) {
-		if ('attributes' in property) {
-			return {
-				...baseSchema,
-				'@type': property.property_type === 'house' ? 'House' : 'Apartment',
-				numberOfRooms: property.attributes.bedrooms,
-				numberOfBathroomsTotal: property.attributes.bathrooms,
-				floorSize: {
-					'@type': 'QuantitativeValue',
-					value: property.attributes.area_sqft,
-					unitCode: 'FTK',
-				},
-			}
+		floorSize = {
+			'@type': 'QuantitativeValue',
+			value: property.attributes.area_sqft,
+			unitCode: 'FTK',
+		}
+	} else if (property.property_type === 'commercial') {
+		floorSize = {
+			'@type': 'QuantitativeValue',
+			value: property.attributes.area_sqft,
+			unitCode: 'FTK',
+		}
+	} else if (property.property_type === 'land') {
+		floorSize = {
+			'@type': 'QuantitativeValue',
+			value: property.attributes.area_acres,
+			unitCode: 'ACR',
 		}
 	}
 
-	return baseSchema
+	const resultSchema: Record<string, unknown> = {
+		...baseSchema,
+		floorSize,
+	}
+
+	// Add property-type-specific schema extensions
+	if (
+		property.property_type === 'house' ||
+		property.property_type === 'apartment'
+	) {
+		resultSchema['@type'] =
+			property.property_type === 'house' ? 'House' : 'Apartment'
+		resultSchema.numberOfRooms = property.attributes.bedrooms
+		resultSchema.numberOfBathroomsTotal = property.attributes.bathrooms
+	}
+
+	return resultSchema
 }
 
 export const generateBreadcrumbSchema = (
