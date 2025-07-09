@@ -69,12 +69,6 @@ export default function PropertyCard({
 		return `${API_BASE_URL}${path}`
 	}
 
-	// Helper function to format video duration
-	const formatDuration = (seconds: number) => {
-		const mins = Math.floor(seconds / 60)
-		const secs = Math.floor(seconds % 60)
-		return `${mins}:${secs.toString().padStart(2, '0')}`
-	}
 
 	// Get property type in current language with icons
 	const getPropertyTypeInfo = (type: string) => {
