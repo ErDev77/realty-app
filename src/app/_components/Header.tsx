@@ -311,8 +311,6 @@ const Header = () => {
 							<LanguageSwitcher />
 						</div>
 						{navItems.map((item, index) => {
-							const isActive = pathname.startsWith(item.href)
-
 							return (
 								<div key={item.label} className='space-y-2'>
 									<Link

@@ -23,7 +23,7 @@ import {
 	AlertCircle,
 	Pause,
 } from 'lucide-react'
-import { Property, PropertyStatus } from '@/types/property'
+import { Property, PropertyMedia, PropertyStatus } from '@/types/property'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import {
@@ -233,13 +233,6 @@ export default function PropertyCard({
 		handleStart(e.clientX)
 	}
 
-	const handleMouseMove = (e: React.MouseEvent) => {
-		handleMove(e.clientX)
-	}
-
-	const handleMouseUp = () => {
-		handleEnd()
-	}
 
 	// Touch events
 	const handleTouchStart = (e: React.TouchEvent) => {
@@ -326,7 +319,7 @@ export default function PropertyCard({
 		}
 	}
 
-	const renderMediaItem = (media: any, index: number) => {
+	const renderMediaItem = (media: PropertyMedia, index: number) => {
 		if (media.type === 'video') {
 			return (
 				<div key={media.id || index} className='relative w-full h-full'>
@@ -395,13 +388,6 @@ export default function PropertyCard({
 							</span>
 						)}
 					</div>
-
-					{/* Duration if available */}
-					{media.duration && (
-						<div className='absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium'>
-							{formatDuration(media.duration)}
-						</div>
-					)}
 				</div>
 			)
 		} else {
