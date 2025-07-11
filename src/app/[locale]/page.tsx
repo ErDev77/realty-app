@@ -2,6 +2,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import PropertyCard from '../_components/PropertyCard'
 import { Property, PropertyType, ListingType, State, City, District } from '@/types/property'
 import { getCitiesByState, getDistrictsByState, getRecentProperties, getStates, getTranslatedCityName, getTranslatedField, getTranslatedStateName } from '@/services/propertyService'
@@ -784,10 +785,24 @@ export default function HomePage() {
 		return (
 			<div className='min-h-screen'>
 				{/* Hero Section */}
-				<div className='relative h-[600px] bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800'>
-					<div className='absolute inset-0 bg-black opacity-40'></div>
-					<div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent'></div>
-					<div className='relative h-full flex items-center'>
+				<div className='relative h-[600px]'>
+					{/* Фоновое изображение */}
+					<div className='absolute inset-0 z-0'>
+						<Image
+							src='/yerevan.jpg' 
+							alt='Hero background'
+							fill
+							className='object-cover object-center'
+							priority
+						/>
+					</div>
+
+					{/* Затемнение и градиенты */}
+					<div className='absolute inset-0 bg-black opacity-40 z-10'></div>
+					<div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10'></div>
+
+					{/* Контент */}
+					<div className='relative z-20 h-full flex items-center'>
 						<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
 							<div className='text-center text-white'>
 								<h1 className='text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg'>
@@ -797,7 +812,7 @@ export default function HomePage() {
 									{t.heroSubtitle}
 								</p>
 
-								{/* Simple Search Form */}
+								{/* Поисковая форма */}
 								<div className='max-w-3xl mx-auto bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-8 border border-white/20'>
 									<form
 										onSubmit={handleSimpleSearch}
@@ -822,7 +837,7 @@ export default function HomePage() {
 										</button>
 									</form>
 
-									{/* Advanced Search Toggle */}
+									{/* Кнопка Advanced Search */}
 									<button
 										onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
 										className='mt-4 sm:mt-6 text-blue-600 hover:text-blue-700 text-sm font-semibold flex items-center justify-center mx-auto group transition-colors'
@@ -842,7 +857,6 @@ export default function HomePage() {
 						</div>
 					</div>
 				</div>
-
 				{/* Advanced Search Section */}
 				<div
 					className={`bg-gradient-to-b from-gray-50 to-white border-b border-gray-200 transition-all duration-500 ease-in-out ${
@@ -1176,28 +1190,9 @@ export default function HomePage() {
 						</form>
 					</div>
 				</div>
-
 				{/* Recent Properties */}
 				<section className='py-20 bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 relative overflow-hidden'>
 					<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
-						<div className='text-center mb-16'>
-							<div className='inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-teal-600 rounded-3xl mb-6 shadow-2xl transform -rotate-3 hover:rotate-0 transition-transform duration-300'>
-								<div className='w-10 h-10 bg-white rounded-xl flex items-center justify-center'>
-									<span className='text-2xl'>🆕</span>
-								</div>
-							</div>
-							<h2 className='text-4xl md:text-5xl font-bold text-gray-900 mb-4'>
-								{t.recentProperties}
-							</h2>
-							<p className='mt-4 text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed'>
-								{t.recentDescription}
-							</p>
-							<div className='mt-6 inline-flex items-center space-x-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold'>
-								<div className='w-2 h-2 bg-green-500 rounded-full animate-pulse'></div>
-								<span>{t.updated}</span>
-							</div>
-						</div>
-
 						{loading ? (
 							<div className='flex justify-center items-center h-64'>
 								<div className='relative'>
@@ -1215,10 +1210,6 @@ export default function HomePage() {
 												className='group relative transform hover:-translate-y-2 transition-all duration-300'
 												style={{ animationDelay: `${index * 100}ms` }}
 											>
-												{/* "New" badge */}
-												<div className='absolute -top-2 -right-2 z-20 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform duration-300'>
-													{t.new}
-												</div>
 												<PropertyCard property={property} />
 											</div>
 										))}
@@ -1246,7 +1237,6 @@ export default function HomePage() {
 						</div>
 					</div>
 				</section>
-
 				{/* Property Types */}
 				<section className='py-20 bg-white relative overflow-hidden'>
 					<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
@@ -1326,7 +1316,6 @@ export default function HomePage() {
 						</div>
 					</div>
 				</section>
-
 				{/* Call to Action */}
 				<section className='py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden'>
 					<div className='absolute inset-0'>

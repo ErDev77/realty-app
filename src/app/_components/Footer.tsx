@@ -331,28 +331,6 @@ const Footer = () => {
 					</div>
 				</div>
 
-				{/* Stats */}
-				<div className='grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 p-8 bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-2xl border border-gray-700 cursor-pointer'>
-					{[
-						{ number: '645+', label: t.properties, icon: '🏠' },
-						{ number: '1,200+', label: t.happyClients, icon: '😊' },
-						{ number: '15+', label: t.yearsExperience, icon: '⭐' },
-						{ number: '95%', label: t.satisfactionRate, icon: '🎯' },
-					].map((stat, index) => (
-						<div key={index} className='text-center group'>
-							<div className='text-3xl mb-2 group-hover:scale-110 transition-transform duration-300'>
-								{stat.icon}
-							</div>
-							<div className='text-2xl md:text-3xl font-bold text-white mb-1 group-hover:text-blue-400 transition-colors duration-300'>
-								{stat.number}
-							</div>
-							<div className='text-gray-400 text-xs md:text-sm'>
-								{stat.label}
-							</div>
-						</div>
-					))}
-				</div>
-
 				{/* Bottom */}
 				<div className='flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-800'>
 					<p className='text-gray-400 text-sm mb-4 md:mb-0'>

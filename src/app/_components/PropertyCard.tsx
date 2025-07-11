@@ -611,14 +611,6 @@ export default function PropertyCard({
 
 					{/* Enhanced Badges */}
 					<div className='absolute top-3 left-3 flex flex-col gap-2'>
-						{/* Property Type Badge with Icon */}
-						<span
-							className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg bg-gradient-to-r ${propertyTypeInfo.color} flex items-center gap-1`}
-						>
-							<PropertyTypeIcon className='w-3 h-3' />
-							{propertyTypeInfo.label}
-						</span>
-
 						{/* Listing Type Badge */}
 						<span
 							className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${
@@ -722,7 +714,7 @@ export default function PropertyCard({
 
 					{/* Property ID and Stats */}
 					<div className='flex justify-between items-center pt-4 border-t border-gray-100'>
-						<span className='text-xs text-gray-500'>
+						<span className='text-sm text-gray-900 font-bold'>
 							ID: {property.custom_id}
 						</span>
 						<div className='flex items-center space-x-4 text-xs text-gray-500'>
