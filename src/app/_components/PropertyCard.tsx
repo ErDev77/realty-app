@@ -1,4 +1,4 @@
-// PropertyCard.tsx - Updated with exclusive badge and hidden filter
+// PropertyCard.tsx - Fixed hooks order
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
@@ -24,7 +24,15 @@ import {
 	Pause,
 	Crown, // Add Crown icon for exclusive
 } from 'lucide-react'
-import { ApartmentAttributes, CommercialAttributes, HouseAttributes, LandAttributes, Property, PropertyMedia, PropertyStatus } from '@/types/property'
+import {
+	ApartmentAttributes,
+	CommercialAttributes,
+	HouseAttributes,
+	LandAttributes,
+	Property,
+	PropertyMedia,
+	PropertyStatus,
+} from '@/types/property'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import {
@@ -51,12 +59,7 @@ export default function PropertyCard({
 	const t = useTranslations()
 	const { language } = useLanguage()
 
-	// Early return if property is hidden (should not render)
-	if (property.is_hidden) {
-		return null
-	}
-
-	// State for manual image slider
+	// ALL HOOKS MUST BE DECLARED FIRST - before any conditional logic
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [isHovering, setIsHovering] = useState(false)
 	const [isDragging, setIsDragging] = useState(false)
@@ -68,53 +71,32 @@ export default function PropertyCard({
 	const sliderRef = useRef<HTMLDivElement>(null)
 	const videoRef = useRef<HTMLVideoElement>(null)
 
+	// Add global mouse events when dragging
+	useEffect(() => {
+		if (isDragging) {
+			const handleGlobalMouseMove = (e: MouseEvent) => handleMove(e.clientX)
+			const handleGlobalMouseUp = () => handleEnd()
+
+			document.addEventListener('mousemove', handleGlobalMouseMove)
+			document.addEventListener('mouseup', handleGlobalMouseUp)
+
+			return () => {
+				document.removeEventListener('mousemove', handleGlobalMouseMove)
+				document.removeEventListener('mouseup', handleGlobalMouseUp)
+			}
+		}
+	}, [isDragging, startX, currentX])
+
+	// NOW we can do conditional rendering - after all hooks are declared
+	if (property.is_hidden) {
+		return null
+	}
+
 	// Function to get full image URL
 	const getImageUrl = (path?: string) => {
 		if (!path) return '/api/placeholder/400/300'
 		if (path.startsWith('http')) return path
 		return `${API_BASE_URL}${path}`
-	}
-
-	// Get property type in current language with icons
-	const getPropertyTypeInfo = (type: string) => {
-		const types = {
-			house: {
-				icon: Home,
-				label: language === 'hy' ? 'Տուն' : language === 'ru' ? 'Дом' : 'House',
-				color: 'from-blue-500 to-blue-600',
-			},
-			apartment: {
-				icon: Building2,
-				label:
-					language === 'hy'
-						? 'Բնակարան'
-						: language === 'ru'
-						? 'Квартира'
-						: 'Apartment',
-				color: 'from-emerald-500 to-emerald-600',
-			},
-			commercial: {
-				icon: Landmark,
-				label:
-					language === 'hy'
-						? 'Կոմերցիոն'
-						: language === 'ru'
-						? 'Коммерческая'
-						: 'Commercial',
-				color: 'from-purple-500 to-purple-600',
-			},
-			land: {
-				icon: Trees,
-				label:
-					language === 'hy'
-						? 'Հողատարածք'
-						: language === 'ru'
-						? 'Земельный участок'
-						: 'Land',
-				color: 'from-amber-500 to-amber-600',
-			},
-		}
-		return types[type as keyof typeof types] || types.house
 	}
 
 	// Get status info with icons and colors
@@ -245,22 +227,6 @@ export default function PropertyCard({
 	const handleTouchEnd = () => {
 		handleEnd()
 	}
-
-	// Add global mouse events when dragging
-	useEffect(() => {
-		if (isDragging) {
-			const handleGlobalMouseMove = (e: MouseEvent) => handleMove(e.clientX)
-			const handleGlobalMouseUp = () => handleEnd()
-
-			document.addEventListener('mousemove', handleGlobalMouseMove)
-			document.addEventListener('mouseup', handleGlobalMouseUp)
-
-			return () => {
-				document.removeEventListener('mousemove', handleGlobalMouseMove)
-				document.removeEventListener('mouseup', handleGlobalMouseUp)
-			}
-		}
-	}, [isDragging, startX, currentX])
 
 	const getTranslatedDistrictName = (
 		district: unknown | string | Record<string, undefined>,
@@ -433,7 +399,6 @@ export default function PropertyCard({
 		}
 	}
 
-	// Get property attributes display
 	// Get property attributes display - Fixed version
 	const renderPropertyAttributes = () => {
 		const attributeClass = variant === 'compact' ? 'text-xs' : 'text-sm'
