@@ -1,4 +1,4 @@
-// src/app/properties/PropertiesContent.tsx
+// PropertiesContent.tsx - Updated to filter hidden properties
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
@@ -27,6 +27,7 @@ import {
 	X,
 	Eye,
 	Calendar,
+	Crown, // Add Crown for exclusive filter
 } from 'lucide-react'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
@@ -40,8 +41,7 @@ type PropertyCardProps = {
 	variant?: 'default' | 'featured'
 }
 
-export default function PropertiesContent({
-}: PropertyCardProps) {
+export default function PropertiesContent({}: PropertyCardProps) {
 	const { language } = useLanguage()
 
 	const searchParams = useSearchParams()
@@ -56,6 +56,7 @@ export default function PropertiesContent({
 		'created_at'
 	)
 	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+	const [showExclusiveOnly, setShowExclusiveOnly] = useState(false) // Add exclusive filter
 
 	// Initialize filter from URL params
 	const [filter, setFilter] = useState<FilterType>(() => {
@@ -71,6 +72,7 @@ export default function PropertiesContent({
 		const city_id = searchParams.get('city_id')
 		const min_price = searchParams.get('min_price')
 		const max_price = searchParams.get('max_price')
+		const exclusive = searchParams.get('exclusive')
 
 		if (property_type)
 			initialFilter.property_type = property_type as PropertyType
@@ -79,6 +81,7 @@ export default function PropertiesContent({
 		if (city_id) initialFilter.city_id = parseInt(city_id)
 		if (min_price) initialFilter.min_price = parseFloat(min_price)
 		if (max_price) initialFilter.max_price = parseFloat(max_price)
+		if (exclusive === 'true') setShowExclusiveOnly(true)
 
 		return initialFilter
 	})
@@ -94,10 +97,8 @@ export default function PropertiesContent({
 		filter.district_id,
 		filter.min_price,
 		filter.max_price,
+		showExclusiveOnly, // Add exclusive filter dependency
 	])
-	
-
-	
 
 	const fetchProperties = useCallback(async () => {
 		setLoading(true)
@@ -109,6 +110,8 @@ export default function PropertiesContent({
 				page: currentPage,
 				sort_by: sortBy,
 				sort_order: sortOrder,
+				is_exclusive: showExclusiveOnly ? true : undefined, // Add exclusive filter
+				show_hidden: false, // Explicitly hide hidden properties
 			})
 
 			const data = await getProperties({
@@ -116,17 +119,27 @@ export default function PropertiesContent({
 				page: currentPage,
 				sort_by: sortBy,
 				sort_order: sortOrder,
-				limit: 50, // Increase limit to ensure we get more properties
+				limit: 50,
+				is_exclusive: showExclusiveOnly ? true : undefined, // Only show exclusive if filter is on
+				show_hidden: false, // Never show hidden properties in public view
 			})
 
 			console.log('Received properties data:', data)
 
 			if (data && Array.isArray(data) && data.length > 0) {
-				setProperties(data)
-				// Calculate total pages based on actual data length or assume more data exists
+				// Additional client-side filtering to ensure no hidden properties slip through
+				const visibleProperties = data.filter(property => !property.is_hidden)
+
+				// Apply exclusive filter if needed
+				const filteredProperties = showExclusiveOnly
+					? visibleProperties.filter(property => property.is_exclusive)
+					: visibleProperties
+
+				setProperties(filteredProperties)
+
 				const calculatedPages = Math.max(
 					1,
-					Math.ceil(data.length / (filter.limit || 12))
+					Math.ceil(filteredProperties.length / (filter.limit || 12))
 				)
 				setTotalPages(calculatedPages)
 			} else {
@@ -142,13 +155,11 @@ export default function PropertiesContent({
 		} finally {
 			setLoading(false)
 		}
-	}, [currentPage, filter, sortBy, sortOrder])
+	}, [currentPage, filter, sortBy, sortOrder, showExclusiveOnly])
 
 	useEffect(() => {
 		fetchProperties()
 	}, [fetchProperties])
-
-
 
 	const handleFilterChange = (newFilter: FilterType) => {
 		setFilter(newFilter)
@@ -168,15 +179,22 @@ export default function PropertiesContent({
 		setSortOrder(newSortOrder)
 		setCurrentPage(1)
 	}
+
+	const handleExclusiveToggle = () => {
+		setShowExclusiveOnly(!showExclusiveOnly)
+		setCurrentPage(1)
+	}
+
 	useEffect(() => {
 		fetchProperties()
 	}, [currentPage, sortBy, sortOrder])
 
-
 	const hasActiveFilters = () => {
-		return Object.keys(filter).some(
-			key =>
-				key !== 'page' && key !== 'limit' && filter[key as keyof FilterType]
+		return (
+			Object.keys(filter).some(
+				key =>
+					key !== 'page' && key !== 'limit' && filter[key as keyof FilterType]
+			) || showExclusiveOnly
 		)
 	}
 
@@ -185,11 +203,10 @@ export default function PropertiesContent({
 		if (filter.property_type) summary.push(filter.property_type)
 		if (filter.listing_type) summary.push(filter.listing_type.replace('_', ' '))
 		if (filter.min_price || filter.max_price) {
-			const priceRange = `$${filter.min_price || 0} - $${
-				filter.max_price || '∞'
-			}`
+			const priceRange = `${filter.min_price || 0} - ${filter.max_price || '∞'}`
 			summary.push(priceRange)
 		}
+		if (showExclusiveOnly) summary.push('Exclusive Only')
 		return summary.join(', ') || 'All properties'
 	}
 
@@ -283,12 +300,6 @@ export default function PropertiesContent({
 									{t('properties')}
 								</h1>
 							</div>
-							{/* <p className='text-xl text-gray-600 leading-relaxed'>
-								{loading
-									? 'Loading...'
-									: `${properties.length} ${t('propertiesFound')}`
-
-							</p> */}
 						</div>
 						{hasActiveFilters() && (
 							<div className='mt-2 flex items-center text-sm text-gray-500'>
@@ -301,15 +312,40 @@ export default function PropertiesContent({
 					</div>
 				</div>
 			</div>
+
 			{/* Controls Bar */}
 			<div className='bg-white border-b border-gray-100 shadow-sm'>
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
 					<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
-						{/* Left Controls */}
-
+						{/* Left Controls - Add Exclusive Filter */}
+						<div className='flex items-center gap-3'>
+							<button
+								onClick={handleExclusiveToggle}
+								className={`px-4 py-2 rounded-xl border-2 font-medium transition-all duration-200 flex items-center gap-2 ${
+									showExclusiveOnly
+										? 'border-red-300 bg-red-50 text-red-700 shadow-md'
+										: 'border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-sm'
+								}`}
+							>
+								<Crown className='w-4 h-4' />
+								<span className='text-sm'>
+									{language === 'hy'
+										? 'Միայն Էքսկլյուզիվ'
+										: language === 'ru'
+										? 'Только Эксклюзив'
+										: 'Exclusive Only'}
+								</span>
+								{showExclusiveOnly && (
+									<div className='w-4 h-4 bg-red-500 rounded-full flex items-center justify-center'>
+										<span className='text-white text-xs'>✓</span>
+									</div>
+								)}
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
+
 			{/* Main Content */}
 			<div className='max-w-7xl mx-auto py-8 sm:px-6 lg:px-8'>
 				<div className='px-4 sm:px-0'>
@@ -390,7 +426,15 @@ export default function PropertiesContent({
 								<h3 className='text-xl font-semibold text-gray-900 mb-2'>
 									{t('noPropertiesFound')}
 								</h3>
-
+								{showExclusiveOnly && (
+									<p className='text-gray-600 mb-4'>
+										{language === 'hy'
+											? 'Էքսկլյուզիվ հայտարարություններ չեն գտնվել'
+											: language === 'ru'
+											? 'Эксклюзивные объявления не найдены'
+											: 'No exclusive properties found'}
+									</p>
+								)}
 							</div>
 						) : (
 							<>
@@ -407,6 +451,18 @@ export default function PropertiesContent({
 											<div className='flex items-center text-sm text-blue-600'>
 												<Filter className='w-4 h-4 mr-1' />
 												<span>{t('filteredResults')}</span>
+											</div>
+										)}
+										{showExclusiveOnly && (
+											<div className='flex items-center text-sm text-red-600'>
+												<Crown className='w-4 h-4 mr-1' />
+												<span>
+													{language === 'hy'
+														? 'Միայն Էքսկլյուզիվ'
+														: language === 'ru'
+														? 'Только Эксклюзив'
+														: 'Exclusive Only'}
+												</span>
 											</div>
 										)}
 									</div>
@@ -464,7 +520,10 @@ export default function PropertiesContent({
 																	key={`${sort.key}-${order.key}`}
 																	onClick={() =>
 																		handleSortChange(
-																			sort.key as 'created_at' | 'price' | 'views',
+																			sort.key as
+																				| 'created_at'
+																				| 'price'
+																				| 'views',
 																			order.key as 'asc' | 'desc'
 																		)
 																	}
@@ -513,7 +572,6 @@ export default function PropertiesContent({
 								{/* Properties Display - Full Width Grid */}
 								{viewMode === 'grid' ? (
 									<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-										{' '}
 										{properties.map((property, index) => (
 											<div
 												key={property.id}
@@ -550,11 +608,27 @@ export default function PropertiesContent({
 																	<Home className='w-12 h-12 text-gray-400' />
 																</div>
 															)}
+															{/* Exclusive badge in list view */}
+															{property.is_exclusive && (
+																<div className='absolute top-2 left-2'>
+																	<span className='px-2 py-1 bg-red-600 text-white text-xs font-bold rounded-full flex items-center gap-1'>
+																		<Crown className='w-3 h-3' />
+																		{language === 'hy'
+																			? 'Էքսկլյուզիվ'
+																			: language === 'ru'
+																			? 'Эксклюзив'
+																			: 'Exclusive'}
+																	</span>
+																</div>
+															)}
 														</div>
 														<div className='md:w-2/3 p-6'>
 															<div className='flex justify-between items-start mb-2'>
-																<h3 className='text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors'>
+																<h3 className='text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-2'>
 																	{property.title}
+																	{property.is_exclusive && (
+																		<Crown className='w-4 h-4 text-red-600' />
+																	)}
 																</h3>
 																<span className='text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600'>
 																	ID: {property.custom_id}
@@ -654,6 +728,7 @@ export default function PropertiesContent({
 					</div>
 				</div>
 			</div>
+
 			{/* Add custom CSS for animations */}
 			<style jsx>{`
 				@keyframes fade-in {

@@ -11,9 +11,7 @@ import {
 	Clock,
 	Send,
 	MessageCircle,
-	Users,
 	CheckCircle,
-	Star,
 	ArrowRight,
 	HeadphonesIcon,
 	Shield,
@@ -117,38 +115,6 @@ const ContactClient = () => {
 		},
 	]
 
-
-
-
-	const features = [
-		{
-			icon: Shield,
-			title: language === 'hy' ? '100% Անվտանգ' : language === 'ru' ? '100% Безопасно' : '100% Secure',
-			description: language === 'hy' 
-				? 'Ձեր տեղեկությունները պաշտպանված են ընկերական մակարդակի անվտանգությամբ'
-				: language === 'ru'
-				? 'Ваша информация защищена с помощью безопасности корпоративного уровня'
-				: 'Your information is protected with enterprise-grade security',
-		},
-		{
-			icon: Zap,
-			title: language === 'hy' ? 'Արագ պատասխան' : language === 'ru' ? 'Быстрый ответ' : 'Quick Response',
-			description: language === 'hy'
-				? 'Մենք պատասխանում ենք բոլոր հարցումներին 2 ժամվա ընթացքում աշխատանքային օրերին'
-				: language === 'ru'
-				? 'Мы отвечаем на все запросы в течение 2 часов в рабочие дни'
-				: 'We respond to all inquiries within 2 hours during business days',
-		},
-		{
-			icon: Award,
-			title: language === 'hy' ? 'Փորձագետ խորհուրդ' : language === 'ru' ? 'Экспертный совет' : 'Expert Advice',
-			description: language === 'hy'
-				? 'Ստացեք մասնագիտական ուղղորդում մեր վկայավորված անշարժ գույքի փորձագետներից'
-				: language === 'ru'
-				? 'Получите профессиональную консультацию от наших сертифицированных экспертов по недвижимости'
-				: 'Get professional guidance from our certified real estate experts',
-		},
-	]
 
 	const stats = [
 		{ number: '10K+', label: t.happyClients, icon: '😊' },

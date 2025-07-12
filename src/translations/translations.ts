@@ -53,7 +53,7 @@ export const translations = {
 		floor: 'հարկ',
 		floors: 'հարկ',
 		sqft: 'քառ. մետր',
-		acres: 'ակր',
+		acres: 'քառ. մետր',
 		month: '/ամիս',
 		day: '/օր',
 
@@ -415,7 +415,7 @@ export const translations = {
 		floor: 'floor',
 		floors: 'floors',
 		sqft: 'sq meter',
-		acres: 'acres',
+		acres: 'sq meter',
 		month: '/month',
 		day: '/day',
 
@@ -760,7 +760,7 @@ export const translations = {
 		floor: 'этаж',
 		floors: 'этажей',
 		sqft: 'кв. м',
-		acres: 'акров',
+		acres: 'кв. м',
 		month: '/месяц',
 		day: '/день',
 

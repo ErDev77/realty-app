@@ -71,6 +71,9 @@ export interface BaseProperty {
 	features?: PropertyFeature[]
 	images?: PropertyMedia[]
 	status_info?: PropertyStatus
+
+	is_hidden: boolean
+	is_exclusive: boolean
 }
 
 export interface HouseAttributes {
@@ -150,6 +153,9 @@ export interface PropertyFilter {
 	area_sqft?: number
 	business_type?: string
 	area_acres?: number
+	is_hidden?: boolean
+	is_exclusive?: boolean
+	show_hidden?: boolean
 }
 
 // Extended property types with attributes

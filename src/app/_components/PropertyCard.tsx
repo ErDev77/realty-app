@@ -1,4 +1,4 @@
-// PropertyCard.tsx - Complete enhanced version with touch slider and video thumbnails
+// PropertyCard.tsx - Updated with exclusive badge and hidden filter
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
@@ -22,8 +22,9 @@ import {
 	ChevronRight,
 	AlertCircle,
 	Pause,
+	Crown, // Add Crown icon for exclusive
 } from 'lucide-react'
-import { Property, PropertyMedia, PropertyStatus } from '@/types/property'
+import { ApartmentAttributes, CommercialAttributes, HouseAttributes, LandAttributes, Property, PropertyMedia, PropertyStatus } from '@/types/property'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
 import {
@@ -50,6 +51,11 @@ export default function PropertyCard({
 	const t = useTranslations()
 	const { language } = useLanguage()
 
+	// Early return if property is hidden (should not render)
+	if (property.is_hidden) {
+		return null
+	}
+
 	// State for manual image slider
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [isHovering, setIsHovering] = useState(false)
@@ -68,7 +74,6 @@ export default function PropertyCard({
 		if (path.startsWith('http')) return path
 		return `${API_BASE_URL}${path}`
 	}
-
 
 	// Get property type in current language with icons
 	const getPropertyTypeInfo = (type: string) => {
@@ -208,7 +213,7 @@ export default function PropertyCard({
 
 		setIsDragging(false)
 		const deltaX = currentX - startX
-		const threshold = 50 // Minimum distance to trigger slide
+		const threshold = 50
 
 		if (Math.abs(deltaX) > threshold) {
 			if (deltaX > 0) {
@@ -226,7 +231,6 @@ export default function PropertyCard({
 		e.preventDefault()
 		handleStart(e.clientX)
 	}
-
 
 	// Touch events
 	const handleTouchStart = (e: React.TouchEvent) => {
@@ -258,32 +262,14 @@ export default function PropertyCard({
 		}
 	}, [isDragging, startX, currentX])
 
-	// Debug video thumbnails
-	useEffect(() => {
-		if (property.images) {
-			property.images.forEach((media, index) => {
-				if (media.type === 'video') {
-					console.log(`Video ${index}:`, {
-						id: media.id,
-						url: media.url,
-						thumbnail_url: media.thumbnail_url,
-						hasThumb: !!media.thumbnail_url,
-					})
-				}
-			})
-		}
-	}, [property])
-
 	const getTranslatedDistrictName = (
 		district: unknown | string | Record<string, undefined>,
 		language: string
 	): string => {
 		if (!district) return ''
 
-		// If it's already a string, return it
 		if (typeof district === 'string') return district
 
-		// If it has the expected structure, use getTranslatedField
 		if (district && typeof district === 'object' && 'name' in district) {
 			return getTranslatedField(
 				district as Record<string, undefined>,
@@ -292,17 +278,14 @@ export default function PropertyCard({
 			)
 		}
 
-		// ✅ FIX: Handle the case where district has name_hy, name_en, name_ru properties
 		if (typeof district === 'object' && district !== null) {
 			const districtObj = district as Record<string, unknown>
 
-			// Try language-specific name first
 			const langKey = `name_${language}` as keyof typeof districtObj
 			if (langKey in districtObj && typeof districtObj[langKey] === 'string') {
 				return districtObj[langKey] as string
 			}
 
-			// Fall back to 'name' property
 			if ('name' in districtObj && typeof districtObj.name === 'string') {
 				return districtObj.name
 			}
@@ -313,7 +296,6 @@ export default function PropertyCard({
 
 	// Enhanced video handling function
 	const handleVideoLoad = () => {
-		// Try to seek to 1 second for a better thumbnail frame
 		if (videoRef.current) {
 			videoRef.current.currentTime = 1
 		}
@@ -344,7 +326,6 @@ export default function PropertyCard({
 						</>
 					) : (
 						<>
-							{/* Fallback: Use video element with poster */}
 							<video
 								ref={videoRef}
 								className='w-full h-full object-cover'
@@ -357,7 +338,6 @@ export default function PropertyCard({
 								<source src={getImageUrl(media.url)} type='video/mp4' />
 							</video>
 
-							{/* Fallback loading state */}
 							<div className='absolute inset-0 bg-gray-200 flex items-center justify-center'>
 								<div className='text-center'>
 									<div className='w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2'>
@@ -369,14 +349,12 @@ export default function PropertyCard({
 						</>
 					)}
 
-					{/* Play button overlay */}
 					<div className='absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors'>
 						<div className='bg-black/70 rounded-full p-4 backdrop-blur-sm hover:scale-110 transition-transform'>
 							<Play className='w-8 h-8 text-white ml-1' />
 						</div>
 					</div>
 
-					{/* Video indicators */}
 					<div className='absolute top-2 left-2 flex gap-2'>
 						{media.thumbnail_url && !thumbnailError ? (
 							<span className='bg-green-500 text-white px-2 py-1 rounded text-xs font-medium'>
@@ -391,7 +369,6 @@ export default function PropertyCard({
 				</div>
 			)
 		} else {
-			// Regular image
 			return (
 				<Image
 					key={media.id || index}
@@ -446,35 +423,56 @@ export default function PropertyCard({
 		}
 	}
 
+	// Get exclusive label based on language
+	const getExclusiveLabel = () => {
+		switch (language) {
+			case 'hy':
+				return 'Էքսկլյուզիվ'
+			case 'ru':
+				return 'Эксклюзив'
+			default:
+				return 'Exclusive'
+		}
+	}
+
 	// Get property attributes display
+	// Get property attributes display - Fixed version
 	const renderPropertyAttributes = () => {
 		const attributeClass = variant === 'compact' ? 'text-xs' : 'text-sm'
 
 		switch (property.property_type) {
 			case 'house':
-			case 'apartment':
-				if ('attributes' in property) {
+				if ('attributes' in property && property.attributes) {
+					const houseAttrs = property.attributes as HouseAttributes
 					return (
 						<div
 							className={`flex items-center space-x-4 text-gray-600 ${attributeClass}`}
 						>
-							{property.attributes.bedrooms && (
+							{houseAttrs.bedrooms && (
 								<div className='flex items-center'>
 									<Bed className='w-4 h-4 mr-1 text-blue-500' />
-									<span>{property.attributes.bedrooms}</span>
+									<span>{houseAttrs.bedrooms}</span>
 								</div>
 							)}
-							{property.attributes.bathrooms && (
+							{houseAttrs.bathrooms && (
 								<div className='flex items-center'>
 									<Bath className='w-4 h-4 mr-1 text-blue-500' />
-									<span>{property.attributes.bathrooms}</span>
+									<span>{houseAttrs.bathrooms}</span>
 								</div>
 							)}
-							{property.attributes.area_sqft && (
+							{houseAttrs.area_sqft && (
 								<div className='flex items-center'>
 									<Maximize className='w-4 h-4 mr-1 text-blue-500' />
 									<span>
-										{property.attributes.area_sqft.toLocaleString()} {t.sqft}
+										{houseAttrs.area_sqft.toLocaleString()} {t.sqft}
+									</span>
+								</div>
+							)}
+							{houseAttrs.floors && (
+								<div className='flex items-center'>
+									<Building2 className='w-4 h-4 mr-1 text-blue-500' />
+									<span>
+										{houseAttrs.floors} {t.floors || 'floors'}
 									</span>
 								</div>
 							)}
@@ -483,22 +481,103 @@ export default function PropertyCard({
 				}
 				break
 
-			case 'land':
-				if ('attributes' in property && property.attributes.area_acres) {
+			case 'apartment':
+				if ('attributes' in property && property.attributes) {
+					const aptAttrs = property.attributes as ApartmentAttributes
 					return (
 						<div
 							className={`flex items-center space-x-4 text-gray-600 ${attributeClass}`}
 						>
-							<div className='flex items-center'>
-								<Maximize className='w-4 h-4 mr-1 text-blue-500' />
-								<span>
-									{property.attributes.area_acres} {t.acres}
-								</span>
-							</div>
+							{aptAttrs.bedrooms && (
+								<div className='flex items-center'>
+									<Bed className='w-4 h-4 mr-1 text-blue-500' />
+									<span>{aptAttrs.bedrooms}</span>
+								</div>
+							)}
+							{aptAttrs.bathrooms && (
+								<div className='flex items-center'>
+									<Bath className='w-4 h-4 mr-1 text-blue-500' />
+									<span>{aptAttrs.bathrooms}</span>
+								</div>
+							)}
+							{aptAttrs.area_sqft && (
+								<div className='flex items-center'>
+									<Maximize className='w-4 h-4 mr-1 text-blue-500' />
+									<span>
+										{aptAttrs.area_sqft.toLocaleString()} {t.sqft}
+									</span>
+								</div>
+							)}
+							{aptAttrs.floor && aptAttrs.total_floors && (
+								<div className='flex items-center'>
+									<Building2 className='w-4 h-4 mr-1 text-blue-500' />
+									<span>
+										{aptAttrs.floor}/{aptAttrs.total_floors}{' '}
+										{t.floor || 'floor'}
+									</span>
+								</div>
+							)}
 						</div>
 					)
 				}
 				break
+
+			case 'commercial':
+				if ('attributes' in property && property.attributes) {
+					const commercialAttrs = property.attributes as CommercialAttributes
+					return (
+						<div
+							className={`flex items-center space-x-4 text-gray-600 ${attributeClass}`}
+						>
+							{commercialAttrs.area_sqft && (
+								<div className='flex items-center'>
+									<Maximize className='w-4 h-4 mr-1 text-blue-500' />
+									<span>
+										{commercialAttrs.area_sqft.toLocaleString()} {t.sqft}
+									</span>
+								</div>
+							)}
+							{commercialAttrs.floors && (
+								<div className='flex items-center'>
+									<Building2 className='w-4 h-4 mr-1 text-blue-500' />
+									<span>
+										{commercialAttrs.floors} {t.floors || 'floors'}
+									</span>
+								</div>
+							)}
+							{commercialAttrs.business_type && (
+								<div className='flex items-center'>
+									<Landmark className='w-4 h-4 mr-1 text-blue-500' />
+									<span>{commercialAttrs.business_type}</span>
+								</div>
+							)}
+						</div>
+					)
+				}
+				break
+
+			case 'land':
+				if ('attributes' in property && property.attributes) {
+					const landAttrs = property.attributes as LandAttributes
+					return (
+						<div
+							className={`flex items-center space-x-4 text-gray-600 ${attributeClass}`}
+						>
+							{landAttrs.area_acres && (
+								<div className='flex items-center'>
+									<Trees className='w-4 h-4 mr-1 text-blue-500' />
+									<span>
+										{landAttrs.area_acres.toLocaleString()} {t.acres}
+									</span>
+								</div>
+							)}
+						</div>
+					)
+				}
+				break
+
+			default:
+				return null
 		}
 		return null
 	}
@@ -520,7 +599,6 @@ export default function PropertyCard({
 				>
 					{property.images && property.images.length > 0 ? (
 						<>
-							{/* Image Container with drag transform */}
 							<div
 								className={`relative w-full h-full transition-all duration-500 group-hover:scale-110 ${
 									isDragging ? '' : 'transition-transform'
@@ -611,6 +689,14 @@ export default function PropertyCard({
 
 					{/* Enhanced Badges */}
 					<div className='absolute top-3 left-3 flex flex-col gap-2'>
+						{/* Exclusive Badge - RED COLOR */}
+						{property.is_exclusive && (
+							<span className='px-3 py-1 rounded-full text-xs font-bold text-white bg-red-600 shadow-lg flex items-center gap-1 animate-pulse'>
+								<Crown className='w-3 h-3' />
+								{getExclusiveLabel()}
+							</span>
+						)}
+
 						{/* Listing Type Badge */}
 						<span
 							className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${
@@ -658,22 +744,27 @@ export default function PropertyCard({
 
 				{/* Content Section */}
 				<div className='p-6'>
-					{/* Title */}
-					<h3 className='font-bold text-gray-900 mb-3 text-lg group-hover:text-blue-600 transition-colors'>
-						{property.title.length > 25
-							? property.title.slice(0, 25) + '...'
-							: property.title}
-					</h3>
+					{/* Title with Exclusive indicator */}
+					<div className='flex items-center justify-between mb-3'>
+						<h3 className='font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors flex-1'>
+							{property.title.length > 25
+								? property.title.slice(0, 25) + '...'
+								: property.title}
+						</h3>
+						{property.is_exclusive && (
+							<div className='ml-2 flex-shrink-0'>
+								<Crown className='w-5 h-5 text-red-600' />
+							</div>
+						)}
+					</div>
 
 					{/* Location */}
 					<div className='flex items-center text-gray-600 mb-4'>
 						<MapPin className='w-4 h-4 mr-2 text-blue-500 flex-shrink-0' />
 						<div className='text-sm truncate'>
 							{(() => {
-								// ✅ FIX: Proper district/city/state rendering logic
 								if (property.state) {
 									if (property.district) {
-										// Show district + state for states that use districts (like Yerevan)
 										const districtName = getTranslatedDistrictName(
 											property.district,
 											language
@@ -684,7 +775,6 @@ export default function PropertyCard({
 										)
 										return `${districtName}, ${stateName}`
 									} else if (property.city) {
-										// Show city + state for states that use cities
 										const cityName = getTranslatedCityName(
 											property.city.name,
 											language
@@ -695,7 +785,6 @@ export default function PropertyCard({
 										)
 										return `${cityName}, ${stateName}`
 									} else {
-										// Just show state
 										return getTranslatedStateName(property.state.name, language)
 									}
 								}

@@ -1,6 +1,7 @@
+// services/propertyService.ts - Updated with hidden/exclusive filtering
 import { PropertyFilter } from '../types/property'
 
-const API_BASE_URL = 'https://realty-app-admin.vercel.app' // Update with your actual API base URL
+const API_BASE_URL = 'https://realty-app-admin.vercel.app'
 
 export function getCurrentLanguage(): 'hy' | 'en' | 'ru' {
 	if (typeof window !== 'undefined') {
@@ -20,7 +21,6 @@ export function getCurrentLanguage(): 'hy' | 'en' | 'ru' {
 
 	return 'hy' // Default to Armenian
 }
-  
 
 export async function getProperties(filter: PropertyFilter = {}) {
 	try {
@@ -48,9 +48,22 @@ export async function getProperties(filter: PropertyFilter = {}) {
 		if (filter.page) params.append('page', filter.page.toString())
 		if (filter.limit) params.append('limit', filter.limit.toString())
 
+		// ✅ NEW: Add visibility and exclusivity filters
+		if (filter.is_exclusive === true) {
+			params.append('exclusive', 'true')
+		}
+
+		// ✅ For public frontend, we never want to show hidden properties
+		// This is handled server-side, but we can also filter client-side as backup
+		if (filter.show_hidden === true) {
+			// Only admins should be able to see hidden properties
+			// For public frontend, this should always be false or undefined
+			console.warn('show_hidden should not be true in public frontend')
+		}
+
 		// Set default pagination with higher limits
 		if (!filter.page) params.append('page', '1')
-		if (!filter.limit) params.append('limit', '50') // Increased from 20 to 50
+		if (!filter.limit) params.append('limit', '50')
 
 		console.log(
 			`✅ Fetching from PUBLIC endpoint: ${API_BASE_URL}/api/public/properties?${params.toString()}`
@@ -79,13 +92,11 @@ export async function getProperties(filter: PropertyFilter = {}) {
 		const data = await response.json()
 		console.log('Raw API Response:', data)
 
-		// 🔧 FIX: Handle different API response formats more robustly
 		let properties = []
 
 		if (Array.isArray(data)) {
 			properties = data
 		} else if (data && typeof data === 'object') {
-			// Try different possible property arrays
 			if (Array.isArray(data.properties)) {
 				properties = data.properties
 			} else if (Array.isArray(data.data)) {
@@ -96,7 +107,6 @@ export async function getProperties(filter: PropertyFilter = {}) {
 				properties = data.items
 			} else {
 				console.warn('Unexpected API response format:', data)
-				// If it's a single property object, wrap it in an array
 				if (data.id || data.custom_id) {
 					properties = [data]
 				} else {
@@ -108,11 +118,29 @@ export async function getProperties(filter: PropertyFilter = {}) {
 			properties = []
 		}
 
-		console.log(`✅ Processed ${properties.length} properties`)
-		return properties
+		// ✅ NEW: Client-side filtering as backup for hidden properties
+		// The server should already filter these, but this ensures safety
+		const visibleProperties = properties.filter(property => {
+			// Never show hidden properties in public frontend
+			if (property.is_hidden === true) {
+				console.warn(`Filtered out hidden property: ${property.custom_id}`)
+				return false
+			}
+
+			// If exclusive filter is active, only show exclusive properties
+			if (filter.is_exclusive === true && property.is_exclusive !== true) {
+				return false
+			}
+
+			return true
+		})
+
+		console.log(
+			`✅ Processed ${visibleProperties.length} visible properties out of ${properties.length} total`
+		)
+		return visibleProperties
 	} catch (error) {
 		console.error('Error fetching properties:', error)
-		// Return empty array instead of throwing to prevent crashes
 		return []
 	}
 }
@@ -138,6 +166,14 @@ export async function getPropertyByCustomId(customId: string) {
 		}
 
 		const property = await response.json()
+
+		// ✅ NEW: Additional check for hidden properties
+		// The server should handle this, but double-check for safety
+		if (property.is_hidden === true) {
+			console.warn(`Property ${customId} is hidden, returning null`)
+			return null
+		}
+
 		return property
 	} catch (error) {
 		console.error('Error fetching property by custom ID:', error)
@@ -269,7 +305,7 @@ export async function getFeaturedProperties() {
 
 		console.log('Fetching featured properties...')
 		const response = await fetch(
-			`${API_BASE_URL}/api/public/properties?featured=true&limit=20&lang=${language}`, // Increased limit
+			`${API_BASE_URL}/api/public/properties?featured=true&limit=20&lang=${language}`,
 			{
 				method: 'GET',
 				headers: {
@@ -293,7 +329,6 @@ export async function getFeaturedProperties() {
 		const data = await response.json()
 		console.log('Featured properties raw response:', data)
 
-		// 🔧 FIX: Handle different API response formats
 		let properties = []
 		if (Array.isArray(data)) {
 			properties = data
@@ -313,8 +348,13 @@ export async function getFeaturedProperties() {
 			}
 		}
 
-		console.log(`✅ Received ${properties.length} featured properties`)
-		return properties
+		// ✅ NEW: Filter out hidden properties from featured
+		const visibleProperties = properties.filter(property => !property.is_hidden)
+
+		console.log(
+			`✅ Received ${visibleProperties.length} visible featured properties`
+		)
+		return visibleProperties
 	} catch (error) {
 		console.error('Error fetching featured properties:', error)
 		return []
@@ -351,7 +391,6 @@ export async function getRecentProperties(limit: number = 12) {
 		const data = await response.json()
 		console.log('Recent properties raw response:', data)
 
-		// 🔧 FIX: Handle different API response formats
 		let properties = []
 		if (Array.isArray(data)) {
 			properties = data
@@ -371,10 +410,80 @@ export async function getRecentProperties(limit: number = 12) {
 			}
 		}
 
-		console.log(`✅ Received ${properties.length} recent properties`)
-		return properties
+		// ✅ NEW: Filter out hidden properties from recent
+		const visibleProperties = properties.filter(property => !property.is_hidden)
+
+		console.log(
+			`✅ Received ${visibleProperties.length} visible recent properties`
+		)
+		return visibleProperties
 	} catch (error) {
 		console.error('Error fetching recent properties:', error)
+		return []
+	}
+}
+
+// ✅ NEW: Get exclusive properties
+export async function getExclusiveProperties(limit: number = 12) {
+	try {
+		const language = getCurrentLanguage()
+
+		console.log('Fetching exclusive properties...')
+		const response = await fetch(
+			`${API_BASE_URL}/api/public/properties?exclusive=true&limit=${limit}&lang=${language}`,
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+			}
+		)
+
+		console.log(`Exclusive properties response status: ${response.status}`)
+
+		if (!response.ok) {
+			console.error(
+				'Failed to fetch exclusive properties:',
+				response.status,
+				response.statusText
+			)
+			return []
+		}
+
+		const data = await response.json()
+		console.log('Exclusive properties raw response:', data)
+
+		let properties = []
+		if (Array.isArray(data)) {
+			properties = data
+		} else if (data && typeof data === 'object') {
+			if (Array.isArray(data.properties)) {
+				properties = data.properties
+			} else if (Array.isArray(data.data)) {
+				properties = data.data
+			} else if (Array.isArray(data.results)) {
+				properties = data.results
+			} else {
+				console.warn(
+					'Unexpected API response format for exclusive properties:',
+					data
+				)
+				properties = []
+			}
+		}
+
+		// ✅ Filter out hidden properties and ensure they're exclusive
+		const visibleExclusiveProperties = properties.filter(
+			property => !property.is_hidden && property.is_exclusive === true
+		)
+
+		console.log(
+			`✅ Received ${visibleExclusiveProperties.length} visible exclusive properties`
+		)
+		return visibleExclusiveProperties
+	} catch (error) {
+		console.error('Error fetching exclusive properties:', error)
 		return []
 	}
 }
@@ -401,13 +510,12 @@ export async function getPropertyStatuses() {
 	}
 }
 
+// Keep existing translation helper functions
 export function getTranslatedCityName(
 	cityName: string,
 	language: 'hy' | 'en' | 'ru'
 ): string {
-	// ✅ FIXED: Updated to match your actual database city names
 	const cityTranslations: Record<string, Record<string, string>> = {
-		// From your database: cities.json
 		Աշտարակ: { hy: 'Աշտարակ', en: 'Ashtarak', ru: 'Аштарак' },
 		Ապարան: { hy: 'Ապարան', en: 'Aparan', ru: 'Апаран' },
 		Թալին: { hy: 'Թալին', en: 'Talin', ru: 'Талин' },
@@ -446,7 +554,7 @@ export function getTranslatedCityName(
 		Ջերմուկ: { hy: 'Ջերմուկ', en: 'Jermuk', ru: 'Джермук' },
 		Երևան: { hy: 'Երևան', en: 'Yerevan', ru: 'Ереван' },
 
-		// ✅ ALSO SUPPORT: English variations for compatibility
+		// English variations for compatibility
 		Ashtarak: { hy: 'Աշտարակ', en: 'Ashtarak', ru: 'Аштарак' },
 		Aparan: { hy: 'Ապարան', en: 'Aparan', ru: 'Апаран' },
 		Talin: { hy: 'Թալին', en: 'Talin', ru: 'Талин' },
@@ -455,12 +563,12 @@ export function getTranslatedCityName(
 		Masis: { hy: 'Մասիս', en: 'Masis', ru: 'Масис' },
 		Armavir: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
 		Vagharshapat: { hy: 'Վաղարշապատ', en: 'Vagharshapat', ru: 'Вагаршапат' },
-		Ejmiadzin: { hy: 'Վաղարշապատ', en: 'Ejmiadzin', ru: 'Эчмиадзин' }, // Alternative name
+		Ejmiadzin: { hy: 'Վաղարշապատ', en: 'Ejmiadzin', ru: 'Эчмиадзин' },
 		Gavar: { hy: 'Գավառ', en: 'Gavar', ru: 'Гавар' },
 		Sevan: { hy: 'Սևան', en: 'Sevan', ru: 'Севан' },
 		Abovyan: { hy: 'Աբովյան', en: 'Abovyan', ru: 'Абовян' },
 		Hrazdan: { hy: 'Հրազդան', en: 'Hrazdan', ru: 'Раздан' },
-		Razdan: { hy: 'Հրազդան', en: 'Razdan', ru: 'Раздан' }, // Alternative name
+		Razdan: { hy: 'Հրազդան', en: 'Razdan', ru: 'Раздан' },
 		Vedi: { hy: 'Վեդի', en: 'Vedi', ru: 'Веди' },
 		Vardenis: { hy: 'Վարդենիս', en: 'Vardenis', ru: 'Варденис' },
 		Martuni: { hy: 'Մարտունի', en: 'Martuni', ru: 'Мартуни' },
@@ -495,9 +603,7 @@ export function getTranslatedStateName(
 	stateName: string,
 	language: 'hy' | 'en' | 'ru'
 ): string {
-	// ✅ FIXED: Updated to match your actual database state names
 	const stateTranslations: Record<string, Record<string, string>> = {
-		// From your database: states.json
 		Արագածոտն: { hy: 'Արագածոտն', en: 'Aragatsotn', ru: 'Арагацотн' },
 		Արարատ: { hy: 'Արարատ', en: 'Ararat', ru: 'Арарат' },
 		Արմավիր: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
@@ -510,7 +616,7 @@ export function getTranslatedStateName(
 		'Վայոց Ձոր': { hy: 'Վայոց Ձոր', en: 'Vayots Dzor', ru: 'Вайоц Дзор' },
 		Երևան: { hy: 'Երևան', en: 'Yerevan', ru: 'Ереван' },
 
-		// ✅ ALSO SUPPORT: English variations for compatibility
+		// English variations for compatibility
 		Aragatsotn: { hy: 'Արագածոտն', en: 'Aragatsotn', ru: 'Арагацотн' },
 		Ararat: { hy: 'Արարատ', en: 'Ararat', ru: 'Арарат' },
 		Armavir: { hy: 'Արմավիր', en: 'Armavir', ru: 'Армавир' },
@@ -526,12 +632,6 @@ export function getTranslatedStateName(
 
 	return stateTranslations[stateName]?.[language] || stateName
 }
-
-
-// In src/services/propertyService.ts
-// Replace the getTranslatedField function:
-
-
 
 export function getTranslatedField(
 	obj: Record<string, string | undefined>,
@@ -557,6 +657,7 @@ export function getTranslatedField(
 	// Fall back to original field
 	return obj[fieldName] || ''
 }
+
 // Export helper to check if translation exists
 export function hasTranslation(
 	obj: Record<string, string | undefined>,
