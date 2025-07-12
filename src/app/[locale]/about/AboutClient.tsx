@@ -6,7 +6,6 @@ import { motion } from 'framer-motion'
 import {
 	Home,
 	Users,
-	Target,
 	Heart,
 	Zap,
 	Shield,
@@ -17,16 +16,12 @@ import {
 	Building2,
 	UserCheck,
 	Calendar,
-	Phone,
-	MapPin,
 	HeartHandshake,
 } from 'lucide-react'
 import { useTranslations } from '@/translations/translations'
-import Link from 'next/link'
 
 const AboutClient = () => {
 	const t = useTranslations()
-	const [activeTab, setActiveTab] = useState('mission')
 
 	const stats = [
 		{

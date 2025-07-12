@@ -15,8 +15,6 @@ import {
 	ArrowRight,
 	HeadphonesIcon,
 	Shield,
-	Zap,
-	Award,
 } from 'lucide-react'
 import { useTranslations } from '@/translations/translations'
 import { useLanguage } from '@/context/LanguageContext'
