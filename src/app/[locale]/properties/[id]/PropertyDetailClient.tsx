@@ -47,6 +47,7 @@ import {
 	AlertCircle,
 	Clock,
 	XCircle,
+	Phone,
 } from 'lucide-react'
 
 import { RxHeight } from 'react-icons/rx'
@@ -373,10 +374,12 @@ function CurrencyDisplay({
 	amount,
 	originalCurrency,
 	listingType,
+	language = 'hy',
 }: {
 	amount: number
 	originalCurrency: string
 	listingType: string
+	language?: string
 }) {
 	const conversionOptions = useMemo(
 		() => ({
@@ -387,29 +390,30 @@ function CurrencyDisplay({
 		[]
 	)
 
+	const getRentalPeriodSuffix = (listingType: string, language: string) => {
+		switch (listingType) {
+			case 'rent':
+				return language === 'hy'
+					? '/ամիս'
+					: language === 'ru'
+					? '/месяц'
+					: '/month'
+			case 'daily_rent':
+				return language === 'hy' ? '/օր' : language === 'ru' ? '/день' : '/day'
+			default:
+				return ''
+		}
+	}
+
 	const { original, conversions, loading, error, refresh, isStale } =
 		useCurrencyConversion(amount, originalCurrency, conversionOptions)
 
 	const formatPriceWithSuffix = useCallback(
 		(formattedAmount: string, currency: string) => {
-			switch (listingType) {
-				case 'rent':
-					return currency === 'USD'
-						? `${formattedAmount}/month`
-						: currency === 'RUB'
-						? `${formattedAmount}/месяц`
-						: `${formattedAmount}/ամիս`
-				case 'daily_rent':
-					return currency === 'USD'
-						? `${formattedAmount}/day`
-						: currency === 'RUB'
-						? `${formattedAmount}/день`
-						: `${formattedAmount}/օր`
-				default:
-					return formattedAmount
-			}
+			const suffix = getRentalPeriodSuffix(listingType, language)
+			return suffix ? `${formattedAmount}${suffix}` : formattedAmount
 		},
-		[listingType]
+		[listingType, language]
 	)
 
 	const getCurrencyFlag = useCallback((currency: string) => {
@@ -557,9 +561,9 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 
 	const copyLinkToClipboard = useCallback(() => {
 		navigator.clipboard.writeText(window.location.href)
-		alert('Link copied to clipboard!')
+		alert(getLinkCopiedText(language))
 		setShowShareOptions(false)
-	}, [])
+	}, [language])
 
 
 	// Enhanced translation functions
@@ -1113,6 +1117,54 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 		return statusColors[statusStr.toLowerCase()] || statusColors.default
 	}
 
+	const getShareText = (language: string) => {
+		switch (language) {
+			case 'hy':
+				return 'Կիսվել'
+			case 'ru':
+				return 'Поделиться'
+			default:
+				return 'Share'
+		}
+	}
+
+	const getCopyLinkText = (language: string) => {
+		switch (language) {
+			case 'hy':
+				return 'Պատճենել հղումը'
+			case 'ru':
+				return 'Копировать ссылку'
+			default:
+				return 'Copy link'
+		}
+	}
+
+	const getLinkCopiedText = (language: string) => {
+		switch (language) {
+			case 'hy':
+				return 'Հղումը պատճենվել է!'
+			case 'ru':
+				return 'Ссылка скопирована!'
+			default:
+				return 'Link copied to clipboard!'
+		}
+	}
+
+	const getRentalPeriodSuffix = (listingType: string, language: string) => {
+		switch (listingType) {
+			case 'rent':
+				return language === 'hy'
+					? '/ամիս'
+					: language === 'ru'
+					? '/месяц'
+					: '/month'
+			case 'daily_rent':
+				return language === 'hy' ? '/օր' : language === 'ru' ? '/день' : '/day'
+			default:
+				return ''
+		}
+	}
+
 	const getListingTypeColor = (listingType: string) => {
 		return listingTypeColors[listingType] || listingTypeColors.default
 	}
@@ -1211,7 +1263,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												className='w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center'
 											>
 												<Copy className='w-4 h-4 mr-2' />
-												Copy link
+												{getCopyLinkText(language)}
 											</button>
 											<button
 												onClick={handleShare}
@@ -1219,7 +1271,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 												aria-label='Share property'
 											>
 												<Share2 className='w-5 h-5' />
-												Share
+												{getShareText(language)}
 											</button>
 										</div>
 									</div>
@@ -1630,7 +1682,7 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 									{/* Contact Button for Mobile */}
 									<div className='mt-6'>
 										<button className='w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'>
-											<Mail className='w-5 h-5 mr-2' />
+											<Phone className='w-5 h-5 mr-2' />
 											{t.contactAgent}
 										</button>
 									</div>
@@ -1841,10 +1893,13 @@ export default function PropertyDetailClient({}: PropertyDetailClientProps) {
 
 								{/* Contact Buttons */}
 								<div className='space-y-3 mb-6'>
-									<button className='w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'>
-										<Mail className='w-5 h-5 mr-2' />
+									<a
+										href='tel:+37441194646'
+										className='w-full block text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center'
+									>
+										<Phone className='w-5 h-5 mr-2' />
 										{t.contactAgent}
-									</button>
+									</a>
 								</div>
 
 								{/* Property Stats */}

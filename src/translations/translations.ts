@@ -207,8 +207,13 @@ export const translations = {
 
 		// About page
 		aboutTitle: 'Մեր մասին',
-		aboutSubtitle:
-			'Ավելի քան 15 տարի մենք օգնում ենք ընտանիքներին և բիզնեսներին գտնել իրենց համար իդեալական անշարժ գույքը Հայաստանում: Մեր նվիրվածությունը գերազանցությանը և նորարարությանը մեզ դարձրել է անշարժ գույքի ոլորտի ամենահուսալի անունը:',
+		aboutSubtitle: `Բարի գալուստ Շանս Ռիելթի
+Շանս Անշարժ գույքի ընկերությունը շուկայում գործելով ավելի, քան 10 տարի տրամադրում է բարձրորակ մասնագիտացված ծառայություններ։
+
+Մեր պրոֆեսիոնալ թիմը ցուցաբերում է անհատական մոտեցում յուրաքանչյուր հաճախորդի, տրամադրում է անհրաժեշտ խորհրդատվություն և ապահովում է գնորդ-վաճառող կողմերի իրավունքներ։
+
+Շանս Ռիելթի տարիների փորձ ունեցող պրոֆեսիոնալ թիմ է, որը մասնագիտացած է բնակարանների, տների, հողատարածքների և առևտրային տարածքների վաճառքի և վարձակալության ոլորտում։ Մենք աշխատում ենք մանրակրկիտ, թափանցիկ և արդյունավետ՝ յուրաքանչյուր հաճախորդին ապահովելով անհատական մոտեցում և բարձրակարգ ծառայություն։`,
+
 		ourMission: 'Մեր առաքելությունը',
 		ourVision: 'Մեր տեսլականը',
 		ourValues: 'Մեր արժեքները',
@@ -512,8 +517,13 @@ export const translations = {
 
 		// About page
 		aboutTitle: 'About Us',
-		aboutSubtitle:
-			'For over 15 years, we been helping families and businesses find their perfect properties in Armenia. Our commitment to excellence and innovation has made us the most trusted name in real estate.',
+		aboutSubtitle: `Welcome to Chance Realty
+Chance Realty has been operating in the market for over 10 years, providing high-quality specialized services.
+
+Our professional team offers an individual approach to every client, provides the necessary consultation, and ensures the rights of both buyers and sellers.
+
+Chance Realty is a team of experienced professionals specializing in the sale and rental of apartments, houses, land plots, and commercial spaces. We work thoroughly, transparently, and efficiently to deliver a personalized approach and top-quality service to every client.`,
+
 		ourMission: 'Our Mission',
 		ourVision: 'Our Vision',
 		ourValues: 'Our Values',
@@ -867,8 +877,13 @@ export const translations = {
 
 		// About page
 		aboutTitle: 'О нас',
-		aboutSubtitle:
-			'Более 15 лет мы помогаем семьям и компаниям находить идеальную недвижимость в Армении. Наша приверженность совершенству и инновациям сделала нас самым надежным именем в сфере недвижимости.',
+		aboutSubtitle: `Добро пожаловать в Chance Realty
+Компания Chance Realty, работающая на рынке более 10 лет, предоставляет высококачественные специализированные услуги.
+
+Наша профессиональная команда демонстрирует индивидуальный подход к каждому клиенту, предоставляет необходимую консультацию и защищает права сторон покупателя и продавца.
+
+Chance Realty — это команда профессионалов с многолетним опытом, специализирующаяся на продаже и аренде квартир, домов, земельных участков и коммерческих площадей. Мы работаем тщательно, прозрачно и эффективно, обеспечивая каждому клиенту индивидуальный подход и первоклассный сервис.`,
+
 		ourMission: 'Наша миссия',
 		ourVision: 'Наше видение',
 		ourValues: 'Наши ценности',

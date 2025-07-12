@@ -255,9 +255,8 @@ const ContactClient = () => {
 
 			{/* Main Contact Section */}
 			<div className='container mx-auto px-4 py-20'>
-				<div className='grid grid-cols-1 xl:grid-cols-3 gap-12 max-w-7xl mx-auto'>
-					{/* Contact Form */}
-					<div className='xl:col-span-2'>
+				<div className='min-h-screen flex items-center justify-center px-4'>
+					<div className='w-full max-w-3xl'>
 						<div className='bg-white rounded-3xl shadow-xl p-8 border border-gray-100'>
 							<div className='text-center mb-8'>
 								<div className='w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4'>
@@ -267,12 +266,11 @@ const ContactClient = () => {
 									{t.sendMessage}
 								</h2>
 								<p className='text-gray-600'>
-									{language === 'hy' 
+									{language === 'hy'
 										? 'Լրացրեք ստորև բերված ձևը և մենք կպատասխանենք ձեզ հնարավորինս արագ:'
 										: language === 'ru'
 										? 'Заполните форму ниже, и мы свяжемся с вами как можно скорее.'
-										: 'Fill out the form below and we\'ll get back to you as soon as possible.'
-									}
+										: "Fill out the form below and we'll get back to you as soon as possible."}
 								</p>
 							</div>
 
@@ -286,19 +284,33 @@ const ContactClient = () => {
 										<CheckCircle className='w-12 h-12 text-green-600' />
 									</div>
 									<h3 className='text-2xl font-bold text-green-600 mb-3'>
-										{language === 'hy' ? 'Հաղորդագրությունը հաջողությամբ ուղարկվեց!' : language === 'ru' ? 'Сообщение успешно отправлено!' : 'Message Sent Successfully!'}
+										{language === 'hy'
+											? 'Հաղորդագրությունը հաջողությամբ ուղարկվեց!'
+											: language === 'ru'
+											? 'Сообщение успешно отправлено!'
+											: 'Message Sent Successfully!'}
 									</h3>
-									<p className='text-gray-600 mb-6'>
-										{t.weWillRespond}
-									</p>
+									<p className='text-gray-600 mb-6'>{t.weWillRespond}</p>
 									<div className='flex items-center justify-center space-x-4 text-sm text-gray-500'>
 										<div className='flex items-center'>
 											<Clock className='w-4 h-4 mr-2' />
-											<span>{language === 'hy' ? 'Պատասխան 2 ժամվա ընթացքում' : language === 'ru' ? 'Ответ в течение 2 часов' : 'Response within 2 hours'}</span>
+											<span>
+												{language === 'hy'
+													? 'Պատասխան 2 ժամվա ընթացքում'
+													: language === 'ru'
+													? 'Ответ в течение 2 часов'
+													: 'Response within 2 hours'}
+											</span>
 										</div>
 										<div className='flex items-center'>
 											<HeadphonesIcon className='w-4 h-4 mr-2' />
-											<span>{language === 'hy' ? 'Փորձագետ խորհրդատվություն' : language === 'ru' ? 'Экспертная консультация' : 'Expert consultation'}</span>
+											<span>
+												{language === 'hy'
+													? 'Փորձագետ խորհրդատվություն'
+													: language === 'ru'
+													? 'Экспертная консультация'
+													: 'Expert consultation'}
+											</span>
 										</div>
 									</div>
 								</motion.div>
@@ -321,8 +333,14 @@ const ContactClient = () => {
 														? 'border-red-300 bg-red-50'
 														: 'border-gray-200 hover:border-gray-300'
 												}`}
-												placeholder={language === 'hy' ? 'Ջոն Դո' : language === 'ru' ? 'Иван Иванов' : 'John Doe'}
-												{...register('name', { required: language === 'hy' ? 'Անունը պարտադիր է' : language === 'ru' ? 'Имя обязательно' : 'Name is required' })}
+												{...register('name', {
+													required:
+														language === 'hy'
+															? 'Անունը պարտադիր է'
+															: language === 'ru'
+															? 'Имя обязательно'
+															: 'Name is required',
+												})}
 											/>
 											{errors.name && (
 												<motion.p
@@ -351,12 +369,22 @@ const ContactClient = () => {
 														? 'border-red-300 bg-red-50'
 														: 'border-gray-200 hover:border-gray-300'
 												}`}
-												placeholder='john.doe@example.com'
+								
 												{...register('email', {
-													required: language === 'hy' ? 'Էլ. փոստը պարտադիր է' : language === 'ru' ? 'Email обязателен' : 'Email is required',
+													required:
+														language === 'hy'
+															? 'Էլ. փոստը պարտադիր է'
+															: language === 'ru'
+															? 'Email обязателен'
+															: 'Email is required',
 													pattern: {
 														value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-														message: language === 'hy' ? 'Անվավեր էլ. փոստի հասցե' : language === 'ru' ? 'Неверный адрес электронной почты' : 'Invalid email address',
+														message:
+															language === 'hy'
+																? 'Անվավեր էլ. փոստի հասցե'
+																: language === 'ru'
+																? 'Неверный адрес электронной почты'
+																: 'Invalid email address',
 													},
 												})}
 											/>
@@ -385,7 +413,6 @@ const ContactClient = () => {
 												type='tel'
 												id='phone'
 												className='w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 hover:border-gray-300'
-												placeholder='+374 00 000 000'
 												{...register('phone')}
 											/>
 										</div>
@@ -399,7 +426,7 @@ const ContactClient = () => {
 											</label>
 											<select
 												id='propertyType'
-												className='w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 hover:border-gray-300 bg-white'
+												className='w-full px-4 text-gray-600 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 hover:border-gray-300 bg-white'
 												{...register('propertyType')}
 											>
 												<option value=''>{t.selectPropertyType}</option>
@@ -422,14 +449,25 @@ const ContactClient = () => {
 											<input
 												type='text'
 												id='subject'
-												className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 ${
+												className={`w-full text-gray-600 px-4 py-4 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 ${
 													errors.subject
 														? 'border-red-300 bg-red-50'
 														: 'border-gray-200 hover:border-gray-300'
 												}`}
-												placeholder={language === 'hy' ? 'Ինչպե՞ս կարող ենք օգնել ձեզ:' : language === 'ru' ? 'Как мы можем вам помочь?' : 'How can we help you?'}
+												placeholder={
+													language === 'hy'
+														? 'Ինչպե՞ս կարող ենք օգնել ձեզ:'
+														: language === 'ru'
+														? 'Как мы можем вам помочь?'
+														: 'How can we help you?'
+												}
 												{...register('subject', {
-													required: language === 'hy' ? 'Թեման պարտադիր է' : language === 'ru' ? 'Тема обязательна' : 'Subject is required',
+													required:
+														language === 'hy'
+															? 'Թեման պարտադիր է'
+															: language === 'ru'
+															? 'Тема обязательна'
+															: 'Subject is required',
 												})}
 											/>
 											{errors.subject && (
@@ -453,10 +491,16 @@ const ContactClient = () => {
 											</label>
 											<select
 												id='preferredContact'
-												className='w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 hover:border-gray-300 bg-white'
+												className='w-full text-gray-600 px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 hover:border-gray-300 bg-white'
 												{...register('preferredContact')}
 											>
-												<option value=''>{language === 'hy' ? 'Նախապատվություն չկա' : language === 'ru' ? 'Без предпочтений' : 'No preference'}</option>
+												<option value=''>
+													{language === 'hy'
+														? 'Նախապատվություն չկա'
+														: language === 'ru'
+														? 'Без предпочтений'
+														: 'No preference'}
+												</option>
 												<option value='email'>{t.email}</option>
 												<option value='phone'>{t.phone}</option>
 												<option value='whatsapp'>WhatsApp</option>
@@ -474,19 +518,25 @@ const ContactClient = () => {
 										<textarea
 											id='message'
 											rows={6}
-											className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 resize-none ${
+											className={`w-full px-4 text-gray-600 py-4 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 resize-none ${
 												errors.message
 													? 'border-red-300 bg-red-50'
 													: 'border-gray-200 hover:border-gray-300'
 											}`}
-											placeholder={language === 'hy' 
-												? 'Պատմեք մեզ ձեր գույքի կարիքների, հարցերի կամ թե ինչպես կարող ենք օգնել ձեզ...'
-												: language === 'ru'
-												? 'Расскажите нам о ваших потребностях в недвижимости, вопросах или о том, как мы можем вам помочь...'
-												: 'Tell us about your property needs, questions, or how we can assist you...'
+											placeholder={
+												language === 'hy'
+													? 'Պատմեք մեզ ձեր գույքի կարիքների, հարցերի կամ թե ինչպես կարող ենք օգնել ձեզ...'
+													: language === 'ru'
+													? 'Расскажите нам о ваших потребностях в недвижимости, вопросах или о том, как мы можем вам помочь...'
+													: 'Tell us about your property needs, questions, or how we can assist you...'
 											}
 											{...register('message', {
-												required: language === 'hy' ? 'Հաղորդագրությունը պարտադիր է' : language === 'ru' ? 'Сообщение обязательно' : 'Message is required',
+												required:
+													language === 'hy'
+														? 'Հաղորդագրությունը պարտադիր է'
+														: language === 'ru'
+														? 'Сообщение обязательно'
+														: 'Message is required',
 											})}
 										/>
 										{errors.message && (
@@ -525,7 +575,12 @@ const ContactClient = () => {
 											onClick={() => reset()}
 											className='px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors'
 										>
-											{t.clear} {language === 'hy' ? 'ձևը' : language === 'ru' ? 'форму' : 'Form'}
+											{t.clear}{' '}
+											{language === 'hy'
+												? ''
+												: language === 'ru'
+												? 'форму'
+												: 'Form'}
 										</button>
 									</div>
 
@@ -533,9 +588,7 @@ const ContactClient = () => {
 									<div className='bg-blue-50 rounded-xl p-4 border border-blue-200'>
 										<div className='flex items-center space-x-2 text-sm text-blue-800'>
 											<Shield className='w-4 h-4' />
-											<span className='font-medium'>
-												{t.secureInfo}
-											</span>
+											<span className='font-medium'>{t.secureInfo}</span>
 										</div>
 									</div>
 								</form>
@@ -553,16 +606,13 @@ const ContactClient = () => {
 							<div className='w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6'>
 								<MessageCircle className='w-8 h-8 text-white' />
 							</div>
-							<h2 className='text-4xl font-bold text-gray-900 mb-4'>
-								{t.faq}
-							</h2>
+							<h2 className='text-4xl font-bold text-gray-900 mb-4'>{t.faq}</h2>
 							<p className='text-xl text-gray-600'>
-								{language === 'hy' 
+								{language === 'hy'
 									? 'Գտեք պատասխաններ մեր ծառայությունների և աջակցության վերաբերյալ ընդհանուր հարցերի:'
 									: language === 'ru'
 									? 'Найдите ответы на общие вопросы о наших услугах и поддержке.'
-									: 'Find answers to common questions about our services and support.'
-								}
+									: 'Find answers to common questions about our services and support.'}
 							</p>
 						</div>
 
@@ -593,12 +643,11 @@ const ContactClient = () => {
 						{/* CTA after FAQ */}
 						<div className='text-center mt-12'>
 							<p className='text-gray-600 mb-6'>
-								{language === 'hy' 
+								{language === 'hy'
 									? 'Դեռ հարցեր ունե՞ք: Մենք այստեղ ենք օգնելու:'
 									: language === 'ru'
 									? 'Остались вопросы? Мы здесь, чтобы помочь!'
-									: 'Still have questions? We\'re here to help!'
-								}
+									: "Still have questions? We're here to help!"}
 							</p>
 							<div className='flex flex-col sm:flex-row gap-4 justify-center'>
 								<a
@@ -606,14 +655,22 @@ const ContactClient = () => {
 									className='inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold'
 								>
 									<Phone className='w-4 h-4 mr-2' />
-									{language === 'hy' ? 'Զանգահարել հիմա' : language === 'ru' ? 'Позвонить сейчас' : 'Call Us Now'}
+									{language === 'hy'
+										? 'Զանգահարել հիմա'
+										: language === 'ru'
+										? 'Позвонить сейчас'
+										: 'Call Us Now'}
 								</a>
 								<a
 									href='mailto:info@chancerealty.am'
 									className='inline-flex items-center px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-semibold'
 								>
 									<Mail className='w-4 h-4 mr-2' />
-									{language === 'hy' ? 'Ուղարկել էլ. նամակ' : language === 'ru' ? 'Отправить email' : 'Send Email'}
+									{language === 'hy'
+										? 'Ուղարկել էլ. նամակ'
+										: language === 'ru'
+										? 'Отправить email'
+										: 'Send Email'}
 								</a>
 							</div>
 						</div>

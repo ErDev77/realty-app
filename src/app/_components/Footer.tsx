@@ -88,13 +88,28 @@ const Footer = () => {
 								/>
 							</div>
 						</div>
-						<p className='text-gray-300 leading-relaxed'>
-							{language === 'hy'
-								? 'Գտեք ձեր երազանքի անշարժ գույքը մեզ հետ։ Մենք անշարժ գույքի որոնումը դարձնում ենք հեշտ և հաճելի։'
-								: language === 'ru'
-								? 'Найдите недвижимость вашей мечты с нами. Мы делаем поиск недвижимости простым и приятным.'
-								: 'Find your dream property with us. We make real estate search easy and enjoyable.'}
-						</p>
+						<div className='text-gray-300 leading-relaxed space-y-4'>
+							<p className='whitespace-pre-line'>
+								{language === 'hy'
+									? `Բարի գալուստ Շանս Ռիելթի Շանս Անշարժ գույքի ընկերությունը շուկայում գործելով ավելի, քան 10 տարի տրամադրում է բարձրորակ մասնագիտացված ծառայություններր...`
+									: language === 'ru'
+									? `Добро пожаловать в Chance Realty
+Компания Chance Realty, работающая на рынке более 10 лет, предоставляет высококачественные специализированные услуги...`
+									: `Welcome to Chance Realty
+Chance Realty has been operating in the market for over 10 years, providing high-quality specialized services...`}
+							</p>
+
+							<Link
+								href='/about'
+								className='inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow hover:shadow-lg'
+							>
+								{language === 'hy'
+									? 'Տեսնել ավելին...'
+									: language === 'ru'
+									? 'Посмотреть больше...'
+									: 'See more...'}
+							</Link>
+						</div>
 
 						{/* Social Media and Messaging Apps */}
 						<div className='flex flex-wrap gap-3'>
@@ -212,11 +227,16 @@ const Footer = () => {
 						</h3>
 						<ul className='space-y-3'>
 							{[
-								{ label: t.buy, href: `/${language}/properties?property_type=buy` },
-								{ label: t.rent, href: `/${language}/properties?property_type=rent` },
+								{
+									label: t.buy,
+									href: `/${language}/properties?property_type=buy`,
+								},
+								{
+									label: t.rent,
+									href: `/${language}/properties?property_type=rent`,
+								},
 								{ label: t.about, href: `/${language}/about` },
 								{ label: t.contact, href: `/${language}/contact` },
-
 							].map((link, index) => (
 								<li key={index}>
 									<Link

@@ -112,13 +112,12 @@ const AboutClient = () => {
 							</span>
 						</h1>
 
-						<p className='text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed mb-12'>
+						<p className='text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed whitespace-pre-line mb-12'>
 							{t.aboutSubtitle}
 						</p>
 					</motion.div>
 				</div>
 			</div>
-
 
 			{/* Company Stats */}
 			<div className='py-20'>
@@ -277,7 +276,6 @@ const AboutClient = () => {
 					</div>
 				</div>
 			</div>
-
 
 			{/* Custom Styles */}
 			<style jsx>{`

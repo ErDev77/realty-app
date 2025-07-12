@@ -546,7 +546,7 @@ export default function PropertyCard({
 	}
 
 	return (
-		<Link href={`/${language}/properties/${property.custom_id}`}>
+		<Link href={`/${language}/properties/${property.custom_id}`} target='_blank'>
 			<div className='group bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-500 transform hover:-translate-y-2'>
 				{/* Image Section with Touch/Drag Slider */}
 				<div
