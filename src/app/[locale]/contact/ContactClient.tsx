@@ -66,24 +66,36 @@ const ContactClient = () => {
 		}
 	}
 
+	const addressContact = {
+		icon: MapPin,
+		text:
+			language === 'hy'
+				? 'Մարգարյան 43, Երևան, Հայաստան'
+				: language === 'ru'
+				? 'Маргарян 43, Ереван, Армения'
+				: 'Margaryan 43, Yerevan, Armenia',
+
+		href: '#',
+	}
+
 	const contactMethods = [
 		{
 			icon: Phone,
 			title: language === 'hy' ? 'Զանգահարել մեզ' : language === 'ru' ? 'Позвонить нам' : 'Call Us',
-			details: '+374 00 000 000',
-			description: language === 'hy' ? 'Երկ-Ուրբ 8:00-ից 17:00-ը' : language === 'ru' ? 'Пн-Пт с 8:00 до 17:00' : 'Mon-Fri from 8am to 5pm',
+			details: '+374 41 194 646',
+			description: language === 'hy' ? 'Երկ-Շաբ 10:00-ից 20:00-ը' : language === 'ru' ? 'Пн-Сб с 10:00 до 20:00' : 'Mon-Sat from 10am to 8pm',
 			color: 'blue',
 			gradient: 'from-blue-500 to-blue-600',
-			action: 'tel:+37400000000',
+			action: 'tel:+37441194646',
 		},
 		{
 			icon: Mail,
 			title: language === 'hy' ? 'Էլ. նամակ ուղարկել' : language === 'ru' ? 'Написать нам' : 'Email Us',
-			details: 'info@chancerealty.am',
+			details: 'chancerealty4646@gmail.com',
 			description: language === 'hy' ? 'Օնլայն աջակցություն' : language === 'ru' ? 'Онлайн поддержка' : 'Online support',
 			color: 'green',
 			gradient: 'from-green-500 to-emerald-600',
-			action: 'mailto:info@chancerealty.am',
+			action: 'mailto:chancerealty4646@gmail.com',
 		},
 		{
 			icon: MessageCircle,
@@ -97,13 +109,16 @@ const ContactClient = () => {
 		{
 			icon: MapPin,
 			title: language === 'hy' ? 'Այցելել մեզ' : language === 'ru' ? 'Посетить нас' : 'Visit Us',
-			details: language === 'hy' ? 'Երևան, Հայաստան' : language === 'ru' ? 'Ереван, Армения' : 'Yerevan, Armenia',
+			details: addressContact.text,
 			description: language === 'hy' ? 'Եկեք ողջունեք մեզ' : language === 'ru' ? 'Приходите поздороваться' : 'Come say hello',
 			color: 'orange',
 			gradient: 'from-orange-500 to-red-500',
 			action: '#',
 		},
 	]
+
+
+
 
 	const features = [
 		{
@@ -277,106 +292,6 @@ const ContactClient = () => {
 			{/* Main Contact Section */}
 			<div className='container mx-auto px-4 py-20'>
 				<div className='grid grid-cols-1 xl:grid-cols-3 gap-12 max-w-7xl mx-auto'>
-					{/* Contact Information */}
-					<div className='xl:col-span-1'>
-						<div className='bg-white rounded-3xl shadow-xl p-8 border border-gray-100 sticky top-8'>
-							<div className='text-center mb-8'>
-								<div className='w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4'>
-									<Users className='w-8 h-8 text-white' />
-								</div>
-								<h2 className='text-2xl font-bold text-gray-900 mb-2'>
-									{t.getInTouch}
-								</h2>
-								<p className='text-gray-600'>
-									{language === 'hy' 
-										? 'Մենք կցանկանայինք լսել ձեզանից: Մեր թիմը միշտ այստեղ է օգնելու:'
-										: language === 'ru'
-										? 'Мы хотели бы услышать от вас. Наша команда всегда здесь, чтобы помочь.'
-										: "We'd love to hear from you. Our team is always here to help."
-									}
-								</p>
-							</div>
-
-							<div className='space-y-6 mb-8'>
-								{[
-									{
-										icon: MapPin,
-										title: t.ourLocation,
-										details: language === 'hy' ? 'Երևան, Հայաստան' : language === 'ru' ? 'Ереван, Армения' : 'Yerevan, Armenia',
-										description: language === 'hy' ? 'Կենտրոնական գործարար թաղամաս' : language === 'ru' ? 'Центральный деловой район' : 'Central Business District',
-										color: 'blue',
-									},
-									{
-										icon: Phone,
-										title: t.phone,
-										details: '+374 00 000 000',
-										description: t.businessHours + ': 9:00 AM - 6:00 PM',
-										color: 'green',
-									},
-									{
-										icon: Mail,
-										title: t.email,
-										details: 'info@chancerealty.am',
-										description: '24/7 ' + (language === 'hy' ? 'Օնլայն աջակցություն' : language === 'ru' ? 'Онлайн поддержка' : 'Online Support'),
-										color: 'purple',
-									},
-									{
-										icon: Clock,
-										title: t.officeHours,
-										details: language === 'hy' ? 'Երկուշաբթի - Ուրբաթ' : language === 'ru' ? 'Понедельник - Пятница' : 'Monday - Friday',
-										description: '9:00 AM - 6:00 PM',
-										color: 'orange',
-									},
-								].map((item, index) => (
-									<div
-										key={index}
-										className='group flex items-start p-4 hover:bg-gray-50 rounded-xl transition-colors'
-									>
-										<div
-											className={`p-3 bg-${item.color}-100 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-200`}
-										>
-											<item.icon className={`h-5 w-5 text-${item.color}-600`} />
-										</div>
-										<div className='flex-1'>
-											<h3 className='font-semibold text-gray-900 mb-1'>
-												{item.title}
-											</h3>
-											<p className='text-gray-700 font-medium'>
-												{item.details}
-											</p>
-											<p className='text-gray-500 text-sm'>
-												{item.description}
-											</p>
-										</div>
-									</div>
-								))}
-							</div>
-
-							{/* Features */}
-							<div className='space-y-4'>
-								<h3 className='font-semibold text-gray-900 mb-4 flex items-center'>
-									<Star className='w-4 h-4 mr-2 text-yellow-500' />
-									{t.whyChooseUs}
-								</h3>
-								{features.map((feature, index) => (
-									<div key={index} className='flex items-start space-x-3'>
-										<div className='p-2 bg-blue-100 rounded-lg'>
-											<feature.icon className='w-4 h-4 text-blue-600' />
-										</div>
-										<div>
-											<h4 className='font-medium text-gray-900 text-sm'>
-												{feature.title}
-											</h4>
-											<p className='text-gray-600 text-xs'>
-												{feature.description}
-											</p>
-										</div>
-									</div>
-								))}
-							</div>
-						</div>
-					</div>
-
 					{/* Contact Form */}
 					<div className='xl:col-span-2'>
 						<div className='bg-white rounded-3xl shadow-xl p-8 border border-gray-100'>
